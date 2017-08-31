@@ -1,33 +1,38 @@
 package net.fcpsschools._1685666._1.lab._1_interface;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
-public class ArrayBasedPoly implements Polynomials {
-
+public class ArrayBasedPoly extends AbstractPolynomials {
     public static void main(String[] args) {
-        Polynomials polynomial = new ArrayBasedPoly(new double[0]);
-        System.out.println(PolynomialsFormatter.format(polynomial));
-        System.out.println(polynomial.evaluatedForX(Double.POSITIVE_INFINITY));
+        Polynomials polynomial = new ArrayBasedPoly(-12, 11, 10, -9, 8, 7, 6.5, 0, 4, -3.1, 2);
+        System.out.println(polynomial);
+        System.out.println(polynomial.getDerivative());
+        System.out.println(polynomial.evaluatedForX(4));
+        System.out.println(new ArrayBasedPoly(0));
     }
 
     private double[] components = {0};
 
     /**
-     * Constructs a polynomial
+     * Constructs an array based polynomial.
      *
      * @param components coefficients in natural order, must include 0s. For 2x^2 - 4, use 2, 0, -4.
      */
     public ArrayBasedPoly(double... components) {
-        int length;
-        if (components == null || (length = components.length) == 0) return;
-        this.components = new double[length];
-        for (int i = 0; i < length; i++) {
-            double c = components[length - 1 - i];
-            if (Double.isNaN(c)) throw new ArithmeticException("Not a number");
+        if (components == null || components.length == 0) return;
+        if (components.length == 1) {
+            this.components[0] = components[0];
+            return;
+        }
+
+        int offset = 0;
+        while (components[offset] == 0) offset++;
+        this.components = new double[components.length - offset];
+        for (int i = 0; i < this.components.length; i++) {
+            double c = components[components.length - 1 - i];
+            if (Double.isNaN(c))
+                throw new IllegalArgumentException("Coefficient of exponent " + i + " is not a number");
             this.components[i] = c;
         }
     }
-
 
     @Override
     public int getDegree() {
@@ -36,39 +41,11 @@ public class ArrayBasedPoly implements Polynomials {
 
     @Override
     public double getCoefficientForExponent(int exponent) {
-        int degree = getDegree();
-        return exponent < 0 || exponent > degree ? 0 : components[exponent];
-    }
-
-    @Override
-    public double evaluatedForX(double x) {
-        if (getDegree() == 0) return components[0];
-        if (Double.isNaN(x)) return Double.NaN;
-
-        INFINITE_CHECK:
-        if (Double.isInfinite(x)) {
-            double sign = hasSameSign();
-            if (sign == 0) throw new IllegalStateException();
-            if (Double.isNaN(sign)) return Double.NaN;
-            return sign * x;
+        try {
+            return components[exponent];
+        } catch (Exception ignored) {
+            return 0;
         }
-
-        throw new NotImplementedException();
-    }
-
-    private double hasSameSign() {
-        double sign = 0;
-        for (double c : components) {
-            if (c == 0) continue;
-            double indicator = c * Double.POSITIVE_INFINITY;
-            if (indicator == Double.POSITIVE_INFINITY)
-                if (sign == 0) sign = Double.POSITIVE_INFINITY;
-                else if (sign == Double.NEGATIVE_INFINITY) return Double.NaN;
-            if (indicator == Double.NEGATIVE_INFINITY)
-                if (sign == 0) sign = Double.NEGATIVE_INFINITY;
-                else if (sign == Double.POSITIVE_INFINITY) return Double.NaN;
-        }
-        return sign;
     }
 
     @Override
@@ -83,6 +60,13 @@ public class ArrayBasedPoly implements Polynomials {
 
     @Override
     public Polynomials getDerivative() {
-        return null;
+        int degree = getDegree();
+        double[] coefficientsOfDerivative = new double[degree];
+        for (int i = 1; i <= degree; i++)
+            coefficientsOfDerivative[i - 1] = getCoefficientForExponent(i) * i;
+
+        ArrayBasedPoly derivative = new ArrayBasedPoly();
+        derivative.components = coefficientsOfDerivative;
+        return derivative;
     }
 }

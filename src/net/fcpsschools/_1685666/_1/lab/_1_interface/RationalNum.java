@@ -21,18 +21,17 @@ public class RationalNum {
         if (denominator == 0) {
             throw new ArithmeticException("/ by zero");
         }
-        if (denominator < 0) {
-            numerator = -numerator;
-            denominator = -denominator;
-        }
         int gcd = gcd(numerator, denominator);
         if (gcd != 1) {
             numerator /= gcd;
             denominator /= gcd;
         }
+        if (denominator < 0) {
+            numerator = -numerator;
+            denominator = -denominator;
+        }
     }
 
-    // TODO: Check if works for negative number
     private static int gcd(int a, int b) {
         return b == 0 ? a : gcd(b, a % b);
     }
@@ -83,11 +82,5 @@ public class RationalNum {
     public String toString() {
         if (denominator == 1) return "" + numerator;
         else return numerator + "/" + denominator;
-    }
-
-    public static void main(String[] args) {
-        RationalNum n = new RationalNum(2, -4);
-        RationalNum another = new RationalNum(6, 3);
-        System.out.println(n.negated().equals(another.inverted()));
     }
 }
