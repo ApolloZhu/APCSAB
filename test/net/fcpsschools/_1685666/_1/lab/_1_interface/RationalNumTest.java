@@ -2,10 +2,7 @@ package net.fcpsschools._1685666._1.lab._1_interface;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 class RationalNumTest {
     @Test
@@ -21,7 +18,6 @@ class RationalNumTest {
     @Test
     void testSimplify() {
         assertEquals("2/3", new RationalNum(4, 6).toString());
-
     }
 
     @Test

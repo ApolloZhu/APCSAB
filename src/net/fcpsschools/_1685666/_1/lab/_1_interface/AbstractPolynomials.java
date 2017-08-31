@@ -2,15 +2,15 @@ package net.fcpsschools._1685666._1.lab._1_interface;
 
 public abstract class AbstractPolynomials implements Polynomials {
     @Override
-    public double evaluatedForX(double x) {
+    public double evaluatedAt(double x) {
         double answer = getCoefficientForExponent(0);
         int degree = getDegree();
-        if (degree == 0) return answer;
+        if (degree == 0 || x == 0) return answer;
         if (Double.isNaN(x)) return Double.NaN;
 
         INFINITE_CHECK:
         if (Double.isInfinite(x)) {
-            double sign = allCoefficientsHasSameSignThroughDegree(degree);
+            double sign = allCoefficientsHaveSameSignThroughDegree(degree);
             if (Double.isNaN(sign)) return Double.NaN;
             if (sign == 0) throw new IllegalStateException();
             return sign * x;
@@ -29,9 +29,9 @@ public abstract class AbstractPolynomials implements Polynomials {
      * @return 0                if the polynomials is constant;
      * Double.POSITIVE_INFINITY if all coefficients are positive or zero;
      * Double.NEGATIVE_INFINITY if all coefficients are negative or zero;
-     * Double.NaN               if any of the coefficients has different sign or is Double.NaN;
+     * Double.NaN               if any of the coefficients has different sign or is not a number.
      */
-    private double allCoefficientsHasSameSignThroughDegree(double degree) {
+    private double allCoefficientsHaveSameSignThroughDegree(double degree) {
         double sign = 0;
         for (int i = 0; i <= degree; i++) {
             double c = getCoefficientForExponent(i);
@@ -48,6 +48,25 @@ public abstract class AbstractPolynomials implements Polynomials {
         return sign;
     }
 
+    private String functionName = "f(x)";
+    private String variableName = "x";
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public String getVariableName() {
+        return variableName;
+    }
+
+    public void setFunctionName(String functionName) {
+        this.functionName = functionName;
+    }
+
+    public void setVariableName(String variableName) {
+        this.variableName = variableName;
+    }
+
     /**
      * Pretty output for polynomial.
      *
@@ -56,16 +75,20 @@ public abstract class AbstractPolynomials implements Polynomials {
     @Override
     public String toString() {
         int degree = getDegree();
-        StringBuilder sb = new StringBuilder("f(x) = ");
+        StringBuilder sb = new StringBuilder(functionName + " = ");
         for (int i = degree; i >= 0; i--)
             sb.append(makePrettyTermForExponent(i));
         return sb.toString();
     }
 
+    /**
+     * @param exponent exponent of the term to format.
+     * @return human friendly term representation within context.
+     */
     private String makePrettyTermForExponent(int exponent) {
         double coefficient = getCoefficientForExponent(exponent);
-        if (coefficient == 0 && exponent != 0) return "";
-        String x = exponent == 0 ? "" : "x" + makePrettyExponent(exponent);
+        if (coefficient == 0 && (exponent != 0 || getDegree() > 0)) return "";
+        String x = exponent == 0 ? "" : variableName + makePrettyExponent(exponent);
         String conjunctionToPreviousTerm = exponent == getDegree()
                 ? (coefficient >= 0 ? "" : "-")
                 : (coefficient > 0 ? " + " : " - ");
@@ -79,6 +102,12 @@ public abstract class AbstractPolynomials implements Polynomials {
      */
     private static String[] superscripts = {"\u2070", "\u00B9", "\u00B2", "\u00B3", "\u2074", "\u2075", "\u2076", "\u2077", "\u2078", "\u2079"};
 
+    /**
+     * Transforming int to superscripts.
+     *
+     * @param exponent exponent to transform.
+     * @return human friendly exponent representation within context.
+     */
     private static String makePrettyExponent(int exponent) {
         if (exponent == 0 || exponent == 1) return "";
         StringBuilder sb = new StringBuilder();
@@ -91,6 +120,12 @@ public abstract class AbstractPolynomials implements Polynomials {
         return (exponent > 0 ? "" : "\u207B") + sb.toString();
     }
 
+    /**
+     * Simplify double coefficient into int if possible.
+     *
+     * @param coefficient coefficient to simplify.
+     * @return absolute value of the simplified coefficient.
+     */
     private static String makeSimpleCoefficient(double coefficient) {
         coefficient = Math.abs(coefficient);
         int intCoefficient = (int) coefficient;
