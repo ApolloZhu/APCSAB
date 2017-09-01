@@ -127,7 +127,7 @@ public abstract class AbstractPolynomials implements Polynomials {
         String conjunctionToPreviousTerm = exponent == degree
                 ? (coefficient >= 0 ? "" : "-")
                 : (coefficient > 0 ? " + " : " - ");
-        return conjunctionToPreviousTerm + makeSimpleCoefficient(coefficient) + x;
+        return conjunctionToPreviousTerm + makeSimpleCoefficient(coefficient, exponent) + x;
     }
 
     /**
@@ -159,11 +159,14 @@ public abstract class AbstractPolynomials implements Polynomials {
      * Simplify double coefficient into int if possible.
      *
      * @param coefficient coefficient to simplify.
-     * @return absolute value of the simplified coefficient.
+     * @param exponent    exponent of the term with the given coefficient.
+     * @return absolute value of the simplified coefficient, or empty string if unnecessary.
      */
-    private static String makeSimpleCoefficient(double coefficient) {
+    private static String makeSimpleCoefficient(double coefficient, int exponent) {
         coefficient = Math.abs(coefficient);
         int intCoefficient = (int) coefficient;
-        return (coefficient == intCoefficient) ? "" + intCoefficient : "" + coefficient;
+        return (coefficient == intCoefficient)
+                ? ((intCoefficient == 1 && exponent != 0) ? "" : "" + intCoefficient)
+                : "" + coefficient;
     }
 }

@@ -14,7 +14,7 @@ public class Reverser {
         Scanner in = new Scanner(System.in);
         StringBuilder out = new StringBuilder();
         while (in.hasNextLine())
-            out.insert(0, (in.hasNextLine() ? "\n" : "") + in.nextLine());
+            out.insert(0, "\n" + in.nextLine());
         System.out.print(out);
     }
 

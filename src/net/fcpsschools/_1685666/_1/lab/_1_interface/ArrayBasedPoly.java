@@ -7,13 +7,18 @@ public class ArrayBasedPoly extends AbstractPolynomials {
         // f(x) = 0
         System.out.println(new ArrayBasedPoly(0));
 
-        Polynomials polynomial = new ArrayBasedPoly(-12, 11, 10, -9, 8, 7, 6.5, 0, 4, -3.1, 2);
-        ((ArrayBasedPoly) polynomial).setName("v");
-        ((ArrayBasedPoly) polynomial).setVariableName("t");
+        // f(x) = 3x³ + 2x² + 1x
+        ArrayBasedPoly abp = new ArrayBasedPoly();
+        abp.components = new double[]{0, 1, 2, 3, 0, 0};
+        System.out.println(new ArrayBasedPoly(abp));
 
         // v = -12t¹⁰ + 11t⁹ + 10t⁸ - 9t⁷ + 8t⁶ + 7t⁵ + 6.5t⁴ + 4t² - 3.1t + 2
-        System.out.println(polynomial);
+        AbstractPolynomials ap = new ArrayBasedPoly(-12, 11, 10, -9, 8, 7, 6.5, 0, 4, -3.1, 2);
+        ap.setName("v");
+        ap.setVariableName("t");
+        System.out.println(ap);
 
+        Polynomials polynomial = ap;
         // v(4) = -4396.2
         System.out.println("v(4) = " + polynomial.evaluatedAt(2));
 
@@ -25,15 +30,24 @@ public class ArrayBasedPoly extends AbstractPolynomials {
 
         // f(x) = 11x⁹ + 10x⁸ - 9x⁷ + 8x⁶ + 7x⁵ + 6.5x⁴ + 4x² - 3.1x
         System.out.println(polynomial.adding(new ArrayBasedPoly(12, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2)));
+
+        // f(x) = x⁷ + 8x⁶ + 7x⁵ + 6.5x⁴ + 4x² - 3.1x + 2
+        System.out.println(polynomial.subtracting(new ArrayBasedPoly(-12., 11, 10, -10, 0, 0, 0, 0, 0, 0, 0)));
+
+        // f(x) = -1
+        System.out.println(new ArrayBasedPoly(-1));
+
+        // f(x) = -x - 1
+        System.out.println(new ArrayBasedPoly(-1, -1));
     }
 
     /**
      * Indexed by exponent.
      */
-    private double[] components = {0};
+    protected double[] components = {0};
 
     /**
-     * Constructs an array based polynomials.
+     * Constructs an array based polynomials using coefficients in natural order.
      *
      * @param components coefficients in natural order, must include 0s.
      *                   For example, to construct 2x² - 4, use 2, 0, -4.
@@ -55,6 +69,14 @@ public class ArrayBasedPoly extends AbstractPolynomials {
                 throw new IllegalArgumentException("Coefficient of exponent " + i + " is not a number");
             this.components[i] = c;
         }
+    }
+
+    public ArrayBasedPoly(Polynomials polynomials) {
+        int degree = polynomials.getDegree(), offset = 0;
+        while (polynomials.getCoefficientForExponent(degree) == 0) degree--;
+        components = new double[degree + 1];
+        for (; degree >= 0; degree--)
+            components[degree] = polynomials.getCoefficientForExponent(degree);
     }
 
     @Override

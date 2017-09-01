@@ -6,7 +6,7 @@
 
     }
         System.out.print(out);
-            out.insert(0, (in.hasNextLine() ? "\n" : "") + in.nextLine());
+            out.insert(0, "\n" + in.nextLine());
         while (in.hasNextLine())
         StringBuilder out = new StringBuilder();
         Scanner in = new Scanner(System.in);
