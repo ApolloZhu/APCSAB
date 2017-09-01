@@ -1,0 +1,25 @@
+
+}
+    }
+        stdoutReversedSTDIN();
+    public static void main(String[] args) {
+
+    }
+        System.out.print(out);
+            out.insert(0, (in.hasNextLine() ? "\n" : "") + in.nextLine());
+        while (in.hasNextLine())
+        StringBuilder out = new StringBuilder();
+        Scanner in = new Scanner(System.in);
+    public static void stdoutReversedSTDIN() {
+public class Reverser {
+ */
+ * java -cp ../../../../.. net.fcpsschools._1685666._1._1_basics.Reverser < path/to/input
+ * javac Reverser.java
+ * # Test Instruction
+ * <p>
+ * P-1.26
+/**
+
+import java.util.Scanner;
+
+package net.fcpsschools._1685666._1._1_basics;

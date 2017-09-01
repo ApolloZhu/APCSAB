@@ -4,13 +4,26 @@ import java.util.function.DoubleBinaryOperator;
 
 public class ArrayBasedPoly extends AbstractPolynomials {
     public static void main(String[] args) {
+        // f(x) = 0
         System.out.println(new ArrayBasedPoly(0));
+
         Polynomials polynomial = new ArrayBasedPoly(-12, 11, 10, -9, 8, 7, 6.5, 0, 4, -3.1, 2);
-        ((ArrayBasedPoly) polynomial).setFunctionName("y");
+        ((ArrayBasedPoly) polynomial).setName("v");
+        ((ArrayBasedPoly) polynomial).setVariableName("t");
+
+        // v = -12t¹⁰ + 11t⁹ + 10t⁸ - 9t⁷ + 8t⁶ + 7t⁵ + 6.5t⁴ + 4t² - 3.1t + 2
         System.out.println(polynomial);
-        System.out.println("y(4) = " + polynomial.evaluatedAt(2));
+
+        // v(4) = -4396.2
+        System.out.println("v(4) = " + polynomial.evaluatedAt(2));
+
+        // f(x) = -120x⁹ + 99x⁸ + 80x⁷ - 63x⁶ + 48x⁵ + 35x⁴ + 26x³ + 8x - 3.1
         System.out.println(polynomial.getDerivative());
+
+        // f(x) = -12x¹⁰ - 109x⁹ + 109x⁸ + 71x⁷ - 55x⁶ + 55x⁵ + 41.5x⁴ + 26x³ + 4x² + 4.9x - 1.1
         System.out.println(polynomial.adding(polynomial.getDerivative()));
+
+        // f(x) = 11x⁹ + 10x⁸ - 9x⁷ + 8x⁶ + 7x⁵ + 6.5x⁴ + 4x² - 3.1x
         System.out.println(polynomial.adding(new ArrayBasedPoly(12, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2)));
     }
 

@@ -1,6 +1,6 @@
 package net.fcpsschools._1685666._1._1_basics;
 
-/// R-1.8
+// R-1.8
 public class VowelCounter {
     public enum CountingMethod {REGEX, LOOP}
 
@@ -21,10 +21,17 @@ public class VowelCounter {
         }
     }
 
+
     public static void main(String[] args) {
-        String toCount = "The quick brown fox jumps over the lazy dog.";
-        toCount = "";
-        System.out.println(count(toCount, CountingMethod.REGEX));
-        System.out.println(count(toCount, CountingMethod.LOOP));
+        String[] toCount = {
+                "The quick brown fox jumps Over the lazy dog.", // 11 == 11 is true
+                "", // 0 == 0 is true
+                "HELLO, world!" // 3 == 3 is true
+        };
+        for (String s : toCount) {
+            int result1 = count(s, CountingMethod.REGEX);
+            int result2 = count(s, CountingMethod.LOOP);
+            System.out.println(result1 + " == " + result2 + " is " + (result1 == result2));
+        }
     }
 }

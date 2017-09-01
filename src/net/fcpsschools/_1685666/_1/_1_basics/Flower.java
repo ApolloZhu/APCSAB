@@ -35,4 +35,16 @@ public class Flower {
     public void setPrice(float price) {
         this.price = price;
     }
+
+    @Override
+    public String toString() {
+        return getName()
+                + " with " + getNumberOfPetals() + " petal(s)"
+                + " worth $" + getPrice();
+    }
+
+    public static void main(String[] args) {
+        // Rose with 50 petal(s) worth $1.5
+        System.out.print(new Flower("Rose", 50, 1.5f));
+    }
 }

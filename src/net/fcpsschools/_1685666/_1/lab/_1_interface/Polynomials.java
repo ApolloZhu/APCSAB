@@ -52,9 +52,10 @@ public interface Polynomials {
     Polynomials subtracting(Polynomials another);
 
     /**
+     * Forms a new polynomials that is the derivative of this polynomials.
      * This is unchanged.
      *
-     * @return
+     * @return the derivative of this polynomials.
      */
     Polynomials getDerivative();
 }

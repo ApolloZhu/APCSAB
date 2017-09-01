@@ -1,5 +1,10 @@
 package net.fcpsschools._1685666._1.lab._1_interface;
 
+/**
+ * Abstract polynomials handling evaluation and formatting.
+ *
+ * @author ApolloZhu
+ */
 public abstract class AbstractPolynomials implements Polynomials {
     @Override
     public double evaluatedAt(double x) {
@@ -48,21 +53,47 @@ public abstract class AbstractPolynomials implements Polynomials {
         return sign;
     }
 
-    private String functionName = "f(x)";
+    /**
+     * Name of this polynomials.
+     */
+    private String name = "f(x)";
+    /**
+     * Name of the variable used in this polynomials.
+     */
     private String variableName = "x";
 
-    public String getFunctionName() {
-        return functionName;
+    /**
+     * Name of this polynomials, default to "f(x)".
+     *
+     * @return polynomials name.
+     */
+    public String getName() {
+        return name;
     }
 
+    /**
+     * Name of the variable used in this polynomials, default to "x".
+     *
+     * @return variable name.
+     */
     public String getVariableName() {
         return variableName;
     }
 
-    public void setFunctionName(String functionName) {
-        this.functionName = functionName;
+    /**
+     * Set name of this polynomials.
+     *
+     * @param name new name.
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
+    /**
+     * Set name of the variable used in this polynomials.
+     *
+     * @param variableName new variable name.
+     */
     public void setVariableName(String variableName) {
         this.variableName = variableName;
     }
@@ -75,21 +106,25 @@ public abstract class AbstractPolynomials implements Polynomials {
     @Override
     public String toString() {
         int degree = getDegree();
-        StringBuilder sb = new StringBuilder(functionName + " = ");
+        StringBuilder sb = new StringBuilder(name + " = ");
         for (int i = degree; i >= 0; i--)
             sb.append(makePrettyTermForExponent(i));
         return sb.toString();
     }
 
     /**
+     * Format term identified by certain exponent.
+     *
      * @param exponent exponent of the term to format.
      * @return human friendly term representation within context.
      */
     private String makePrettyTermForExponent(int exponent) {
+        int degree = getDegree();
+        if (exponent > degree) return "";
         double coefficient = getCoefficientForExponent(exponent);
-        if (coefficient == 0 && (exponent != 0 || getDegree() > 0)) return "";
+        if (coefficient == 0 && (exponent != 0 || degree > 0)) return "";
         String x = exponent == 0 ? "" : variableName + makePrettyExponent(exponent);
-        String conjunctionToPreviousTerm = exponent == getDegree()
+        String conjunctionToPreviousTerm = exponent == degree
                 ? (coefficient >= 0 ? "" : "-")
                 : (coefficient > 0 ? " + " : " - ");
         return conjunctionToPreviousTerm + makeSimpleCoefficient(coefficient) + x;
