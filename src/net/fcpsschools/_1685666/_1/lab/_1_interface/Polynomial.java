@@ -1,12 +1,12 @@
 package net.fcpsschools._1685666._1.lab._1_interface;
 
 /**
- * Single-variable polynomials whose coefficients are of type double
+ * Single-variable polynomial whose coefficients are of type double
  * and whose exponents are of type int and non-negative.
  */
-public interface Polynomials {
+public interface Polynomial {
     /**
-     * The degree of the polynomials.
+     * The degree of the polynomial.
      *
      * @return highest exponent.
      */
@@ -23,39 +23,39 @@ public interface Polynomials {
     double getCoefficientForExponent(int exponent);
 
     /**
-     * Evaluate and returns the value of this polynomials with certain value.
+     * Evaluate and returns the value of this polynomial with certain value.
      * <p>
      * Implementation should consider x been positive and negative infinity.
      * Behavior when x is not a number is unspecified.
      *
      * @param x value to plug in.
-     * @return the value of this polynomials at given x.
+     * @return the value of this polynomial at given x.
      */
     double evaluatedAt(double x);
 
     /**
-     * Forms a new polynomials by adding this and another together.
+     * Forms a new polynomial by adding this and another together.
      * This and the other is unchanged.
      *
      * @param another the other polynomial to add.
-     * @return resulting polynomials by adding this and the given polynomials.
+     * @return resulting polynomial by adding this and the given polynomial.
      */
-    Polynomials adding(Polynomials another);
+    Polynomial adding(Polynomial another);
 
     /**
-     * Forms a new polynomials by subtracting another polynomials from this.
+     * Forms a new polynomial by subtracting another polynomial from this.
      * This and the other is unchanged.
      *
-     * @param another the other polynomials to add.
-     * @return resulting polynomials by subtracting the given polynomials from this.
+     * @param another the other polynomial to add.
+     * @return resulting polynomial by subtracting the given polynomial from this.
      */
-    Polynomials subtracting(Polynomials another);
+    Polynomial subtracting(Polynomial another);
 
     /**
-     * Forms a new polynomials that is the derivative of this polynomials.
+     * Forms a new polynomial that is the derivative of this polynomial.
      * This is unchanged.
      *
-     * @return the derivative of this polynomials.
+     * @return the derivative of this polynomial.
      */
-    Polynomials getDerivative();
+    Polynomial getDerivative();
 }

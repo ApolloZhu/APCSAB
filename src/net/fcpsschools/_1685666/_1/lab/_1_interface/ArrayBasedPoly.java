@@ -2,56 +2,18 @@ package net.fcpsschools._1685666._1.lab._1_interface;
 
 import java.util.function.DoubleBinaryOperator;
 
-public class ArrayBasedPoly extends AbstractPolynomials {
-    public static void main(String[] args) {
-        // f(x) = 0
-        System.out.println(new ArrayBasedPoly(0));
-
-        // f(x) = 3x³ + 2x² + 1x
-        ArrayBasedPoly abp = new ArrayBasedPoly();
-        abp.components = new double[]{0, 1, 2, 3, 0, 0};
-        System.out.println(new ArrayBasedPoly(abp));
-
-        // v = -12t¹⁰ + 11t⁹ + 10t⁸ - 9t⁷ + 8t⁶ + 7t⁵ + 6.5t⁴ + 4t² - 3.1t + 2
-        AbstractPolynomials ap = new ArrayBasedPoly(-12, 11, 10, -9, 8, 7, 6.5, 0, 4, -3.1, 2);
-        ap.setName("v");
-        ap.setVariableName("t");
-        System.out.println(ap);
-
-        Polynomials polynomial = ap;
-        // v(4) = -4396.2
-        System.out.println("v(4) = " + polynomial.evaluatedAt(2));
-
-        // f(x) = -120x⁹ + 99x⁸ + 80x⁷ - 63x⁶ + 48x⁵ + 35x⁴ + 26x³ + 8x - 3.1
-        System.out.println(polynomial.getDerivative());
-
-        // f(x) = -12x¹⁰ - 109x⁹ + 109x⁸ + 71x⁷ - 55x⁶ + 55x⁵ + 41.5x⁴ + 26x³ + 4x² + 4.9x - 1.1
-        System.out.println(polynomial.adding(polynomial.getDerivative()));
-
-        // f(x) = 11x⁹ + 10x⁸ - 9x⁷ + 8x⁶ + 7x⁵ + 6.5x⁴ + 4x² - 3.1x
-        System.out.println(polynomial.adding(new ArrayBasedPoly(12, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2)));
-
-        // f(x) = x⁷ + 8x⁶ + 7x⁵ + 6.5x⁴ + 4x² - 3.1x + 2
-        System.out.println(polynomial.subtracting(new ArrayBasedPoly(-12., 11, 10, -10, 0, 0, 0, 0, 0, 0, 0)));
-
-        // f(x) = -1
-        System.out.println(new ArrayBasedPoly(-1));
-
-        // f(x) = -x - 1
-        System.out.println(new ArrayBasedPoly(-1, -1));
-    }
-
+public class ArrayBasedPoly extends AbstractPolynomial {
     /**
      * Indexed by exponent.
      */
     protected double[] components = {0};
 
     /**
-     * Constructs an array based polynomials using coefficients in natural order.
+     * Constructs an array based polynomial using coefficients in natural order.
      *
      * @param components coefficients in natural order, must include 0s.
      *                   For example, to construct 2x² - 4, use 2, 0, -4.
-     * @throws IllegalArgumentException if any of the coefficient is not a number.
+     * @throws IllegalArgumentException if any of the coefficients is not a number.
      */
     public ArrayBasedPoly(double... components) {
         if (components == null || components.length == 0) return;
@@ -71,12 +33,13 @@ public class ArrayBasedPoly extends AbstractPolynomials {
         }
     }
 
-    public ArrayBasedPoly(Polynomials polynomials) {
-        int degree = polynomials.getDegree(), offset = 0;
-        while (polynomials.getCoefficientForExponent(degree) == 0) degree--;
+    public ArrayBasedPoly(Polynomial polynomial) {
+        if (polynomial == null) return;
+        int degree = polynomial.getDegree(), offset = 0;
+        while (polynomial.getCoefficientForExponent(degree) == 0) degree--;
         components = new double[degree + 1];
         for (; degree >= 0; degree--)
-            components[degree] = polynomials.getCoefficientForExponent(degree);
+            components[degree] = polynomial.getCoefficientForExponent(degree);
     }
 
     @Override
@@ -94,26 +57,28 @@ public class ArrayBasedPoly extends AbstractPolynomials {
     }
 
     @Override
-    public Polynomials adding(Polynomials another) {
+    public Polynomial adding(Polynomial another) {
         return linearlyMergedUsing((self, other) -> self + other, another);
     }
 
     @Override
-    public Polynomials subtracting(Polynomials another) {
+    public Polynomial subtracting(Polynomial another) {
         return linearlyMergedUsing((self, other) -> self - other, another);
     }
 
     /**
-     * Form a new polynomials by operating on each like term of self and another polynomials.
+     * Form a new polynomial by operating on each like term of self and another polynomial.
      * This and the other is not changed.
      *
-     * @param operator how to combine each term of this with each term of the `another` polynomials.
-     * @param another  the other polynomials involved in the computation.
-     * @return the resulting polynomials.
+     * @param operator how to combine each term of this with each term of the `another` polynomial.
+     * @param another  the other polynomial involved in the computation.
+     * @return the resulting polynomial.
      */
-    protected Polynomials linearlyMergedUsing(DoubleBinaryOperator operator, /*with*/ Polynomials another) {
+    protected Polynomial linearlyMergedUsing(DoubleBinaryOperator operator, /*with*/ Polynomial another) {
         int thisDegree = getDegree();
         int thatDegree = another.getDegree();
+        while (another.getCoefficientForExponent(thatDegree) == 0) thatDegree--;
+
         int maxDegree = Math.max(thisDegree, thatDegree);
         double[] resultCoefficientsInNaturalOrder = new double[maxDegree + 1];
         for (int exponent = maxDegree, i = 0; exponent >= 0; exponent--, i++) {
@@ -129,7 +94,7 @@ public class ArrayBasedPoly extends AbstractPolynomials {
     }
 
     @Override
-    public Polynomials getDerivative() {
+    public Polynomial getDerivative() {
         int degree = getDegree();
         double[] coefficientsOfDerivative = new double[degree];
         for (int i = 1; i <= degree; i++)

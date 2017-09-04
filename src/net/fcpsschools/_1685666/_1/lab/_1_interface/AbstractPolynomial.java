@@ -1,11 +1,11 @@
 package net.fcpsschools._1685666._1.lab._1_interface;
 
 /**
- * Abstract polynomials handling evaluation and formatting.
+ * Abstract polynomial handling evaluation, formatting, and equality check.
  *
  * @author ApolloZhu
  */
-public abstract class AbstractPolynomials implements Polynomials {
+public abstract class AbstractPolynomial implements Polynomial {
     @Override
     public double evaluatedAt(double x) {
         double answer = getCoefficientForExponent(0);
@@ -28,10 +28,10 @@ public abstract class AbstractPolynomials implements Polynomials {
     }
 
     /**
-     * Check if all coefficients of the polynomials has the same sign.
+     * Check if all coefficients of the polynomial has the same sign.
      *
      * @param degree the highest degree to check.
-     * @return 0                if the polynomials is constant;
+     * @return 0                if the polynomial is constant;
      * Double.POSITIVE_INFINITY if all coefficients are positive or zero;
      * Double.NEGATIVE_INFINITY if all coefficients are negative or zero;
      * Double.NaN               if any of the coefficients has different sign or is not a number.
@@ -54,25 +54,25 @@ public abstract class AbstractPolynomials implements Polynomials {
     }
 
     /**
-     * Name of this polynomials.
+     * Name of this polynomial.
      */
     private String name = "f(x)";
     /**
-     * Name of the variable used in this polynomials.
+     * Name of the variable used in this polynomial.
      */
     private String variableName = "x";
 
     /**
-     * Name of this polynomials, default to "f(x)".
+     * Name of this polynomial, default to "f(x)".
      *
-     * @return polynomials name.
+     * @return polynomial name.
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Name of the variable used in this polynomials, default to "x".
+     * Name of the variable used in this polynomial, default to "x".
      *
      * @return variable name.
      */
@@ -81,7 +81,7 @@ public abstract class AbstractPolynomials implements Polynomials {
     }
 
     /**
-     * Set name of this polynomials.
+     * Set name of this polynomial.
      *
      * @param name new name.
      */
@@ -90,7 +90,7 @@ public abstract class AbstractPolynomials implements Polynomials {
     }
 
     /**
-     * Set name of the variable used in this polynomials.
+     * Set name of the variable used in this polynomial.
      *
      * @param variableName new variable name.
      */
@@ -168,5 +168,20 @@ public abstract class AbstractPolynomials implements Polynomials {
         return (coefficient == intCoefficient)
                 ? ((intCoefficient == 1 && exponent != 0) ? "" : "" + intCoefficient)
                 : "" + coefficient;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Polynomial)) return super.equals(obj);
+        Polynomial another = (Polynomial) obj;
+        int exponent = getDegree();
+        int thatDegree = another.getDegree();
+        while (another.getCoefficientForExponent(thatDegree) == 0) thatDegree--;
+
+        if (exponent != thatDegree) return false;
+        for (; exponent >= 0; exponent--)
+            if (getCoefficientForExponent(exponent) != another.getCoefficientForExponent(exponent))
+                return false;
+        return true;
     }
 }
