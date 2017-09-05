@@ -5,27 +5,22 @@ public class ArrayBasedPolyDriver {
         double[] c = {4, 3, 0, 1};
         double[] c1 = {-5, -2};
 
-        Polynomial p1 = new ArrayBasedPoly(c);
-        ((AbstractPolynomial) p1).setName("p1(x)");
+        Polynomial p1 = new ArrayBasedPoly("p1(x)", c);
         System.out.println(p1);
 
-        Polynomial p2 = new ArrayBasedPoly(c1);
-        ((AbstractPolynomial) p2).setName("p2(x)");
+        Polynomial p2 = new ArrayBasedPoly("p2(x)", c1);
         System.out.println(p2);
 
-        Polynomial p3 = new ArrayBasedPoly(-4, 1);
-        ((AbstractPolynomial) p3).setName("p3(x)");
+        Polynomial p3 = new ArrayBasedPoly("p3(x)", -4, 1);
         System.out.println(p3);
 
         Polynomial p = p1.adding(p2).adding(p2);
         ((AbstractPolynomial) p).setName("p(x)");
         System.out.println(p);
 
-
         Polynomial p4 = p.subtracting(p3);
         ((AbstractPolynomial) p4).setName("p4(x)");
         System.out.println(p4);
-
 
         Polynomial p5 = p4.getDerivative();
         ((AbstractPolynomial) p5).setName("p5(x)");

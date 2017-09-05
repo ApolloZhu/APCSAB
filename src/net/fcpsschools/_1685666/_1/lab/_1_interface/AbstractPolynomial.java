@@ -13,11 +13,11 @@ public abstract class AbstractPolynomial implements Polynomial {
         if (degree == 0 || x == 0) return answer;
         if (Double.isNaN(x)) return Double.NaN;
 
-        INFINITE_CHECK:
+        INFINITY_CHECK:
         if (Double.isInfinite(x)) {
             double sign = allCoefficientsHaveSameSignThroughDegree(degree);
             if (Double.isNaN(sign)) return Double.NaN;
-            if (sign == 0) throw new IllegalStateException();
+            if (sign == 0) throw new IllegalStateException("File a radar please.");
             return sign * x;
         }
 
@@ -57,6 +57,7 @@ public abstract class AbstractPolynomial implements Polynomial {
      * Name of this polynomial.
      */
     private String name = "f(x)";
+    
     /**
      * Name of the variable used in this polynomial.
      */
@@ -135,10 +136,15 @@ public abstract class AbstractPolynomial implements Polynomial {
      *
      * @link https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
      */
-    private static String[] superscripts = {"\u2070", "\u00B9", "\u00B2", "\u00B3", "\u2074", "\u2075", "\u2076", "\u2077", "\u2078", "\u2079"};
+    private static final String[] SUPERSCRIPTS = {"\u2070", "\u00B9", "\u00B2", "\u00B3", "\u2074", "\u2075", "\u2076", "\u2077", "\u2078", "\u2079"};
 
     /**
-     * Transforming int to superscripts.
+     * The negative prefix of a exponent (superscript representation).
+     */
+    private static final String SUPERSCRIPT_MINUS_SIGN = "\u207B";
+
+    /**
+     * Transforming int to exponent (superscript representation).
      *
      * @param exponent exponent to transform.
      * @return human friendly exponent representation within context.
@@ -149,10 +155,10 @@ public abstract class AbstractPolynomial implements Polynomial {
 
         int mutableCopy = Math.abs(exponent);
         while (mutableCopy > 0) {
-            sb.insert(0, superscripts[mutableCopy % 10]);
+            sb.insert(0, SUPERSCRIPTS[mutableCopy % 10]);
             mutableCopy /= 10;
         }
-        return (exponent > 0 ? "" : "\u207B") + sb.toString();
+        return (exponent > 0 ? "" : SUPERSCRIPT_MINUS_SIGN) + sb.toString();
     }
 
     /**

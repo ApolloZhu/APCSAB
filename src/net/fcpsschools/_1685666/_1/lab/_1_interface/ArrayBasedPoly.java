@@ -8,6 +8,16 @@ public class ArrayBasedPoly extends AbstractPolynomial {
      */
     protected double[] components = {0};
 
+    public /*convenience*/ ArrayBasedPoly(String name, String variableName, double... components) {
+        this(name, components);
+        setVariableName(variableName);
+    }
+
+    public /*convenience*/ ArrayBasedPoly(String name, double... components) {
+        this(components);
+        setName(name);
+    }
+
     /**
      * Constructs an array based polynomial using coefficients in natural order.
      *
