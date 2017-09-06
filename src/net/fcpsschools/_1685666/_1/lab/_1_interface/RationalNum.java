@@ -18,9 +18,7 @@ public class RationalNum {
     }
 
     private void fix() {
-        if (denominator == 0) {
-            throw new ArithmeticException("/ by zero");
-        }
+        if (denominator == 0) throw new ArithmeticException("/ by zero");
         int gcd = gcd(numerator, denominator);
         if (gcd != 1) {
             numerator /= gcd;

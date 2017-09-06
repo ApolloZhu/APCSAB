@@ -50,6 +50,11 @@ public class ArrayBasedPoly extends AbstractPolynomial {
         components = new double[degree + 1];
         for (; degree >= 0; degree--)
             components[degree] = polynomial.getCoefficientForExponent(degree);
+        if (polynomial instanceof AbstractPolynomial) {
+            AbstractPolynomial ap = (AbstractPolynomial) polynomial;
+            setName(ap.getName());
+            setVariableName(ap.getVariableName());
+        }
     }
 
     @Override

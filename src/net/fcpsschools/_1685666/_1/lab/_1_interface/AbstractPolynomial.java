@@ -17,7 +17,7 @@ public abstract class AbstractPolynomial implements Polynomial {
         if (Double.isInfinite(x)) {
             double sign = allCoefficientsHaveSameSignThroughDegree(degree);
             if (Double.isNaN(sign)) return Double.NaN;
-            if (sign == 0) throw new IllegalStateException("File a radar please.");
+            if (sign == 0) throw new IllegalStateException("File a radar please");
             return sign * x;
         }
 

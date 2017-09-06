@@ -12,7 +12,7 @@ public class ArrayBasedPolyDriver {
         ((ArrayBasedPoly) p2).setName("p2(x)");
         System.out.println(p2);
 
-        Polynomial p3 = new ArrayBasedPoly("p3(x)", -4, 1);
+        Polynomial p3 = new ArrayBasedPoly("p3(x)", -4, 0);
         System.out.println(p3);
 
         Polynomial p = p1.adding(p2).adding(p2);
@@ -34,9 +34,9 @@ public class ArrayBasedPolyDriver {
 /*
 p1(x) = 4x³ + 3x² + 1
 p2(x) = -5x - 2
-p3(x) = -4x + 1
+p3(x) = -4x
 p(x) = 4x³ + 3x² - 10x - 3
-p4(x) = 4x³ + 3x² - 6x - 4
+p4(x) = 4x³ + 3x² - 6x - 3
 p5(x) = 12x² + 6x - 6
 p5(0) = -6.0
 p5(1) = 12.0
