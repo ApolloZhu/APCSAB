@@ -57,7 +57,7 @@ public abstract class AbstractPolynomial implements Polynomial {
      * Name of this polynomial.
      */
     private String name = "f(x)";
-    
+
     /**
      * Name of the variable used in this polynomial.
      */

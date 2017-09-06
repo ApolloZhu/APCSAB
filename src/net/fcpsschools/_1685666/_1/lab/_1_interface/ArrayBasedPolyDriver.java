@@ -8,7 +8,8 @@ public class ArrayBasedPolyDriver {
         Polynomial p1 = new ArrayBasedPoly("p1(x)", c);
         System.out.println(p1);
 
-        Polynomial p2 = new ArrayBasedPoly("p2(x)", c1);
+        Polynomial p2 = new ArrayBasedPoly(c1);
+        ((ArrayBasedPoly) p2).setName("p2(x)");
         System.out.println(p2);
 
         Polynomial p3 = new ArrayBasedPoly("p3(x)", -4, 1);
