@@ -3,6 +3,8 @@ package net.fcpsschools._1685666._1.lab._1_interface;
 /**
  * Single-variable polynomial whose coefficients are of type double
  * and whose exponents are of type int and non-negative.
+ *
+ * @author ApolloZhu, Pd. 1
  */
 public interface Polynomial {
     /**

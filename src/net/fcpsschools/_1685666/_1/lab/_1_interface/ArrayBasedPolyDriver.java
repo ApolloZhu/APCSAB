@@ -12,7 +12,8 @@ public class ArrayBasedPolyDriver {
         ((ArrayBasedPoly) p2).setName("p2(x)");
         System.out.println(p2);
 
-        Polynomial p3 = new ArrayBasedPoly("p3(x)", -4, 0);
+        Polynomial p3 = ArrayBasedPoly.makeSingleTerm(-4, 1);
+        ((ArrayBasedPoly) p3).setName("p3(x)");
         System.out.println(p3);
 
         Polynomial p = p1.adding(p2).adding(p2);

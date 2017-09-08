@@ -152,7 +152,7 @@ class ArrayBasedPolyTest {
     @Test
     void testWrongDegree() {
         ArrayBasedPoly abp = new ArrayBasedPoly();
-        abp.components = new double[]{0, 1, 2, 3, 0, 0};
+        abp.coefficients = new double[]{0, 1, 2, 3, 0, 0};
         Polynomial correct = new ArrayBasedPoly(abp);
         assertEquals(correct, abp);
         assertRepresents("f(x) = 3x³ + 2x² + x", correct);

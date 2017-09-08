@@ -2,54 +2,97 @@ package net.fcpsschools._1685666._1.lab._1_interface;
 
 import java.util.function.DoubleBinaryOperator;
 
+// Introduced variadic parameter to class
+// Practiced using functional protocol DoubleBinaryOperator
+
+/**
+ * An implementation of polynomial using array.
+ *
+ * @author ApolloZhu, Pd. 1
+ */
 public class ArrayBasedPoly extends AbstractPolynomial {
     /**
-     * Indexed by exponent.
+     * Coefficients indexed by exponent.
      */
-    protected double[] components = {0};
+    protected double[] coefficients = {0};
 
-    public /*convenience*/ ArrayBasedPoly(String name, String variableName, double... components) {
-        this(name, components);
+    /**
+     * @see AbstractPolynomial#setName(String)
+     * @see AbstractPolynomial#setVariableName(String)
+     * @see #ArrayBasedPoly(double... coefficients)
+     */
+    public /*convenience*/ ArrayBasedPoly(String name, String variableName, double... coefficients) {
+        this(name, coefficients);
         setVariableName(variableName);
     }
 
-    public /*convenience*/ ArrayBasedPoly(String name, double... components) {
-        this(components);
+    /**
+     * @see #ArrayBasedPoly(String name, String variableName, double... coefficients)
+     */
+    public /*convenience*/ ArrayBasedPoly(String name, double... coefficients) {
+        this(coefficients);
         setName(name);
+    }
+
+    /**
+     * Constructs and returns a single term ArrayBasedPoly.
+     *
+     * @param coefficient coefficient of the given term.
+     * @param exponent    exponent of that term,
+     *                    which is also the degree of the polynomial.
+     * @return a single term ArrayBasedPoly `coefficient`x^`exponent`.
+     * @throws IllegalArgumentException if exponent is negative.
+     * @see #ArrayBasedPoly(double... coefficients)
+     */
+    public static ArrayBasedPoly makeSingleTerm(double coefficient, int exponent) {
+        if (exponent < 0) throw new IllegalArgumentException("Negative exponent is not supported");
+        double[] coefficients = new double[exponent + 1];
+        coefficients[0] = coefficient;
+        return new ArrayBasedPoly(coefficients);
     }
 
     /**
      * Constructs an array based polynomial using coefficients in natural order.
      *
-     * @param components coefficients in natural order, must include 0s.
-     *                   For example, to construct 2x² - 4, use 2, 0, -4.
+     * @param coefficients coefficients in natural order, must include 0s.
+     *                     For example, to construct 2x² - 4, use 2, 0, -4.
      * @throws IllegalArgumentException if any of the coefficients is not a number.
      */
-    public ArrayBasedPoly(double... components) {
-        if (components == null || components.length == 0) return;
-        if (components.length == 1) {
-            this.components[0] = components[0];
+    public ArrayBasedPoly(double... coefficients) {
+        // Empty polynomial treated as f(x) = 0
+        if (coefficients == null || coefficients.length == 0) return;
+        // Constant polynomial
+        if (coefficients.length == 1) {
+            this.coefficients[0] = coefficients[0];
             return;
         }
-
+        // Find the actual degree
         int offset = 0;
-        while (components[offset] == 0) offset++;
-        this.components = new double[components.length - offset];
-        for (int i = 0; i < this.components.length; i++) {
-            double c = components[components.length - 1 - i];
+        while (coefficients[offset] == 0) offset++;
+        this.coefficients = new double[coefficients.length - offset];
+        // Assign back of the reversely ordered coefficients to the front
+        for (int i = 0; i < this.coefficients.length; i++) {
+            double c = coefficients[coefficients.length - 1 - i];
             if (Double.isNaN(c))
                 throw new IllegalArgumentException("Coefficient of exponent " + i + " is not a number");
-            this.components[i] = c;
+            this.coefficients[i] = c;
         }
     }
 
+    /**
+     * Being a clone of another polynomial.
+     *
+     * @param polynomial polynomial to replicate.
+     */
     public ArrayBasedPoly(Polynomial polynomial) {
+        // Validate
         if (polynomial == null) return;
-        int degree = polynomial.getDegree(), offset = 0;
+        int degree = polynomial.getDegree();
         while (polynomial.getCoefficientForExponent(degree) == 0) degree--;
-        components = new double[degree + 1];
+        // Copy attributes
+        coefficients = new double[degree + 1];
         for (; degree >= 0; degree--)
-            components[degree] = polynomial.getCoefficientForExponent(degree);
+            coefficients[degree] = polynomial.getCoefficientForExponent(degree);
         if (polynomial instanceof AbstractPolynomial) {
             AbstractPolynomial ap = (AbstractPolynomial) polynomial;
             setName(ap.getName());
@@ -57,25 +100,47 @@ public class ArrayBasedPoly extends AbstractPolynomial {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getDegree() {
-        return components.length - 1;
+        return coefficients.length - 1;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec coefficient for exponent
+     * <ol>
+     * <li>greater than the degree</li>
+     * <li>less than zero</li>
+     * </ol>
+     * will be zero.
+     */
     @Override
     public double getCoefficientForExponent(int exponent) {
         try {
-            return components[exponent];
+            return coefficients[exponent];
         } catch (Exception ignored) {
+            // Most likely ArrayIndexOutOfRangeException
+            // Meaning this does not contain that degree
+            // Thus the coefficient is definitely a zero
             return 0;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Polynomial adding(Polynomial another) {
         return linearlyMergedUsing((self, other) -> self + other, another);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Polynomial subtracting(Polynomial another) {
         return linearlyMergedUsing((self, other) -> self - other, another);
@@ -90,12 +155,14 @@ public class ArrayBasedPoly extends AbstractPolynomial {
      * @return the resulting polynomial.
      */
     protected Polynomial linearlyMergedUsing(DoubleBinaryOperator operator, /*with*/ Polynomial another) {
+        // Validate
         int thisDegree = getDegree();
         int thatDegree = another.getDegree();
         while (another.getCoefficientForExponent(thatDegree) == 0) thatDegree--;
-
+        // Allocate according to the highest degree
         int maxDegree = Math.max(thisDegree, thatDegree);
         double[] resultCoefficientsInNaturalOrder = new double[maxDegree + 1];
+        // Apply operator on each term
         for (int exponent = maxDegree, i = 0; exponent >= 0; exponent--, i++) {
             if (exponent <= thisDegree)
                 resultCoefficientsInNaturalOrder[i] += getCoefficientForExponent(exponent);
@@ -108,6 +175,11 @@ public class ArrayBasedPoly extends AbstractPolynomial {
         return new ArrayBasedPoly(resultCoefficientsInNaturalOrder);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec Name and variable name is not derived to derivative.
+     */
     @Override
     public Polynomial getDerivative() {
         int degree = getDegree();
@@ -116,7 +188,7 @@ public class ArrayBasedPoly extends AbstractPolynomial {
             coefficientsOfDerivative[i - 1] = getCoefficientForExponent(i) * i;
 
         ArrayBasedPoly derivative = new ArrayBasedPoly();
-        derivative.components = coefficientsOfDerivative;
+        derivative.coefficients = coefficientsOfDerivative;
         return derivative;
     }
 }

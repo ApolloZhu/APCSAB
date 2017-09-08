@@ -1,5 +1,10 @@
 package net.fcpsschools._1685666._1.lab._1_interface;
 
+/**
+ * Representing a rational number using a fraction.
+ *
+ * @author ApolloZhu, Pd. 1
+ */
 public class RationalNum {
     private int numerator, denominator;
 
@@ -7,7 +12,7 @@ public class RationalNum {
         this(numerator, 1);
     }
 
-    public RationalNum(RationalNum another) {
+    public /*convenience*/ RationalNum(RationalNum another) {
         this(another.numerator, another.denominator);
     }
 
@@ -18,18 +23,22 @@ public class RationalNum {
     }
 
     private void fix() {
+        // Validate
         if (denominator == 0) throw new ArithmeticException("/ by zero");
+        // Reduce
         int gcd = gcd(numerator, denominator);
         if (gcd != 1) {
             numerator /= gcd;
             denominator /= gcd;
         }
+        // Align
         if (denominator < 0) {
             numerator = -numerator;
             denominator = -denominator;
         }
     }
 
+    // Using Euclidean Algorithm
     private static int gcd(int a, int b) {
         return b == 0 ? a : gcd(b, a % b);
     }
@@ -43,6 +52,7 @@ public class RationalNum {
     }
 
     public void add(RationalNum another) {
+        // Keep the original value
         int thisNumerator = numerator;
         int thisDenominator = denominator;
         denominator = thisDenominator * another.denominator;

@@ -1,13 +1,22 @@
 package net.fcpsschools._1685666._1.lab._1_interface;
 
+// Researched on unicode points for superscript 0-9
+// Researched on how are infinities ordered and involved in calculation
+
 /**
  * Abstract polynomial handling evaluation, formatting, and equality check.
  *
- * @author ApolloZhu
+ * @author ApolloZhu, Pd. 1
  */
 public abstract class AbstractPolynomial implements Polynomial {
+    /**
+     * {@inheritDoc}
+     *
+     * @implSpec When x is not a number, result is also not a number.
+     */
     @Override
     public double evaluatedAt(double x) {
+        // Validate
         double answer = getCoefficientForExponent(0);
         int degree = getDegree();
         if (degree == 0 || x == 0) return answer;
@@ -15,15 +24,19 @@ public abstract class AbstractPolynomial implements Polynomial {
 
         INFINITY_CHECK:
         if (Double.isInfinite(x)) {
+            // Check if all coefficients have the same sign
             double sign = allCoefficientsHaveSameSignThroughDegree(degree);
+            // We can't tell which infinity is larger, so
             if (Double.isNaN(sign)) return Double.NaN;
+            // The following check should never be true:
             if (sign == 0) throw new IllegalStateException("File a radar please");
+            // Infinities of same sign will result in POSITIVE_INFINITY
+            // otherwise, return NEGATIVE_INFINITY
             return sign * x;
         }
-
+        // Actual Calculation
         for (int i = 1; i <= degree; i++)
             answer += Math.pow(x, i) * getCoefficientForExponent(i);
-
         return answer;
     }
 
@@ -40,14 +53,15 @@ public abstract class AbstractPolynomial implements Polynomial {
         double sign = 0;
         for (int i = 0; i <= degree; i++) {
             double c = getCoefficientForExponent(i);
-            if (Double.isNaN(c)) return Double.NaN;
-            if (c == 0) continue;
+            if (Double.isNaN(c)) return Double.NaN; // Invalid argument
+            if (c == 0) continue; // 0 is unsigned
+            // Ignore actual value while preserving the sign
             double indicator = c * Double.POSITIVE_INFINITY;
             if (indicator == Double.POSITIVE_INFINITY)
-                if (sign == 0) sign = Double.POSITIVE_INFINITY;
+                if (sign == 0) /*Initialize*/ sign = Double.POSITIVE_INFINITY;
                 else if (sign == Double.NEGATIVE_INFINITY) return Double.NaN;
             if (indicator == Double.NEGATIVE_INFINITY)
-                if (sign == 0) sign = Double.NEGATIVE_INFINITY;
+                if (sign == 0) /*Initialize*/ sign = Double.NEGATIVE_INFINITY;
                 else if (sign == Double.POSITIVE_INFINITY) return Double.NaN;
         }
         return sign;
@@ -85,6 +99,7 @@ public abstract class AbstractPolynomial implements Polynomial {
      * Set name of this polynomial.
      *
      * @param name new name.
+     * @implSpec variable name is not changed.
      */
     public void setName(String name) {
         this.name = name;
@@ -121,13 +136,15 @@ public abstract class AbstractPolynomial implements Polynomial {
      */
     private String makePrettyTermForExponent(int exponent) {
         int degree = getDegree();
-        if (exponent > degree) return "";
+        if (exponent > degree) return ""; // Not valid
         double coefficient = getCoefficientForExponent(exponent);
+        // Only show 0 if this is f(x) = 0
         if (coefficient == 0 && (exponent != 0 || degree > 0)) return "";
         String x = exponent == 0 ? "" : variableName + makePrettyExponent(exponent);
+        // Each term is responsible for the sign before it
         String conjunctionToPreviousTerm = exponent == degree
-                ? (coefficient >= 0 ? "" : "-")
-                : (coefficient > 0 ? " + " : " - ");
+                ? (coefficient >= 0 ? "" : "-") // First term either omit or `-`
+                : (coefficient > 0 ? " + " : " - "); // +/- according to sign
         return conjunctionToPreviousTerm + makeSimpleCoefficient(coefficient, exponent) + x;
     }
 
@@ -150,14 +167,17 @@ public abstract class AbstractPolynomial implements Polynomial {
      * @return human friendly exponent representation within context.
      */
     private static String makePrettyExponent(int exponent) {
-        if (exponent == 0 || exponent == 1) return "";
+        if (exponent == 0 || exponent == 1) return ""; // Ignore 0 and 1 degree
         StringBuilder sb = new StringBuilder();
-
         int mutableCopy = Math.abs(exponent);
+        // Until is zero
         while (mutableCopy > 0) {
+            // Convert to superscript
             sb.insert(0, SUPERSCRIPTS[mutableCopy % 10]);
+            // From the last digit
             mutableCopy /= 10;
         }
+        // Prefix - if is negative
         return (exponent > 0 ? "" : SUPERSCRIPT_MINUS_SIGN) + sb.toString();
     }
 
@@ -171,19 +191,29 @@ public abstract class AbstractPolynomial implements Polynomial {
     private static String makeSimpleCoefficient(double coefficient, int exponent) {
         coefficient = Math.abs(coefficient);
         int intCoefficient = (int) coefficient;
-        return (coefficient == intCoefficient)
+        return (coefficient == intCoefficient) // is int
+                // Only keep 1 if for constant term
                 ? ((intCoefficient == 1 && exponent != 0) ? "" : "" + intCoefficient)
                 : "" + coefficient;
     }
 
+    /**
+     * If this is equal to the other object mathematically,
+     * so the name and variable name doesn't matter.
+     *
+     * @param obj object to compare to.
+     * @return true if this and `obj` have same coefficients;
+     * false otherwise.
+     */
     @Override
     public boolean equals(Object obj) {
+        // Validate
         if (!(obj instanceof Polynomial)) return super.equals(obj);
         Polynomial another = (Polynomial) obj;
         int exponent = getDegree();
         int thatDegree = another.getDegree();
         while (another.getCoefficientForExponent(thatDegree) == 0) thatDegree--;
-
+        // Iterate over
         if (exponent != thatDegree) return false;
         for (; exponent >= 0; exponent--)
             if (getCoefficientForExponent(exponent) != another.getCoefficientForExponent(exponent))
