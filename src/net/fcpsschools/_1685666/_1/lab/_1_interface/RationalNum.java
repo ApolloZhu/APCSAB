@@ -3,27 +3,30 @@ package net.fcpsschools._1685666._1.lab._1_interface;
 /* What I learned?
  * > The actual definition of Euclidean Algorithm.
  * > Looked through one of my old programs for recursive implementation.
- * > BigDecimal class has similar features.
+ * > BigDecimal class has similar features, so I extended Number and implemented Comparable.
  */
 
 /* How I feel about this lab?
- * Toooooooo easy.
+ * Toooooooo easy. Polynomial lab is more interesting.
  */
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Representing a rational number using a fraction.
  *
  * @author ApolloZhu, Pd. 1
  */
-public class RationalNum {
-    private int numerator, denominator;
+public class RationalNum extends Number implements Comparable<RationalNum> {
+    private BigInteger numerator, denominator;
 
     /**
      * Constructs a rational integer of value passed in.
      *
      * @param numerator the integer.
      */
-    public RationalNum(int numerator) {
+    public /*convenience*/ RationalNum(long numerator) {
         this(numerator, 1);
     }
 
@@ -43,7 +46,18 @@ public class RationalNum {
      * @param denominator the denominator.
      * @implSpec this will always be in the lowest ratio.
      */
-    public RationalNum(int numerator, int denominator) {
+    public /*convenience*/ RationalNum(long numerator, long denominator) {
+        this(BigInteger.valueOf(numerator), BigInteger.valueOf(denominator));
+    }
+
+    /**
+     * Constructs a rational number as a fraction.
+     *
+     * @param numerator   the numerator.
+     * @param denominator the denominator.
+     * @implSpec this will always be in the lowest ratio.
+     */
+    public RationalNum(BigInteger numerator, BigInteger denominator) {
         this.numerator = numerator;
         this.denominator = denominator;
         fix();
@@ -59,17 +73,18 @@ public class RationalNum {
      */
     private void fix() {
         // Validate
-        if (denominator == 0) throw new ArithmeticException("/ by zero");
+        if (denominator.equals(BigInteger.ZERO)) throw new ArithmeticException("/ by zero");
         // Reduce
-        int gcd = gcd(numerator, denominator);
-        if (gcd != 1) {
-            numerator /= gcd;
-            denominator /= gcd;
+        BigInteger gcd = gcd(numerator, denominator);
+        if (!gcd.equals(BigInteger.ONE)) {
+            numerator = numerator.divide(gcd);
+            denominator = denominator.divide(gcd);
         }
         // Align
-        if (denominator < 0) {
-            numerator = -numerator;
-            denominator = -denominator;
+
+        if (denominator.compareTo(BigInteger.ZERO) < 0) {
+            numerator = numerator.negate();
+            denominator = denominator.negate();
         }
     }
 
@@ -84,8 +99,8 @@ public class RationalNum {
      * 1. if a or b is 0, then gcd(a,b) is b or a, stop;
      * 2. since a = bk + m, gcd(a, b) = gcd(b, m).
      */
-    private static int gcd(int a, int b) {
-        return b == 0 ? a : gcd(b, a % b);
+    private static BigInteger gcd(BigInteger a, BigInteger b) {
+        return b.equals(BigInteger.ZERO) ? a : gcd(b, a.remainder(b));
     }
 
     /**
@@ -94,7 +109,7 @@ public class RationalNum {
      * @return a new rational number which sum with this is zero.
      */
     public RationalNum negated() {
-        return new RationalNum(-numerator, denominator);
+        return new RationalNum(numerator.negate(), denominator);
     }
 
     /**
@@ -113,11 +128,11 @@ public class RationalNum {
      */
     public void add(RationalNum another) {
         // Keep the original value
-        int thisNumerator = numerator;
-        int thisDenominator = denominator;
-        denominator = thisDenominator * another.denominator;
-        numerator = thisNumerator * another.denominator
-                + thisDenominator * another.numerator;
+        BigInteger thisNumerator = numerator;
+        BigInteger thisDenominator = denominator;
+        denominator = thisDenominator.multiply(another.denominator);
+        numerator = thisNumerator.multiply(another.denominator)
+                .add(thisDenominator.multiply(another.numerator));
         fix();
     }
 
@@ -136,8 +151,8 @@ public class RationalNum {
      * @param another the multiplier.
      */
     public void multiply(RationalNum another) {
-        numerator *= another.numerator;
-        denominator *= another.denominator;
+        numerator = numerator.multiply(another.numerator);
+        denominator = denominator.multiply(another.denominator);
         fix();
     }
 
@@ -161,8 +176,8 @@ public class RationalNum {
     public boolean equals(Object obj) {
         if (obj instanceof RationalNum) {
             RationalNum that = (RationalNum) obj;
-            return numerator == that.numerator
-                    && denominator == that.denominator;
+            return numerator.equals(that.numerator)
+                    && denominator.equals(that.denominator);
         } else {
             return super.equals(obj);
         }
@@ -176,7 +191,63 @@ public class RationalNum {
      */
     @Override
     public String toString() {
-        if (denominator == 1) return "" + numerator;
+        if (denominator.equals(BigInteger.ONE)) return "" + numerator;
         else return numerator + "/" + denominator;
+    }
+
+    /**
+     * Compares this object with the specified object for order.
+     *
+     * @param o the object to be compared with.
+     * @return a negative integer, zero, or a positive integer as this object
+     * is less than, equal to, or greater than o.
+     * @throws NullPointerException if o is null
+     */
+    @Override
+    public int compareTo(RationalNum o) {
+        RationalNum copy = new RationalNum(this);
+        copy.subtract(o);
+        return copy.intValue();
+    }
+
+    /**
+     * Returns the value of this as an int, which may involve rounding or truncation.
+     *
+     * @return the numeric value represented by this in int.
+     */
+    @Override
+    public int intValue() {
+        return (int) longValue();
+    }
+
+    /**
+     * Returns the value of this as a long, which may involve rounding or truncation.
+     *
+     * @return the numeric value represented by this in long.
+     */
+    @Override
+    public long longValue() {
+        return numerator.divide(denominator).longValue();
+    }
+
+    /**
+     * Returns the value of this as a float, which may involve rounding.
+     *
+     * @return the numeric value represented by this in float.
+     */
+    @Override
+    public float floatValue() {
+        return (float) doubleValue();
+    }
+
+    /**
+     * Returns the value of this as a double, which may involve rounding.
+     *
+     * @return the numeric value represented by this in double.
+     */
+    @Override
+    public double doubleValue() {
+        return new BigDecimal(numerator)
+                .divide(new BigDecimal(denominator)).doubleValue();
     }
 }
