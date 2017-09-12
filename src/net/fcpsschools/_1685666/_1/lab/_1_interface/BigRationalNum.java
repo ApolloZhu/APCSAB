@@ -3,7 +3,8 @@ package net.fcpsschools._1685666._1.lab._1_interface;
 /* What I learned?
  * > The actual definition of Euclidean Algorithm.
  * > Looked through one of my old programs for recursive implementation.
- * > BigDecimal class has similar features, so I extended Number and implemented Comparable.
+ * > BigDecimal class has similar features, so I extended Number and implemented Comparable,
+ *   and switched to BigInteger as internal representation.
  */
 
 /* How I feel about this lab?
@@ -18,7 +19,7 @@ import java.math.BigInteger;
  *
  * @author ApolloZhu, Pd. 1
  */
-public class RationalNum extends Number implements Comparable<RationalNum> {
+public class BigRationalNum extends Number implements Comparable<BigRationalNum> {
     private BigInteger numerator, denominator;
 
     /**
@@ -26,7 +27,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @param numerator the integer.
      */
-    public /*convenience*/ RationalNum(long numerator) {
+    public /*convenience*/ BigRationalNum(long numerator) {
         this(numerator, 1);
     }
 
@@ -35,7 +36,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @param another the rational number to replicate.
      */
-    public /*convenience*/ RationalNum(RationalNum another) {
+    public /*convenience*/ BigRationalNum(BigRationalNum another) {
         this(another.numerator, another.denominator);
     }
 
@@ -46,7 +47,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      * @param denominator the denominator.
      * @implSpec this will always be in the lowest ratio.
      */
-    public /*convenience*/ RationalNum(long numerator, long denominator) {
+    public /*convenience*/ BigRationalNum(long numerator, long denominator) {
         this(BigInteger.valueOf(numerator), BigInteger.valueOf(denominator));
     }
 
@@ -57,7 +58,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      * @param denominator the denominator.
      * @implSpec this will always be in the lowest ratio.
      */
-    public RationalNum(BigInteger numerator, BigInteger denominator) {
+    public BigRationalNum(BigInteger numerator, BigInteger denominator) {
         this.numerator = numerator;
         this.denominator = denominator;
         fix();
@@ -81,7 +82,6 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
             denominator = denominator.divide(gcd);
         }
         // Align
-
         if (denominator.compareTo(BigInteger.ZERO) < 0) {
             numerator = numerator.negate();
             denominator = denominator.negate();
@@ -108,8 +108,8 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @return a new rational number which sum with this is zero.
      */
-    public RationalNum negated() {
-        return new RationalNum(numerator.negate(), denominator);
+    public BigRationalNum negated() {
+        return new BigRationalNum(numerator.negate(), denominator);
     }
 
     /**
@@ -117,8 +117,8 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @return a new rational number which multiply this will be negative one.
      */
-    public RationalNum inverted() {
-        return new RationalNum(denominator, numerator);
+    public BigRationalNum inverted() {
+        return new BigRationalNum(denominator, numerator);
     }
 
     /**
@@ -126,7 +126,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @param another to add.
      */
-    public void add(RationalNum another) {
+    public void add(BigRationalNum another) {
         // Keep the original value
         BigInteger thisNumerator = numerator;
         BigInteger thisDenominator = denominator;
@@ -141,7 +141,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @param another to subtract.
      */
-    public void subtract(RationalNum another) {
+    public void subtract(BigRationalNum another) {
         add(another.negated());
     }
 
@@ -150,7 +150,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @param another the multiplier.
      */
-    public void multiply(RationalNum another) {
+    public void multiply(BigRationalNum another) {
         numerator = numerator.multiply(another.numerator);
         denominator = denominator.multiply(another.denominator);
         fix();
@@ -161,7 +161,7 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      *
      * @param another the divisor.
      */
-    public void divide(RationalNum another) {
+    public void divide(BigRationalNum another) {
         multiply(another.inverted());
     }
 
@@ -169,13 +169,13 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      * Check if this is equal to obj.
      *
      * @param obj the object to compare to.
-     * @return true if obj is RationalNum and is equal to this,
+     * @return true if obj is BigRationalNum and is equal to this,
      * false otherwise
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof RationalNum) {
-            RationalNum that = (RationalNum) obj;
+        if (obj instanceof BigRationalNum) {
+            BigRationalNum that = (BigRationalNum) obj;
             return numerator.equals(that.numerator)
                     && denominator.equals(that.denominator);
         } else {
@@ -202,10 +202,11 @@ public class RationalNum extends Number implements Comparable<RationalNum> {
      * @return a negative integer, zero, or a positive integer as this object
      * is less than, equal to, or greater than o.
      * @throws NullPointerException if o is null
+     * @throws ClassCastException   if o is not BigRationalNum.
      */
     @Override
-    public int compareTo(RationalNum o) {
-        RationalNum copy = new RationalNum(this);
+    public int compareTo(BigRationalNum o) {
+        BigRationalNum copy = new BigRationalNum(this);
         copy.subtract(o);
         return copy.intValue();
     }
