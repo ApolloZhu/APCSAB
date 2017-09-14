@@ -160,8 +160,11 @@ public class ListNodeLinkedListLab {
     }
 
     public static <T> ListNode<T> remove(ListNode<T> head, T value) {
-        throw new UnsupportedOperationException();
-        throw new NoSuchElementException();
+        if (true) {
+            throw new UnsupportedOperationException();
+        } else if (false) {
+            throw new NoSuchElementException();
+        }
         return null;
     }
 
@@ -171,19 +174,20 @@ public class ListNodeLinkedListLab {
     }
 
     public static <T> ListNode<T> reverseList(ListNode<T> head) {
-        if (head == null) return null;
         ListNode<T> cur = head, resultHead = null, tmp;
-        do {
+        while (cur != null) {
             tmp = cur.getNext();
             cur.setNext(resultHead);
             resultHead = cur;
-        } while ((cur = tmp) != head && cur != null);
-        if (cur == head) head.setNext(resultHead);
+            if ((cur = tmp) != head) continue;
+            head.setNext(resultHead);
+            break;
+        }
         return resultHead;
     }
 
     public static <T> ListNode<T> rotate(ListNode<T> head) {
-        throw new UnsupportedOperationException();
+        if (true) throw new UnsupportedOperationException();
         return null;
     }
 
