@@ -1,6 +1,6 @@
 package net.fcpsschools._1685666._1._3_linked_list;
 
-import java.util.NoSuchElementException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -11,10 +11,12 @@ import java.util.Scanner;
  * Due:
  * Submitted:
  * What I learned:
- * How I feel about this:
+ * - how to implement the operations that cares for the circular lists.
+ * How I feel about this: very interesting, it requires a lot of think of how to deal with the edge cases,
+ * I mean, when the list is circular.
  * What I wonder:
- * Credits:
- * Whom I helped (to what extent):
+ * Credits: my whiteboard and pen for trial and errors. 5 oranges for visualizing the operation.
+ * Whom I helped (to what extent): Liam, help him understand the structure of shell program
  */
 
 public class ListNodeLinkedListLab {
@@ -106,26 +108,26 @@ public class ListNodeLinkedListLab {
             }
     };
 
-    public static void printLinkedList(ListNode head) {
-        if (head == null)
-            System.out.println("[]");
-        else {
-            StringBuilder sb = new StringBuilder("[");
-            ListNode node = head;
-            while (true) {
-                sb.append(node.getValue());
-                if ((node = node.getNext()) == head)
-                    sb.append(", HEAD]");
-                else if (node == null)
-                    sb.append(']');
-                else {
-                    sb.append(", ");
-                    continue;
-                }
-                System.out.println(sb.toString());
-                return;
+    public static String format(ListNode head) {
+        if (head == null) return "[]";
+        StringBuilder sb = new StringBuilder("[");
+        ListNode node = head;
+        while (true) {
+            sb.append(node.getValue());
+            if ((node = node.getNext()) == head)
+                sb.append(", HEAD]");
+            else if (node == null)
+                sb.append(']');
+            else {
+                sb.append(", ");
+                continue;
             }
+            return sb.toString();
         }
+    }
+
+    public static void printLinkedList(ListNode head) {
+        System.out.println(format(head));
     }
 
     public static boolean hasTwo(ListNode head) {
@@ -140,16 +142,19 @@ public class ListNodeLinkedListLab {
         return count;
     }
 
-    // FIXME: For circular lists.
-    public static <T> ListNode<T> removeFirst(ListNode<T> head) {
-        return head == null
-                ? null // throw new NoSuchElementException()
-                : head.getNext();
+    public static <E> ListNode<E> removeFirst(ListNode<E> head) {
+        if (head == null) return null;
+        for (ListNode<E> node = head; node != null; node = node.getNext())
+            if (node.getNext() == head)
+                node.setNext(null);
+        ListNode<E> newHead = head.getNext();
+        head.setNext(null);
+        return newHead;
     }
 
-    public static <T> ListNode<T> removeLast(ListNode<T> head) {
-        if (head == null) return null; // throw new NoSuchElementException();
-        ListNode<T> previous = null, last = head, next;
+    public static <E> ListNode<E> removeLast(ListNode<E> head) {
+        if (head == null) return null;
+        ListNode<E> previous = null, last = head, next;
         while ((next = last.getNext()) != null && next != head) {
             previous = last;
             last = last.getNext();
@@ -159,23 +164,30 @@ public class ListNodeLinkedListLab {
         return head;
     }
 
-    public static <T> ListNode<T> remove(ListNode<T> head, T value) {
-        if (true) {
-            throw new UnsupportedOperationException();
-        } else if (false) {
-            throw new NoSuchElementException();
-        }
-        return null;
+    public static <E> ListNode<E> remove(ListNode<E> head, E value) {
+        return delete(head, value, false);
     }
 
-    public static <T> void add(ListNode<T> head, T value) {
+    public static <E> void add/*After*/(ListNode<E> head, E value) {
         if (head == null) return;
         head.setNext(new ListNode<>(value, head.getNext()));
     }
 
-    public static <T> ListNode<T> reverseList(ListNode<T> head) {
-        ListNode<T> cur = head, resultHead = null, tmp;
-        while (cur != null) {
+    public static <E> ListNode<E> addFirst(ListNode<E> head, E value) {
+        return new ListNode<>(value, head);
+    }
+
+    public static <E> ListNode<E> addLast(ListNode<E> head, E value) {
+        if (head == null) return new ListNode<>(value, null);
+        ListNode<E> node = head, next;
+        while ((next = node.getNext()) != null && next != head) node = next;
+        node.setNext(new ListNode<>(value, node.getNext()));
+        return head;
+    }
+
+    public static <E> ListNode<E> reverseList(ListNode<E> head) {
+        ListNode<E> cur = head, resultHead = null, tmp;
+        while (cur != null) { // handled head == null
             tmp = cur.getNext();
             cur.setNext(resultHead);
             resultHead = cur;
@@ -186,20 +198,101 @@ public class ListNodeLinkedListLab {
         return resultHead;
     }
 
-    public static <T> ListNode<T> rotate(ListNode<T> head) {
-        if (true) throw new UnsupportedOperationException();
-        return null;
+    // Rotate one to the right
+    public static <E> ListNode<E> rotate(ListNode<E> head) {
+        if (head == null) return null;
+        ListNode<E> node = head, previous = null, next;
+        while ((next = node.getNext()) != null && next != head) {
+            previous = node;
+            node = next;
+        }
+        // circular:
+        if (next == head) return node;
+        // size(head) == 1
+        if (previous == null) return head;
+        previous.setNext(null);
+        node.setNext(head);
+        return node;
     }
 
-    public static <T> ListNode<T> middleNode(ListNode<T> head) {
-        if (head == null) return null;  // throw new NoSuchElementException();
-        ListNode<T> middle = head, cur = head, next, afterNext;
+    public static <E> ListNode<E> middleNode(ListNode<E> head) {
+        if (head == null) return null;
+        ListNode<E> middle = head, cur = head, next, afterNext;
         while ((next = cur.getNext()) != null && next != head
                 && (afterNext = next.getNext()) != null && afterNext != head) {
             middle = middle.getNext();
             cur = afterNext;
         }
         return middle;
+    }
+
+    public static <E> ListNode<E> insertInorder(ListNode<E> head, E value) {
+        if (head == null) return null;
+        throw new UnsupportedOperationException();
+    }
+
+    public static <E> ListNode<E> find(ListNode<E> head, E value) {
+        if (head == null) return null;
+        ListNode<E> node = head, next;
+        while (node != null) {
+            if (node.getValue().equals(value)) return node;
+            if ((next = node.getNext()) == head) break;
+            node = next;
+        }
+        return null;
+    }
+
+    public static <E> ListNode<E> findLast(ListNode<E> head, E value) {
+        if (head == null) return null;
+        ListNode<E> node = head, next, result = null;
+        while (node != null) {
+            if (node.getValue().equals(value)) result = node;
+            if ((next = node.getNext()) == head) break;
+            node = next;
+        }
+        return result;
+    }
+
+    public static <E> ListNode<E> copy(ListNode<E> head) {
+        if (head == null) return null;
+        ListNode<E> node = head, next, after, newHead = null;
+        while ((next = node.getNext()) != null && next != head) {
+            after = new ListNode<>(next.getValue(), next.getNext());
+            if (newHead == null) newHead = after;
+            node.setNext(after);
+            node = after;
+        }
+        return newHead;
+    }
+
+    public static <E> ArrayList<E> copyToArrayList(ListNode<E> head) {
+        if (head == null) return new ArrayList<>();
+        throw new UnsupportedOperationException();
+    }
+
+    public static <E> ListNode<E> delete(ListNode<E> head, E value, boolean deleteAll) {
+        if (head == null) return null;
+        throw new UnsupportedOperationException("RETURN NEW HEAD");
+    }
+
+    public static <E> ListNode<E> appendList(ListNode<E> h1, ListNode<E> h2) {
+        if (h1 == null) return h2;
+        if (h2 == null) return h1;
+        ListNode<E> node = h1, t1, t2;
+        while ((t1 = node.getNext()) != null && t1 != h1) node = t1;
+        node.setNext(h2);
+        node = h2;
+        while ((t2 = node.getNext()) != null && t2 != h2) node = t2;
+        // If list 2 is circular, keep it as it is
+        // Otherwise insert it into list 1 even if list 1 is circular
+        if (t2 != h2) node.setNext(t1);
+        return h1;
+    }
+
+    public static <E> ListNode<E> mergeSorted(ListNode<E> h1, ListNode<E> h2) {
+        if (h1 == null) return h2;
+        if (h2 == null) return h1;
+        throw new UnsupportedOperationException();
     }
 
     public static char getMenuOptionByAsking() {
