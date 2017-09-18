@@ -44,6 +44,12 @@ public class ListNodeLinkedListLab {
         public void setNext(ListNode<E> next) {
             this.next = next;
         }
+
+        @Override
+        public String toString() {
+            String str = super.toString();
+            return str.substring(str.indexOf("@"));
+        }
     }
 
     private static ListNode<Integer> h;
@@ -52,6 +58,9 @@ public class ListNodeLinkedListLab {
         for (int i = 5; i > 0; i--)
             h = new ListNode<>(i, h);
         h.getNext().getNext().getNext().getNext().setNext(h);
+        ListNode<Integer> d = copy(h);
+        printLinkedList(h);
+        printLinkedList(d);
         char option;
         while ((option = getMenuOptionByAsking()) != 'z')
             try {
@@ -114,6 +123,8 @@ public class ListNodeLinkedListLab {
         ListNode node = head;
         while (true) {
             sb.append(node.getValue());
+            sb.append(" ");
+            sb.append(node);
             if ((node = node.getNext()) == head)
                 sb.append(", HEAD]");
             else if (node == null)
@@ -254,13 +265,17 @@ public class ListNodeLinkedListLab {
     }
 
     public static <E> ListNode<E> copy(ListNode<E> head) {
-        if (head == null) return null;
-        ListNode<E> node = head, next, after, newHead = null;
-        while ((next = node.getNext()) != null && next != head) {
-            after = new ListNode<>(next.getValue(), next.getNext());
-            if (newHead == null) newHead = after;
-            node.setNext(after);
-            node = after;
+        ListNode<E> node = head, next, newHead = null, cur, newNode = null;
+        while (node != null) {
+            cur = new ListNode<>(node.getValue(), next = node.getNext());
+            if (newNode != null) newNode.setNext(cur);
+            newNode = cur;
+            if (newHead == null) newHead = cur;
+            if (next == head) {
+                cur.setNext(newHead);
+                break;
+            }
+            node = next;
         }
         return newHead;
     }

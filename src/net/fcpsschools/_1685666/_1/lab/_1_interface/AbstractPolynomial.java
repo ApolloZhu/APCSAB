@@ -70,12 +70,40 @@ public abstract class AbstractPolynomial implements Polynomial {
     /**
      * Name of this polynomial.
      */
-    private String name = "f(x)";
+    private String name;
+
+    /**
+     * Default name for polynomials.
+     */
+    protected static final String DEFAULT_NAME = "f(x)";
 
     /**
      * Name of the variable used in this polynomial.
      */
-    private String variableName = "x";
+    private String variableName;
+
+    /**
+     * Default name for the variable used in polynomials.
+     */
+    protected static final String DEFAULT_VARIABLE_NAME = "x";
+
+    /**
+     * Constructs a polynomial with default name and variable name.
+     */
+    public AbstractPolynomial() {
+        this(DEFAULT_NAME, DEFAULT_VARIABLE_NAME);
+    }
+
+    /**
+     * Constructs a polynomial with given name and variable name.
+     *
+     * @param name         name of this polynomial.
+     * @param variableName name of the variable used in this polynomial.
+     */
+    public AbstractPolynomial(String name, String variableName) {
+        this.name = name;
+        this.variableName = variableName;
+    }
 
     /**
      * Name of this polynomial, default to "f(x)".

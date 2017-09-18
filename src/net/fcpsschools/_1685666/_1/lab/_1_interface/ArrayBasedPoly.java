@@ -17,20 +17,19 @@ public class ArrayBasedPoly extends AbstractPolynomial {
     protected double[] coefficients = {0};
 
     /**
-     * @see AbstractPolynomial#setName(String)
-     * @see AbstractPolynomial#setVariableName(String)
-     * @see #ArrayBasedPoly(double... coefficients)
+     * @see ArrayBasedPoly#ArrayBasedPoly(String, String, double...)
+     * @see AbstractPolynomial#DEFAULT_NAME
      */
-    public /*convenience*/ ArrayBasedPoly(String name, String variableName, double... coefficients) {
-        this(name, coefficients);
-        setVariableName(variableName);
+    public /*convenience*/ ArrayBasedPoly(double... coefficients) {
+        this(DEFAULT_NAME, coefficients);
     }
 
     /**
-     * @see #ArrayBasedPoly(String name, String variableName, double... coefficients)
+     * @see #ArrayBasedPoly(String, String, double...)
+     * @see AbstractPolynomial#DEFAULT_VARIABLE_NAME
      */
     public /*convenience*/ ArrayBasedPoly(String name, double... coefficients) {
-        this(coefficients);
+        this(name, DEFAULT_VARIABLE_NAME, coefficients);
         setName(name);
     }
 
@@ -57,8 +56,10 @@ public class ArrayBasedPoly extends AbstractPolynomial {
      * @param coefficients coefficients in natural order, must include 0s.
      *                     For example, to construct 2x² - 4, use 2, 0, -4.
      * @throws IllegalArgumentException if any of the coefficients is not a number.
+     * @see AbstractPolynomial#AbstractPolynomial(String, String)
      */
-    public ArrayBasedPoly(double... coefficients) {
+    public ArrayBasedPoly(String name, String variableName, double... coefficients) {
+        super(name, variableName);
         // Empty polynomial treated as f(x) = 0
         if (coefficients == null || coefficients.length == 0) return;
         // Constant polynomial
