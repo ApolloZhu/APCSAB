@@ -1,5 +1,6 @@
 package net.fcpsschools._1685666._1.lab._2_linked_list;
 
+import javafx.util.Pair;
 import net.fcpsschools._1685666._1.lab._1_interface.AbstractPolynomial;
 import net.fcpsschools._1685666._1.lab._1_interface.Polynomial;
 
@@ -9,7 +10,7 @@ import java.util.LinkedList;
  * @author ApolloZhu, Pd. 1
  */
 public class SinglyBasedPolynomial extends AbstractPolynomial {
-    private LinkedList<Double> coefficients = new LinkedList<>();
+    private LinkedList<Pair<Integer, Double>> coefficients = new LinkedList<>();
 
     public SinglyBasedPolynomial() {
     }

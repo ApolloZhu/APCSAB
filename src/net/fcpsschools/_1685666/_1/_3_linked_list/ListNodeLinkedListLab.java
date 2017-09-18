@@ -58,9 +58,6 @@ public class ListNodeLinkedListLab {
         for (int i = 5; i > 0; i--)
             h = new ListNode<>(i, h);
         h.getNext().getNext().getNext().getNext().setNext(h);
-        ListNode<Integer> d = copy(h);
-        printLinkedList(h);
-        printLinkedList(d);
         char option;
         while ((option = getMenuOptionByAsking()) != 'z')
             try {
@@ -287,7 +284,22 @@ public class ListNodeLinkedListLab {
 
     public static <E> ListNode<E> delete(ListNode<E> head, E value, boolean deleteAll) {
         if (head == null) return null;
-        throw new UnsupportedOperationException("RETURN NEW HEAD");
+        ListNode<E> previous = null, node = head, next, newHead = head;
+        while (node != null) {
+            if (node.getValue().equals(value)) {
+                if (previous == null) newHead = node.getNext();
+                else {
+                    previous.setNext(node.getNext());
+                    node.setNext(null);
+                    node = previous;
+                }
+                if (deleteAll) break;
+            }
+            if ((next = node.getNext()) == head) break;
+            previous = node;
+            node = next;
+        }
+        return newHead;
     }
 
     public static <E> ListNode<E> appendList(ListNode<E> h1, ListNode<E> h2) {
