@@ -17,6 +17,9 @@ import java.util.Scanner;
  * How I feel about this: very interesting, it requires a lot of think of how to deal with the edge cases,
  * I mean, when the list is circular.
  * What I wonder:
+ * - How can Java enforce the caller to not discard the return value by default.
+ * - How can Java APIs follow a certain naming convention to allude its side effect (if is mutating)
+ * <p>
  * Credits: my whiteboard and pen for trial and errors. 5 oranges for visualizing the operation.
  * Whom I helped (to what extent): Liam, help him understand the structure of shell program
  */
@@ -73,9 +76,6 @@ public class ListNodeLinkedListLab {
         for (int j = 0; j < 3; j++)
             for (int i = 5; i > 0; i--)
                 h = new ListNode<>(i, h);
-//        h.getNext().getNext().getNext().getNext().setNext(h);
-        printLinkedList(h);
-        h = delete(h, 1, true);
         printLinkedList(h);
         char option;
         while ((option = getMenuOptionByAsking()) != 'z')
@@ -86,6 +86,12 @@ public class ListNodeLinkedListLab {
             }
     }
 
+    /**
+     * Formats the given linked list and returns the formatted String.
+     *
+     * @param head the first node in the linked list.
+     * @return array like representation for the list.
+     */
     public static String format(ListNode head) {
         if (head == null) return "[]";
         StringBuilder sb = new StringBuilder("[");
@@ -93,9 +99,9 @@ public class ListNodeLinkedListLab {
         while (true) {
             sb.append(node.getValue());
             sb.append(" ");
-            sb.append(node);
+            sb.append(node); // Memory address
             if ((node = node.getNext()) == head)
-                sb.append(", HEAD]");
+                sb.append(", HEAD]"); // Circular list
             else if (node == null)
                 sb.append(']');
             else {
@@ -106,14 +112,31 @@ public class ListNodeLinkedListLab {
         }
     }
 
+    /**
+     * Prints the given linked list on a line.
+     *
+     * @param head the first node in the list.
+     */
     public static void printLinkedList(ListNode head) {
         System.out.println(format(head));
     }
 
+    /**
+     * Checks if the given linked list has two or more nodes.
+     *
+     * @param head the first node in the list.
+     * @return true if the list has at least two nodes.
+     */
     public static boolean hasTwo(ListNode head) {
         return size(head) >= 2;
     }
 
+    /**
+     * Counts and returns how many nodes are there in the list.
+     *
+     * @param head the first node in the list.
+     * @return the length of the linked list.
+     */
     public static int size(ListNode head) {
         int count = 0;
         for (ListNode node = head, next; node != null;
@@ -122,6 +145,13 @@ public class ListNodeLinkedListLab {
         return count;
     }
 
+    /**
+     * Removes the first node in the list.
+     *
+     * @param head the first node in the list.
+     * @param <E>  any class.
+     * @return the new head for the list.
+     */
     public static <E> ListNode<E> removeFirst(ListNode<E> head) {
         if (head == null) return null;
         for (ListNode<E> node = head; node != null; node = node.getNext())
@@ -132,6 +162,13 @@ public class ListNodeLinkedListLab {
         return newHead;
     }
 
+    /**
+     * Removes the last node in the list.
+     *
+     * @param head the first node in the list.
+     * @param <E>  any class.
+     * @return the new head of the list.
+     */
     public static <E> ListNode<E> removeLast(ListNode<E> head) {
         if (head == null) return null;
         ListNode<E> previous = null, last = head, next;
@@ -144,6 +181,14 @@ public class ListNodeLinkedListLab {
         return head;
     }
 
+    /**
+     * Add an element after the first node with the given value.
+     *
+     * @param head  the first node in the list.
+     * @param value the value to add.
+     * @param <E>   any class.
+     * @return the new head of the list.
+     */
     public static <E> ListNode<E> add/*After*/(ListNode<E> head, E value) {
         if (head == null) return new ListNode<>(value, null);
         head.setNext(new ListNode<>(value, head.getNext()));
@@ -151,17 +196,26 @@ public class ListNodeLinkedListLab {
     }
 
     /**
+     * Add an element before the first node with the given value.
      * Doesn't support circular linked list for performance reason.
      *
-     * @param head
-     * @param value
-     * @param <E>
-     * @return
+     * @param head  the first node in the list.
+     * @param value the value to add.
+     * @param <E>   any class.
+     * @return the new head of the list.
      */
     public static <E> ListNode<E> addFirst(ListNode<E> head, E value) {
         return new ListNode<>(value, head);
     }
 
+    /**
+     * Add an element after the entire list with the given value.
+     *
+     * @param head  the first node in the list.
+     * @param value the value to add.
+     * @param <E>   any class.
+     * @return the new head of the list.
+     */
     public static <E> ListNode<E> addLast(ListNode<E> head, E value) {
         if (head == null) return new ListNode<>(value, null);
         ListNode<E> node = head, next;
@@ -170,6 +224,13 @@ public class ListNodeLinkedListLab {
         return head;
     }
 
+    /**
+     * Reverses the given list.
+     *
+     * @param head the first node in the list.
+     * @param <E>  any class.
+     * @return the new head of the list.
+     */
     public static <E> ListNode<E> reverseList(ListNode<E> head) {
         ListNode<E> cur = head, resultHead = null, tmp;
         while (cur != null) { // handled head == null
@@ -178,12 +239,18 @@ public class ListNodeLinkedListLab {
             resultHead = cur;
             if ((cur = tmp) != head) continue;
             head.setNext(resultHead);
-            break;
+            break; // ?
         }
         return resultHead;
     }
 
-    // Rotate one to the right
+    /**
+     * Moves each node to its next index, substituting the last as the first instead.
+     *
+     * @param head the first node in the list.
+     * @param <E>  any class.
+     * @return the new head of the list.
+     */
     public static <E> ListNode<E> rotate(ListNode<E> head) {
         if (head == null) return null;
         ListNode<E> node = head, previous = null, next;
@@ -200,6 +267,13 @@ public class ListNodeLinkedListLab {
         return node;
     }
 
+    /**
+     * Returns the node in the middle of the given list.
+     *
+     * @param head the first node in the list.
+     * @param <E>  any class.
+     * @return pointer to the node at index (n-1) / 2; null otherwise.
+     */
     public static <E> ListNode<E> middleNode(ListNode<E> head) {
         if (head == null) return null;
         ListNode<E> middle = head, cur = head, next, afterNext;
@@ -212,12 +286,14 @@ public class ListNodeLinkedListLab {
     }
 
     /**
-     * Doesn't support insert in order for circular list for performance reason, except when the element is larger than all other nodes in the list.
+     * Inserts a node in an ascending list, and the list is still in order afterwards.
+     * Doesn't support circular list for performance reason,
+     * except when the element is larger than all other nodes in the list.
      *
-     * @param head
-     * @param value
-     * @param <E>
-     * @return
+     * @param head  the first node in an ascending list.
+     * @param value the value to insert.
+     * @param <E>   any class.
+     * @return the new head of the list.
      */
     public static <E extends Comparable<E>> ListNode<E> insertInOrder(ListNode<E> head, E value) {
         if (head == null) return new ListNode<>(value, null);
@@ -238,6 +314,14 @@ public class ListNodeLinkedListLab {
         return newHead;
     }
 
+    /**
+     * Finds and returns the first node with the given value.
+     *
+     * @param head  the first node in the list.
+     * @param value the value to find in the list.
+     * @param <E>   any class.
+     * @return pointer to the node in the list with given value; null otherwise.
+     */
     public static <E> ListNode<E> find(ListNode<E> head, E value) {
         if (head == null) return null;
         ListNode<E> node = head, next;
@@ -249,6 +333,14 @@ public class ListNodeLinkedListLab {
         return null;
     }
 
+    /**
+     * Finds and returns the last node with the given value.
+     *
+     * @param head  the first node in the list.
+     * @param value the value to find in the list.
+     * @param <E>   any class.
+     * @return pointer to the last node in the list with given value; null otherwise.
+     */
     public static <E> ListNode<E> findLast(ListNode<E> head, E value) {
         if (head == null) return null;
         ListNode<E> node = head, next, result = null;
