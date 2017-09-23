@@ -5,6 +5,7 @@ package net.fcpsschools._1685666._1.lab._1_interface;
  * > Looked through one of my old programs for recursive implementation.
  * > BigDecimal class has similar features, so I extended Number and implemented Comparable,
  *   and switched to BigInteger as internal representation.
+ * > After Mr. Lau showed someone else's approach, I realized BigInteger has it's own gcd implementation.
  */
 
 /* How I feel about this lab?
@@ -76,7 +77,8 @@ public class BigRationalNum extends Number implements Comparable<BigRationalNum>
         // Validate
         if (denominator.equals(BigInteger.ZERO)) throw new ArithmeticException("/ by zero");
         // Reduce
-        BigInteger gcd = gcd(numerator, denominator);
+        // BigInteger gcd = gcd(numerator, denominator);
+        BigInteger gcd = numerator.gcd(denominator);
         if (!gcd.equals(BigInteger.ONE)) {
             numerator = numerator.divide(gcd);
             denominator = denominator.divide(gcd);

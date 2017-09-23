@@ -1,4 +1,6 @@
-package net.fcpsschools._1685666._1._3_linked_list;
+package net.fcpsschools._1685666._1.lab._3_linked_list;
+
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -20,55 +22,8 @@ import java.util.Scanner;
  */
 
 public class ListNodeLinkedListLab {
-    private static class ListNode<E> {
-        private E value;
-        private ListNode<E> next;
-
-        public ListNode(E value, ListNode<E> next) {
-            setValue(value);
-            setNext(next);
-        }
-
-        public E getValue() {
-            return value;
-        }
-
-        public ListNode<E> getNext() {
-            return next;
-        }
-
-        public void setValue(E value) {
-            this.value = value;
-        }
-
-        public void setNext(ListNode<E> next) {
-            this.next = next;
-        }
-
-        @Override
-        public String toString() {
-            String str = super.toString();
-            return str.substring(str.indexOf("@"));
-        }
-    }
-
-    private static ListNode<Integer> h;
-
-    public static void main(String[] args) {
-        for (int i = 5; i > 0; i--)
-            h = new ListNode<>(i, h);
-        h.getNext().getNext().getNext().getNext().setNext(h);
-        char option;
-        while ((option = getMenuOptionByAsking()) != 'z')
-            try {
-                OPERATIONS[option - 'a'].run();
-            } catch (IndexOutOfBoundsException ignored) {
-                System.out.println("Invalid option!");
-            }
-    }
-
     private static final Scanner INPUT = new Scanner(System.in);
-
+    private static ListNode<Integer> h;
     private static final Runnable[] OPERATIONS = {
             () -> {
                 System.out.println("list: ");
@@ -113,6 +68,23 @@ public class ListNodeLinkedListLab {
                 printLinkedList(h);
             }
     };
+
+    public static void main(String[] args) {
+        for (int j = 0; j < 3; j++)
+            for (int i = 5; i > 0; i--)
+                h = new ListNode<>(i, h);
+//        h.getNext().getNext().getNext().getNext().setNext(h);
+        printLinkedList(h);
+        h = delete(h, 1, true);
+        printLinkedList(h);
+        char option;
+        while ((option = getMenuOptionByAsking()) != 'z')
+            try {
+                OPERATIONS[option - 'a'].run();
+            } catch (IndexOutOfBoundsException ignored) {
+                System.out.println("Invalid option!");
+            }
+    }
 
     public static String format(ListNode head) {
         if (head == null) return "[]";
@@ -172,15 +144,20 @@ public class ListNodeLinkedListLab {
         return head;
     }
 
-    public static <E> ListNode<E> remove(ListNode<E> head, E value) {
-        return delete(head, value, false);
-    }
-
-    public static <E> void add/*After*/(ListNode<E> head, E value) {
-        if (head == null) return;
+    public static <E> ListNode<E> add/*After*/(ListNode<E> head, E value) {
+        if (head == null) return new ListNode<>(value, null);
         head.setNext(new ListNode<>(value, head.getNext()));
+        return head;
     }
 
+    /**
+     * Doesn't support circular linked list for performance reason.
+     *
+     * @param head
+     * @param value
+     * @param <E>
+     * @return
+     */
     public static <E> ListNode<E> addFirst(ListNode<E> head, E value) {
         return new ListNode<>(value, head);
     }
@@ -234,9 +211,31 @@ public class ListNodeLinkedListLab {
         return middle;
     }
 
-    public static <E> ListNode<E> insertInorder(ListNode<E> head, E value) {
-        if (head == null) return null;
-        throw new UnsupportedOperationException();
+    /**
+     * Doesn't support insert in order for circular list for performance reason, except when the element is larger than all other nodes in the list.
+     *
+     * @param head
+     * @param value
+     * @param <E>
+     * @return
+     */
+    public static <E extends Comparable<E>> ListNode<E> insertInOrder(ListNode<E> head, E value) {
+        if (head == null) return new ListNode<>(value, null);
+        ListNode<E> previous = null, node = head, toInsert, newHead = head;
+        while (node != null) {
+            if (node.getValue().compareTo(value) <= 0) {
+                previous = node;
+                node = node.getNext();
+                if (node == head) break;
+                continue;
+            }
+            toInsert = new ListNode<>(value, node);
+            if (previous == null) newHead = toInsert;
+            else previous.setNext(toInsert);
+            return newHead;
+        }
+        previous.setNext(new ListNode<>(value, node));
+        return newHead;
     }
 
     public static <E> ListNode<E> find(ListNode<E> head, E value) {
@@ -261,41 +260,71 @@ public class ListNodeLinkedListLab {
         return result;
     }
 
+    /**
+     * @param head
+     * @param <E>
+     * @return the head of the clone of the given list.
+     * @implSpec Complexity: O(n)
+     */
     public static <E> ListNode<E> copy(ListNode<E> head) {
-        ListNode<E> node = head, next, newHead = null, cur, newNode = null;
+        ListNode<E> newHead = null,  // Head of the new list
+                node = head,         // Temporary for iteration in the old list
+                nodecpy,             // A hard copy of `node`
+                newNode = null,      // Temporary for iteration in the new list
+                next;                // Next node in the old list
         while (node != null) {
-            cur = new ListNode<>(node.getValue(), next = node.getNext());
-            if (newNode != null) newNode.setNext(cur);
-            newNode = cur;
-            if (newHead == null) newHead = cur;
+            // Make a copy:
+            nodecpy = new ListNode<>(node.getValue(), next = node.getNext());
+            // If not the first element, link it to the previous one in the new list
+            if (newNode != null) newNode.setNext(nodecpy);
+                // Else if is the first element, set it as the new head
+            else newHead = nodecpy;
+            // Record the last element in the new list
+            newNode = nodecpy;
+            // If circular, stop
             if (next == head) {
-                cur.setNext(newHead);
+                nodecpy.setNext(newHead);
                 break;
             }
+            // Move on to the next element in the old list
             node = next;
         }
         return newHead;
     }
 
     public static <E> ArrayList<E> copyToArrayList(ListNode<E> head) {
-        if (head == null) return new ArrayList<>();
-        throw new UnsupportedOperationException();
+        ArrayList<E> list = new ArrayList<>();
+        for (ListNode<E> node = head; node != null; node = node.getNext() == head ? null : node.getNext())
+            list.add(node.getValue());
+        return list;
     }
 
+    /**
+     * May behave like rotate for circular list when the element to remove is the first one for performance reasons.
+     *
+     * @param head
+     * @param value
+     * @param deleteAll
+     * @param <E>
+     * @return
+     */
     public static <E> ListNode<E> delete(ListNode<E> head, E value, boolean deleteAll) {
-        if (head == null) return null;
         ListNode<E> previous = null, node = head, next, newHead = head;
         while (node != null) {
+            next = node.getNext();
             if (node.getValue().equals(value)) {
-                if (previous == null) newHead = node.getNext();
-                else {
-                    previous.setNext(node.getNext());
-                    node.setNext(null);
-                    node = previous;
-                }
-                if (deleteAll) break;
+                // Remove first element will shift the new head
+                if (previous == null) newHead = next;
+                    // Otherwise remove from the previous node
+                else previous.setNext(next);
+                node.setNext(null);
+                node = previous;
+                // Break if only remove one
+                if (!deleteAll) break;
             }
-            if ((next = node.getNext()) == head) break;
+            // Break circular list
+            if (next == head) break;
+            // Update to next round
             previous = node;
             node = next;
         }
@@ -310,16 +339,63 @@ public class ListNodeLinkedListLab {
         node.setNext(h2);
         node = h2;
         while ((t2 = node.getNext()) != null && t2 != h2) node = t2;
-        // If list 2 is circular, keep it as it is
+        // If list 2 is not circular, keep it as it is
         // Otherwise insert it into list 1 even if list 1 is circular
-        if (t2 != h2) node.setNext(t1);
+        if (t1 == h1 || t2 == h2) node.setNext(h1);
         return h1;
     }
 
-    public static <E> ListNode<E> mergeSorted(ListNode<E> h1, ListNode<E> h2) {
+    /**
+     * Merge two sorted list into a new sorted list.
+     *
+     * @param h1  head of a list with elements sorted in ascending order.
+     * @param h2  head of another list with elements sorted in ascending order.
+     * @param <E> any comparable.
+     * @return head of the merged list, with elements sorted in ascending order.
+     * @implSpec h1 and h2 are unchanged.
+     */
+    // FIXME: Doesn't work
+    public static <E extends Comparable<E>> ListNode<E> mergeSorted(ListNode<E> h1, ListNode<E> h2) {
         if (h1 == null) return h2;
         if (h2 == null) return h1;
-        throw new UnsupportedOperationException();
+        ListNode<E> i = h1, j = h2, k = null, newHead = null, copy;
+        while (i != null || j != null) {
+            if (j == null || (i.getValue()).compareTo(j.getValue()) <= 0) {
+                copy = new ListNode<>(i.getValue(), null);
+                i = i.getNext() == h1 ? null : i.getNext();
+            } else {
+                copy = new ListNode<>(j.getValue(), null);
+                j = j.getNext() == h2 ? null : j.getNext();
+            }
+            if (k == null) k = newHead = copy;
+            else k.setNext(copy);
+        }
+        return newHead;
+    }
+
+    /**
+     * Split the original list by index, arranged in random order. Original is emptied.
+     *
+     * @param head
+     * @param <E>
+     * @return
+     */
+    public static <E> Pair<ListNode<E>, ListNode<E>> splitEvenOdd(ListNode<E> head) {
+        ListNode<E> even = null, odd = null, node = head, next;
+        boolean isEven = true;
+        while (node != null) {
+            next = node.getNext();
+            if (isEven) {
+                node.setNext(even);
+                even = node;
+            } else {
+                node.setNext(odd);
+                odd = node;
+            }
+            isEven = !isEven;
+            node = next == head ? null : next;
+        }
+        return new Pair<>(even, odd);
     }
 
     public static char getMenuOptionByAsking() {
@@ -335,5 +411,37 @@ public class ListNodeLinkedListLab {
                 "i) Remove last node\n" +
                 "z) Quit");
         return INPUT.next().charAt(0);
+    }
+
+    static class ListNode<E> {
+        private E value;
+        private ListNode<E> next;
+
+        public ListNode(E value, ListNode<E> next) {
+            setValue(value);
+            setNext(next);
+        }
+
+        public E getValue() {
+            return value;
+        }
+
+        public void setValue(E value) {
+            this.value = value;
+        }
+
+        public ListNode<E> getNext() {
+            return next;
+        }
+
+        public void setNext(ListNode<E> next) {
+            this.next = next;
+        }
+
+        @Override
+        public String toString() {
+            String str = super.toString();
+            return str.substring(str.indexOf("@"));
+        }
     }
 }
