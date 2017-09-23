@@ -1,7 +1,5 @@
 package net.fcpsschools._1685666._1.lab._3_linked_list;
 
-import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -353,8 +351,10 @@ public class ListNodeLinkedListLab {
     }
 
     /**
-     * @param head
-     * @param <E>
+     * Make a clone of the given list. The original is not changed.
+     *
+     * @param head the first node in the list.
+     * @param <E>  any class.
      * @return the head of the clone of the given list.
      * @implSpec Complexity: O(n)
      */
@@ -384,6 +384,14 @@ public class ListNodeLinkedListLab {
         return newHead;
     }
 
+    /**
+     * Make a copy of the list as an array list.
+     * FIXME: Circular lists are treated as non-circular
+     *
+     * @param head the first node in the list.
+     * @param <E>  any class.
+     * @return the array list, with same content as the list.
+     */
     public static <E> ArrayList<E> copyToArrayList(ListNode<E> head) {
         ArrayList<E> list = new ArrayList<>();
         for (ListNode<E> node = head; node != null; node = node.getNext() == head ? null : node.getNext())
@@ -392,13 +400,14 @@ public class ListNodeLinkedListLab {
     }
 
     /**
-     * May behave like rotate for circular list when the element to remove is the first one for performance reasons.
+     * Remove first element, or all elements if `deleteAll`, with value equalling to the given value.
+     * For performance reasons, may behave like rotate for circular lists when the element to remove is the first one,
      *
-     * @param head
-     * @param value
-     * @param deleteAll
-     * @param <E>
-     * @return
+     * @param head      the first node in the list.
+     * @param value     the value of the node(s) to remove.
+     * @param deleteAll true if should remove all matching elements; false if only removes the first one.
+     * @param <E>       any class.
+     * @return the new head of the list.
      */
     public static <E> ListNode<E> delete(ListNode<E> head, E value, boolean deleteAll) {
         ListNode<E> previous = null, node = head, next, newHead = head;
@@ -423,6 +432,14 @@ public class ListNodeLinkedListLab {
         return newHead;
     }
 
+    /**
+     * Append the second list at the rear of the first list.
+     *
+     * @param h1  the head of the first list.
+     * @param h2  the head of the second list.
+     * @param <E> any class.
+     * @return the head of the new list.
+     */
     public static <E> ListNode<E> appendList(ListNode<E> h1, ListNode<E> h2) {
         if (h1 == null) return h2;
         if (h2 == null) return h1;
@@ -439,14 +456,13 @@ public class ListNodeLinkedListLab {
 
     /**
      * Merge two sorted list into a new sorted list.
+     * The original lists are unchanged.
      *
      * @param h1  head of a list with elements sorted in ascending order.
      * @param h2  head of another list with elements sorted in ascending order.
      * @param <E> any comparable.
      * @return head of the merged list, with elements sorted in ascending order.
-     * @implSpec h1 and h2 are unchanged.
      */
-    // FIXME: Doesn't work
     public static <E extends Comparable<E>> ListNode<E> mergeSorted(ListNode<E> h1, ListNode<E> h2) {
         if (h1 == null) return h2;
         if (h2 == null) return h1;
@@ -466,13 +482,14 @@ public class ListNodeLinkedListLab {
     }
 
     /**
-     * Split the original list by index, arranged in random order. Original is emptied.
+     * Split the original list by index, arranged in random order. Original list is emptied.
      *
-     * @param head
-     * @param <E>
-     * @return
+     * @param head the first node in the list.
+     * @param <E>  any class.
+     * @return a pair of list nodes, the first list are the nodes with even an even index,
+     * with the rest nodes in the other list.
      */
-    public static <E> Pair<ListNode<E>, ListNode<E>> splitEvenOdd(ListNode<E> head) {
+    public static <E> ImmutablePair<ListNode<E>, ListNode<E>> splitEvenOdd(ListNode<E> head) {
         ListNode<E> even = null, odd = null, node = head, next;
         boolean isEven = true;
         while (node != null) {
@@ -487,9 +504,14 @@ public class ListNodeLinkedListLab {
             isEven = !isEven;
             node = next == head ? null : next;
         }
-        return new Pair<>(even, odd);
+        return new ImmutablePair<>(even, odd);
     }
 
+    /**
+     * Prompts the user to enter the code for an operation to perform.
+     *
+     * @return a char representing an operation.
+     */
     public static char getMenuOptionByAsking() {
         System.out.println("\n====> What would you like to do?\n" +
                 "a) Print list\n" +
@@ -503,6 +525,24 @@ public class ListNodeLinkedListLab {
                 "i) Remove last node\n" +
                 "z) Quit");
         return INPUT.next().charAt(0);
+    }
+
+    static class ImmutablePair<U, V> {
+        private U first;
+        private V second;
+
+        private ImmutablePair(U first, V second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public U getFirst() {
+            return first;
+        }
+
+        public V getSecond() {
+            return second;
+        }
     }
 
     static class ListNode<E> {

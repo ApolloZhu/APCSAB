@@ -159,7 +159,7 @@ class ListNodeLinkedListLabTest {
 
     @Test
     void copy() {
-        for (ListNodeLinkedListLab.ListNode<Integer> h : new ListNodeLinkedListLab.ListNode[]{
+        for (ListNodeLinkedListLab.ListNode h : new ListNodeLinkedListLab.ListNode[]{
                 makeCircularList(), makeSortedList(5), makeSortedList(1), null
         }) {
             ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.copy(h));
@@ -209,7 +209,9 @@ class ListNodeLinkedListLabTest {
 
     @Test
     void splitEvenOdd() {
-        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.splitEvenOdd(makeCircularList()).getKey());
-        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.splitEvenOdd(makeCircularList()).getValue());
+        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.splitEvenOdd(makeCircularList()).getFirst());
+        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.splitEvenOdd(makeCircularList()).getSecond());
+        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.splitEvenOdd(makeSortedList(4)).getFirst());
+        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.splitEvenOdd(makeSortedList(4)).getSecond());
     }
 }
