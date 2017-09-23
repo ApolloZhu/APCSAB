@@ -367,8 +367,8 @@ public class ListNodeLinkedListLab {
                 copy = new ListNode<>(j.getValue(), null);
                 j = j.getNext() == h2 ? null : j.getNext();
             }
-            if (k == null) k = newHead = copy;
-            else k.setNext(copy);
+            if (k == null) newHead = k = copy;
+            else k.setNext(k = copy);
         }
         return newHead;
     }
