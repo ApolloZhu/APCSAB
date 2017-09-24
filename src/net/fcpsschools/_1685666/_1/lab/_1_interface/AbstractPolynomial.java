@@ -10,6 +10,88 @@ package net.fcpsschools._1685666._1.lab._1_interface;
  */
 public abstract class AbstractPolynomial implements Polynomial {
     /**
+     * Default name for polynomials.
+     */
+    protected static final String DEFAULT_NAME = "f(x)";
+    /**
+     * Default name for the variable used in polynomials.
+     */
+    protected static final String DEFAULT_VARIABLE_NAME = "x";
+    /**
+     * Superscript 0-9, indexed by value.
+     *
+     * @link https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
+     */
+    private static final String[] SUPERSCRIPTS = {"\u2070", "\u00B9", "\u00B2", "\u00B3", "\u2074", "\u2075", "\u2076", "\u2077", "\u2078", "\u2079"};
+    /**
+     * The negative prefix of a exponent (superscript representation).
+     */
+    private static final String SUPERSCRIPT_MINUS_SIGN = "\u207B";
+    /**
+     * Name of this polynomial.
+     */
+    private String name;
+    /**
+     * Name of the variable used in this polynomial.
+     */
+    private String variableName;
+
+    /**
+     * Constructs a polynomial with default name and variable name.
+     */
+    public AbstractPolynomial() {
+        this(DEFAULT_NAME, DEFAULT_VARIABLE_NAME);
+    }
+
+    /**
+     * Constructs a polynomial with given name and variable name.
+     *
+     * @param name         name of this polynomial.
+     * @param variableName name of the variable used in this polynomial.
+     */
+    public AbstractPolynomial(String name, String variableName) {
+        this.name = name;
+        this.variableName = variableName;
+    }
+
+    /**
+     * Transforming int to exponent (superscript representation).
+     *
+     * @param exponent exponent to transform.
+     * @return human friendly exponent representation within context.
+     */
+    public static String makePrettyExponent(int exponent) {
+        if (exponent == 0 || exponent == 1) return ""; // Ignore 0 and 1 degree
+        StringBuilder sb = new StringBuilder();
+        int mutableCopy = Math.abs(exponent);
+        // Until is zero
+        while (mutableCopy > 0) {
+            // Convert to superscript
+            sb.insert(0, SUPERSCRIPTS[mutableCopy % 10]);
+            // From the last digit
+            mutableCopy /= 10;
+        }
+        // Prefix - if is negative
+        return (exponent > 0 ? "" : SUPERSCRIPT_MINUS_SIGN) + sb.toString();
+    }
+
+    /**
+     * Simplify double coefficient into int if possible.
+     *
+     * @param coefficient coefficient to simplify.
+     * @param exponent    exponent of the term with the given coefficient.
+     * @return absolute value of the simplified coefficient, or empty string if unnecessary.
+     */
+    public static String makeSimpleCoefficient(double coefficient, int exponent) {
+        coefficient = Math.abs(coefficient);
+        int intCoefficient = (int) coefficient;
+        return (coefficient == intCoefficient) // is int
+                // Only keep 1 if for constant term
+                ? ((intCoefficient == 1 && exponent != 0) ? "" : "" + intCoefficient)
+                : "" + coefficient;
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @implSpec When x is not a number, result is also not a number.
@@ -68,59 +150,12 @@ public abstract class AbstractPolynomial implements Polynomial {
     }
 
     /**
-     * Name of this polynomial.
-     */
-    private String name;
-
-    /**
-     * Default name for polynomials.
-     */
-    protected static final String DEFAULT_NAME = "f(x)";
-
-    /**
-     * Name of the variable used in this polynomial.
-     */
-    private String variableName;
-
-    /**
-     * Default name for the variable used in polynomials.
-     */
-    protected static final String DEFAULT_VARIABLE_NAME = "x";
-
-    /**
-     * Constructs a polynomial with default name and variable name.
-     */
-    public AbstractPolynomial() {
-        this(DEFAULT_NAME, DEFAULT_VARIABLE_NAME);
-    }
-
-    /**
-     * Constructs a polynomial with given name and variable name.
-     *
-     * @param name         name of this polynomial.
-     * @param variableName name of the variable used in this polynomial.
-     */
-    public AbstractPolynomial(String name, String variableName) {
-        this.name = name;
-        this.variableName = variableName;
-    }
-
-    /**
      * Name of this polynomial, default to "f(x)".
      *
      * @return polynomial name.
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Name of the variable used in this polynomial, default to "x".
-     *
-     * @return variable name.
-     */
-    public String getVariableName() {
-        return variableName;
     }
 
     /**
@@ -131,6 +166,15 @@ public abstract class AbstractPolynomial implements Polynomial {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Name of the variable used in this polynomial, default to "x".
+     *
+     * @return variable name.
+     */
+    public String getVariableName() {
+        return variableName;
     }
 
     /**
@@ -174,55 +218,6 @@ public abstract class AbstractPolynomial implements Polynomial {
                 ? (coefficient >= 0 ? "" : "-") // First term either omit or `-`
                 : (coefficient > 0 ? " + " : " - "); // +/- according to sign
         return conjunctionToPreviousTerm + makeSimpleCoefficient(coefficient, exponent) + x;
-    }
-
-    /**
-     * Superscript 0-9, indexed by value.
-     *
-     * @link https://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
-     */
-    private static final String[] SUPERSCRIPTS = {"\u2070", "\u00B9", "\u00B2", "\u00B3", "\u2074", "\u2075", "\u2076", "\u2077", "\u2078", "\u2079"};
-
-    /**
-     * The negative prefix of a exponent (superscript representation).
-     */
-    private static final String SUPERSCRIPT_MINUS_SIGN = "\u207B";
-
-    /**
-     * Transforming int to exponent (superscript representation).
-     *
-     * @param exponent exponent to transform.
-     * @return human friendly exponent representation within context.
-     */
-    private static String makePrettyExponent(int exponent) {
-        if (exponent == 0 || exponent == 1) return ""; // Ignore 0 and 1 degree
-        StringBuilder sb = new StringBuilder();
-        int mutableCopy = Math.abs(exponent);
-        // Until is zero
-        while (mutableCopy > 0) {
-            // Convert to superscript
-            sb.insert(0, SUPERSCRIPTS[mutableCopy % 10]);
-            // From the last digit
-            mutableCopy /= 10;
-        }
-        // Prefix - if is negative
-        return (exponent > 0 ? "" : SUPERSCRIPT_MINUS_SIGN) + sb.toString();
-    }
-
-    /**
-     * Simplify double coefficient into int if possible.
-     *
-     * @param coefficient coefficient to simplify.
-     * @param exponent    exponent of the term with the given coefficient.
-     * @return absolute value of the simplified coefficient, or empty string if unnecessary.
-     */
-    private static String makeSimpleCoefficient(double coefficient, int exponent) {
-        coefficient = Math.abs(coefficient);
-        int intCoefficient = (int) coefficient;
-        return (coefficient == intCoefficient) // is int
-                // Only keep 1 if for constant term
-                ? ((intCoefficient == 1 && exponent != 0) ? "" : "" + intCoefficient)
-                : "" + coefficient;
     }
 
     /**

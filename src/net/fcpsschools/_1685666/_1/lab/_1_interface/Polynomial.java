@@ -37,7 +37,7 @@ public interface Polynomial {
 
     /**
      * Forms a new polynomial by adding this and another together.
-     * This and the other is unchanged.
+     * This and the other are unchanged.
      *
      * @param another the other polynomial to add.
      * @return resulting polynomial by adding this and the given polynomial.
@@ -46,9 +46,9 @@ public interface Polynomial {
 
     /**
      * Forms a new polynomial by subtracting another polynomial from this.
-     * This and the other is unchanged.
+     * This and the other are unchanged.
      *
-     * @param another the other polynomial to add.
+     * @param another the other polynomial to subtract.
      * @return resulting polynomial by subtracting the given polynomial from this.
      */
     Polynomial subtracting(Polynomial another);
