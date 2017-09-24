@@ -1,4 +1,4 @@
-package net.fcpsschools._1685666._1.lab._3_linked_list;
+package net.fcpsschools._1685666._1._3_linked_list;
 
 import org.junit.jupiter.api.Test;
 
