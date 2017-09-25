@@ -1,4 +1,4 @@
-package net.fcpsschools._1685666._1._3_linked_list;
+package net.fcpsschools._1685666._1.lab._2_linked_list;
 
 import org.junit.jupiter.api.Test;
 
@@ -205,6 +205,12 @@ class ListNodeLinkedListLabTest {
         ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.mergeSorted(makeSortedList(5), null));
         ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.mergeSorted(null, makeSortedList(5)));
         ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.mergeSorted(makeSortedList(2, 9), makeSortedList(5)));
+        // Test data from May Gong.
+        ListNodeLinkedListLab.ListNode<Integer> h = null;
+        for (int i : new int[]{10, 9, 6, 5, 3})
+            h = new ListNodeLinkedListLab.ListNode<>(i, h);
+        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.mergeSorted(makeSortedList(5), h));
+        ListNodeLinkedListLab.printLinkedList(ListNodeLinkedListLab.mergeSorted(h, makeSortedList(5)));
     }
 
     @Test

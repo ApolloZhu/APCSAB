@@ -1,4 +1,4 @@
-package net.fcpsschools._1685666._1._3_linked_list;
+package net.fcpsschools._1685666._1.lab._2_linked_list;
 
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -12,14 +12,21 @@ import java.util.Scanner;
  * Submitted:
  * What I learned:
  * - how to implement the operations that cares for the circular lists.
- * How I feel about this: very interesting, it requires a lot of think of how to deal with the edge cases,
- * I mean, when the list is circular.
+ * How I feel about this:
+ * - Very interesting, it requires a lot of think of how to deal with the edge cases
+ * - I mean, especially when the list is circular.
  * What I wonder:
+ * - How should we make a decision between efficiency and robustness? (e.g. removeFirst when list is circular).
  * - How can Java enforce the caller to not discard the return value by default.
  * - How can Java APIs follow a certain naming convention to allude its side effect (if is mutating)
  * <p>
- * Credits: my whiteboard and pen for trial and errors. 5 oranges for visualizing the operation.
- * Whom I helped (to what extent): Liam, help him understand the structure of shell program
+ * Credits:
+ * - my whiteboard and pen for trial and errors.
+ * - 5 oranges for visualizing the operations.
+ * - May Gong for providing a test data to help me realize a NullPointerException in mergeSorted.
+ * Whom I helped (to what extent):
+ * - Liam, helped him understand the structure of the shell program.
+ * - May Gong, helped her understand why her code is behaving differently that what she think it will do.
  */
 
 public class ListNodeLinkedListLab {
@@ -386,16 +393,19 @@ public class ListNodeLinkedListLab {
 
     /**
      * Make a copy of the list as an array list.
-     * FIXME: Circular lists are treated as non-circular
      *
      * @param head the first node in the list.
      * @param <E>  any class.
      * @return the array list, with same content as the list.
      */
     public static <E> ArrayList<E> copyToArrayList(ListNode<E> head) {
-        ArrayList<E> list = new ArrayList<>();
-        for (ListNode<E> node = head; node != null; node = node.getNext() == head ? null : node.getNext())
+        ArrayList list = new ArrayList();
+        for (ListNode<E> node = head, next; node != null; node = next) {
             list.add(node.getValue());
+            if ((next = node.getNext()) != head) continue;
+            list.add(list);
+            next = null;
+        }
         return list;
     }
 
@@ -468,7 +478,8 @@ public class ListNodeLinkedListLab {
         if (h2 == null) return h1;
         ListNode<E> i = h1, j = h2, k = null, newHead = null, copy;
         while (i != null || j != null) {
-            if (j == null || (i.getValue()).compareTo(j.getValue()) <= 0) {
+            if (j == null ||
+                    i != null && (i.getValue()).compareTo(j.getValue()) <= 0) {
                 copy = new ListNode<>(i.getValue(), null);
                 i = i.getNext() == h1 ? null : i.getNext();
             } else {
@@ -512,6 +523,7 @@ public class ListNodeLinkedListLab {
      *
      * @return a char representing an operation.
      */
+
     public static char getMenuOptionByAsking() {
         System.out.println("\n====> What would you like to do?\n" +
                 "a) Print list\n" +
