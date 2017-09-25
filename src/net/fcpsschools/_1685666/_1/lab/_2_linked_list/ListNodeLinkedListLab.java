@@ -7,23 +7,28 @@ import java.util.Scanner;
  * Name: Zhiyu Zhu
  * Period: 1
  * Lab: Linked List Node
- * Purpose: Static operations
- * Due:
- * Submitted:
+ * Purpose: Static operations on singly linked list nodes.
+ * Due: 9/24 23:59:59
+ * Submitted: 9/25 1:00 exactly. (Scheduled email)
  * What I learned:
- * - how to implement the operations that cares for the circular lists.
+ * - implementation of the general operations on (circular) linked list nodes.
+ * <p>
  * How I feel about this:
- * - Very interesting, it requires a lot of think of how to deal with the edge cases
- * - I mean, especially when the list is circular.
+ * - Very interesting, it requires a lot of think of how to deal with the edge cases.
+ * - I mean, especially null pointers, and when the list is circular.
+ * <p>
  * What I wonder:
+ * - What if I turn in this late after an hour it is due, although I finished long before.
  * - How should we make a decision between efficiency and robustness? (e.g. removeFirst when list is circular).
  * - How can Java enforce the caller to not discard the return value by default.
  * - How can Java APIs follow a certain naming convention to allude its side effect (if is mutating)
+ * - How to efficiently deal with partially circular lists (e.g. 0x01 -> 0x02 -> 0x03 -> 0x04 -> 0x02)?
  * <p>
  * Credits:
- * - my whiteboard and pen for trial and errors.
+ * - My whiteboard and pen for trial and errors.
  * - 5 oranges for visualizing the operations.
  * - May Gong for providing a test data to help me realize a NullPointerException in mergeSorted.
+ * <p>
  * Whom I helped (to what extent):
  * - Liam, helped him understand the structure of the shell program.
  * - May Gong, helped her understand why her code is behaving differently that what she think it will do.
@@ -230,21 +235,21 @@ public class ListNodeLinkedListLab {
     }
 
     /**
-     * Reverses the given list.
+     * Efficiently reverses the given list.
      *
      * @param head the first node in the list.
      * @param <E>  any class.
      * @return the new head of the list.
      */
-    public static <E> ListNode<E> reverseList(ListNode<E> head) {
+    public static /*mutating*/ <E> ListNode<E> reverseList(ListNode<E> head) {
         ListNode<E> cur = head, resultHead = null, tmp;
-        while (cur != null) { // handled head == null
-            tmp = cur.getNext();
-            cur.setNext(resultHead);
-            resultHead = cur;
-            if ((cur = tmp) != head) continue;
-            head.setNext(resultHead);
-            break; // ?
+        while (cur != null) { // Checks if is the last element.
+            tmp = cur.getNext(); // Keep a hold on the next node in the list.
+            cur.setNext(resultHead); // Attach the current list head
+            resultHead = cur; // Update head to current.
+            if ((cur = tmp) != head) continue; // Move cur to the next
+            head.setNext(resultHead); // If circular, make the reverse circular
+            break; // Exit loop for circular.
         }
         return resultHead;
     }
@@ -315,6 +320,7 @@ public class ListNodeLinkedListLab {
             else previous.setNext(toInsert);
             return newHead;
         }
+        // If bigger than all elements.
         previous.setNext(new ListNode<>(value, node));
         return newHead;
     }
@@ -497,8 +503,9 @@ public class ListNodeLinkedListLab {
      *
      * @param head the first node in the list.
      * @param <E>  any class.
-     * @return a pair of list nodes, the first list are the nodes with even an even index,
-     * with the rest nodes in the other list.
+     * @return a pair of list nodes,
+     * the first list are the nodes with even an even index,
+     * with the rest nodes in the second list.
      */
     public static <E> ImmutablePair<ListNode<E>, ListNode<E>> splitEvenOdd(ListNode<E> head) {
         ListNode<E> even = null, odd = null, node = head, next;
@@ -523,7 +530,6 @@ public class ListNodeLinkedListLab {
      *
      * @return a char representing an operation.
      */
-
     public static char getMenuOptionByAsking() {
         System.out.println("\n====> What would you like to do?\n" +
                 "a) Print list\n" +
@@ -582,6 +588,11 @@ public class ListNodeLinkedListLab {
             this.next = next;
         }
 
+        /**
+         * A simple notation for identifying this node by memory address.
+         *
+         * @return the memory address of this.
+         */
         @Override
         public String toString() {
             String str = super.toString();
