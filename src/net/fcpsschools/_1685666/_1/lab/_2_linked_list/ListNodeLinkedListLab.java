@@ -302,7 +302,7 @@ public class ListNodeLinkedListLab {
      *
      * @param head  the first node in an ascending list.
      * @param value the value to insert.
-     * @param <E>   any class.
+     * @param <E>   any comparable.
      * @return the new head of the list.
      */
     public static <E extends Comparable<E>> ListNode<E> insertInOrder(ListNode<E> head, E value) {

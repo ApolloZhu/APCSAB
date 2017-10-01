@@ -9,17 +9,24 @@ import java.util.function.DoubleBinaryOperator;
  * @author ApolloZhu, Pd. 1
  * What I learned:
  * - Appending to the end of a list.
+ * - The real-world application of this polynomial thing,
+ * although array based, from https://github.com/davidshimjs/qrcodejs
  * <p>
  * What I wondered:
  * - How to efficiently implement these methods.
  * - How to specify complexity if the complexity of a part
  * of the operation varies based on different situation.
  */
-public class SinglyBasedPolynomial extends AbstractPolynomial {
+public final class SinglyBasedPolynomial extends AbstractPolynomial {
 
     /**
      * Terms of this polynomial, ordered from the highest exponent to the lowest.
-     * Directly setting this is NOT recommended.
+     * Should never be null; instead, use TermListNode.ZERO().
+     *
+     * @apiNote Although the packet says should be in ascending order,
+     * but that would rather be less efficient when getting the degree;
+     * to have a O(1) complexity, we have to introduce another variable
+     * and update it every time the terms has changed. Thus descending.
      */
     private TermListNode terms;
 
@@ -40,13 +47,12 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
     public SinglyBasedPolynomial(double... coefficients) {
         TermListNode head = null, curTail = null, copy;
         for (int i = 0, degree = coefficients.length - 1; degree >= 0; i++, degree--) {
-            if (coefficients[i] == 0) continue;
+            if (coefficients[i] == 0) continue; // Skip unnecessary node
             copy = new TermListNode(degree, coefficients[i], null);
             if (head == null) head = curTail = copy;
             else curTail.setNext(curTail = copy);
         }
-        if (head == null) terms = TermListNode.ZERO();
-        else terms = head;
+        terms = head == null ? TermListNode.ZERO() : head;
     }
 
     /**
@@ -60,9 +66,9 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
         SinglyBasedPolynomial partial;
         for (PolynomialTerm term : components) {
             if (term.getCoefficient() == 0) continue;
-            partial = new SinglyBasedPolynomial();
+            partial = new SinglyBasedPolynomial(); // avoid recursion
             partial.terms = new TermListNode(term, null);
-            result = result.adding(partial);
+            result = result.adding(partial); // Will perform sorting
         }
         terms = ((SinglyBasedPolynomial) result).terms;
         if (terms == null) terms = TermListNode.ZERO();
@@ -72,10 +78,12 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
      * Constructs this as an mathematically identical copy of the given polynomial.
      *
      * @param another the polynomial to copy.
+     * @implSpec Complexity: ~O(n^2)
      */
     public SinglyBasedPolynomial(Polynomial another) {
         double coefficient;
         int degree = another.getDegree();
+        // Chain from lowest to highest
         for (int i = 0; i <= degree; i++)
             if ((coefficient = another.getCoefficientForExponent(i)) != 0) // O(?)
                 terms = new TermListNode(i, coefficient, terms);
@@ -83,22 +91,29 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
     }
 
     /**
-     * Finds the term of a certain exponent.
+     * Finds the term of a certain exponent, starting from a certain node.
      *
      * @param exponent exponent of the node to find.
      * @param start    the first node to search from.
      * @return null if not found; otherwise the node having the given exponent.
+     * @apiNote This is mainly introduced for efficiency.
      */
     private static TermListNode getTermForExponent(int exponent, TermListNode start) {
         TermListNode term = start;
-        while (term != null && term.getDegree() != exponent) term = term.getNext();
+        double degree;
+        while (term != null && (degree = term.getDegree()) != exponent) {
+            // Since is in descending order, if current is less than exponent
+            // We are never going to find one, thus quit.
+            if (degree < exponent) return null;
+            term = term.getNext();
+        }
         return term;
     }
 
     /**
      * {@inheritDoc}
      *
-     * @implSpec Complexity: O(1)
+     * @implSpec Complexity: O(1), since terms are in descending order.
      */
     @Override
     public int getDegree() {
@@ -154,7 +169,8 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
         while (another.getCoefficientForExponent(thatDegree) == 0) thatDegree--;
         // Allocate according to the highest degree
         int maxDegree = Math.max(thisDegree, thatDegree);
-        TermListNode newHead = null, curTail = null, i = terms, tmp, copy;
+        TermListNode newHead = null, curTail = null, i = terms,
+                /*for efficiency*/ tmp, copy;
         double coefficient;
         // Apply operator on each term
         for (int exponent = maxDegree; exponent >= 0; exponent--) {
@@ -165,7 +181,7 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
             if (exponent <= thatDegree)
                 coefficient = operator.applyAsDouble(coefficient,
                         another.getCoefficientForExponent(exponent));
-            if (coefficient == 0) continue;
+            if (coefficient == 0) continue; // Skip null
             copy = new TermListNode(exponent, coefficient, null);
             if (newHead == null) newHead = curTail = copy;
             else curTail.setNext(curTail = copy);
@@ -181,7 +197,7 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
      *
      * @param another the other polynomial to multiply with.
      * @return resulting polynomial by multiplying the given polynomial with this.
-     * @implSpec Complexity: O(n^3)
+     * @implSpec Complexity: ~O(n^3)
      */
     public Polynomial multiplying(Polynomial another) {
         Polynomial result = new SinglyBasedPolynomial();
@@ -192,18 +208,23 @@ public class SinglyBasedPolynomial extends AbstractPolynomial {
         int thisDegree;
 
         for (TermListNode node = terms; node != null; node = node.getNext()) { // O(n)
+            // Initialize
             head = curTail = null;
             term = node.getTerm();
             if ((thisCoefficient = term.getCoefficient()) == 0) continue;
             thisDegree = term.getDegree();
+
             for (int thatDegree = another.getDegree(); thatDegree >= 0; thatDegree--) { // O(n)
                 thatCoefficient = another.getCoefficientForExponent(thatDegree); // O(?)
                 if (thatCoefficient == 0) continue;
+                // Multiply
                 copy = new TermListNode(thisDegree + thatDegree, thisCoefficient * thatCoefficient, null);
                 if (head == null) head = curTail = copy;
                 else curTail.setNext(curTail = copy);
             }
             partial = new SinglyBasedPolynomial();
+            // This is ordered, multiplied with in descending order.
+            // So the result is also in descending order.
             if (head != null) partial.terms = head;
             else continue;
             result = result.adding(partial); // O(n)
