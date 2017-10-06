@@ -104,14 +104,14 @@ public class DLL<E> extends AbstractList<E> {
     protected DLNode<E> nodeAtIndex(int index,
                                     BehaviorWhenIndexEqualsSize edgeCaseBehavior)
             throws IllegalStateException {
-        // Perform checks
+        // Early return if index equals size or is invalid.
         validateIndex(index, edgeCaseBehavior != BehaviorWhenIndexEqualsSize.EXCEPTION);
         if (index == size && edgeCaseBehavior == BehaviorWhenIndexEqualsSize.RETURN_HEAD) return head;
         // Setup loop with efficiency in mind.
         boolean direction = index < size / 2;
         int i = direction ? 0 : size - 1;
         DLNode<E> node = direction ? head.getNext() : head.getPrev();
-        // Loop
+        // Loop till node
         while (node != head) {
             if (i == index) return node;
             node = direction ? node.getNext() : node.getPrev();
