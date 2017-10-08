@@ -15,7 +15,8 @@ import java.util.AbstractList;
  * and had me introducing another enum,
  * but I believe the approach looks better now.
  * ## What I wonder:
- * - Although it doesn't matter, but should head.getNext by the first or last?
+ * - Although it doesn't matter, but in convention,
+ * is head.getNext the real head or tail of the list?
  */
 public class DLL<E> extends AbstractList<E> {
     /**
@@ -111,12 +112,15 @@ public class DLL<E> extends AbstractList<E> {
         boolean direction = index < size / 2;
         int i = direction ? 0 : size - 1;
         DLNode<E> node = direction ? head.getNext() : head.getPrev();
-        // Loop till node
+
         while (node != head) {
+            // Loop till node
             if (i == index) return node;
+            // Update index and node
             node = direction ? node.getNext() : node.getPrev();
             i += direction ? 1 : -1;
         }
+
         throw new IllegalStateException("File a bug report.");
     }
 
