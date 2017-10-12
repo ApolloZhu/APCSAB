@@ -44,7 +44,7 @@ public class AreaFill_shell {
                     // Because we don't need row and col count
                     .stream().skip(1)
                     // Filter out empty lines.
-                    .filter(line -> line.length() > 1)
+                    .filter(line -> line.length() > 0)
                     // Transform each string to array of chars.
                     .map(String::toCharArray)
                     // Collect the arrays into a 2D array.
