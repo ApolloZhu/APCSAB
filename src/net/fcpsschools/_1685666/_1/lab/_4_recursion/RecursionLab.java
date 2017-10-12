@@ -4,9 +4,11 @@ import java.util.Scanner;
 
 public class RecursionLab {
     /**
-     * @param satisfied
-     * @param message
-     * @return
+     * Check if a certain precondition is met.
+     *
+     * @param satisfied precondition to check.
+     * @param message   message to display if precondition not met.
+     * @return if precondition is met.
      */
     private static boolean precondition(boolean satisfied, String message) {
         if (!satisfied) {
@@ -34,10 +36,23 @@ public class RecursionLab {
     }
 
     // Post: returns String of x reversed
-    // FIXME: Preceding Zeros
     public static String reverse(long x) {
-        return x < 0 ? "-" + reverse(-x) // Handle negative
-                : x % 10 + (x > 9 ? reverse(x / 10) : "");
+        return x != 0 && x % 10 == 0
+                // Trailing/Preceding 0s
+                ? reverse(x / 10)
+                : reverseHelper(x);
+    }
+
+    /**
+     * Reverses and returns a String with digits of a number reversed.
+     * Has zeros in front if x is a multiple of 10.
+     *
+     * @param x the number to reverse.
+     * @return the String containing digits in x reversed.
+     */
+    private static String reverseHelper(long x) {
+        return x < 0 ? "-" + reverseHelper(-x) // Handle negative
+                : x % 10 + (x > 9 ? reverseHelper(x / 10) : "");
     }
 
     // Post: Prints x in base 5
@@ -59,8 +74,7 @@ public class RecursionLab {
             printWithCommas(-x);
         } else if (x > 999) {
             printWithCommas(x / 1000);
-            System.out.print(",");
-            System.out.printf("%03d", x % 1000);
+            System.out.format(",%03d", x % 1000);
         } else {
             System.out.print(x % 1000);
         }
@@ -83,16 +97,21 @@ public class RecursionLab {
             if (choice == 1) {
                 System.out.print("Enter a letter: ");
                 char c = scan.next().charAt(0);
+                c = Character.toLowerCase(c);
                 if (precondition(c >= 'a' && c <= 'z',
                         "That letter is not valid"))
                     letters(c);
             } else {
-                System.out.print("Enter a number: ");
+                if (choice > 1 && choice < 7)
+                    System.out.print("Enter a number: ");
                 if (choice == 2)
                     System.out.println(twos(scan.nextInt()));
-                else if (choice == 3)
-                    System.out.println(powerof3(scan.nextInt()));
-                else if (choice == 4)
+                else if (choice == 3) {
+                    int n = scan.nextInt();
+                    System.out.println(n + " is"
+                            + (powerof3(n) ? "" : " not")
+                            + " a power of 3.");
+                } else if (choice == 4)
                     System.out.println(reverse(scan.nextLong()));
                 else if (choice == 5)
                     base5(scan.nextInt());
@@ -102,3 +121,72 @@ public class RecursionLab {
         } while (choice != 7);
     }
 }
+
+/*
+1) Letters
+2) Twos
+3) Power Of 3
+4) Reverse
+5) Base 5
+6) Print With Commas
+7) Exit
+>> 1
+Enter a letter: a
+a
+
+>> 1
+Enter a letter: z
+abcdefghijklmnopqrstuvwxyz
+
+>> 1
+Enter a letter: 0
+That letter is not valid
+
+>> 2
+Enter a number: -12
+2
+
+>> 3
+Enter a number: 81
+81 is a power of 3.
+
+>> 3
+Enter a number: 1
+1 is not a power of 3.
+
+>> 4
+Enter a number: -12
+-21
+
+>> 4
+Enter a number: 123456
+654321
+
+>> 4
+Enter a number: 10230
+3201
+
+>> 5
+Enter a number: 136
+1021
+
+>> 5
+Enter a number: -5
+-10
+
+>> 6
+Enter a number: 12045670
+12,045,670
+
+>> 6
+Enter a number: 1
+1
+
+>> 6
+Enter a number: -1000
+-1,000
+
+>> 7
+
+Process finished with exit code 0
+ */
