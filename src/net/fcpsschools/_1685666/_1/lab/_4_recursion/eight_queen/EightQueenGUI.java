@@ -4,6 +4,7 @@ import com.sun.javafx.runtime.async.BackgroundExecutor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.BiFunction;
 
 /**
  * @author ApolloZhu, Pd. 1
@@ -11,19 +12,28 @@ import java.awt.*;
  * so it will not block the UI (repaint).
  */
 public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventListener {
-
-    private Diff diff;
-    private Color universal = Color.GRAY;
-    private int size = 4;
-    private EightQueenChessBoardCanvas canvas;
     private boolean[][] board;
+    private final Qualifier allPieces = (x, y) -> board != null && board[x][y];
+    private final Diff universal = new Diff(allPieces, 1, PiecePainter.makeCirclePainter(Color.GRAY));
+    private Diff diff;
+    private final PiecePainter painter = new PiecePainter() {
+        @Override
+        public void paintPiece(Graphics g, int r, int c, int x, int y, int w, int h) {
+            if (diff != null && diff.qualifier.apply(r, c))
+                diff.painter.paintPiece(g, r, c, x, y, w, h);
+            else if (universal.qualifier.apply(r, c))
+                universal.painter.paintPiece(g, r, c, x, y, w, h);
+        }
+    };
+    private ChessBoardCanvas canvas;
+    private int size = 4;
     private EightQueenSolver solver = new EightQueenSolver(size);
 
     public EightQueenGUI() {
         solver.addMoveEventListener(this);
         solver.addMoveEventListener(new EightQueenCLI());
         setLayout(new BorderLayout());
-        add(canvas = new EightQueenChessBoardCanvas(size), BorderLayout.CENTER);
+        add(canvas = new ChessBoardCanvas(size, painter), BorderLayout.CENTER);
 
         JPanel controls = new JPanel();
         add(controls, BorderLayout.SOUTH);
@@ -54,41 +64,41 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
     private void updateState(boolean[][] board) {
         this.board = board;
         canvas.repaint();
-        solver.sleep(200);
+        try {
+            if (diff != null)
+                solver.getThread().sleep((long) diff.displayIntervalUnit * 100);
+        } catch (Exception e) {
+        }
     }
 
     @Override
     public void check(int queenCount, boolean[][] board, int r, int c) {
-        diff = new Diff(r, c, Color.YELLOW);
+        diff = new Diff(Qualifier.make(r, c), 1, PiecePainter.makeCirclePainter(Color.YELLOW));
         updateState(board);
     }
 
     @Override
     public void placed(int queenCount, boolean[][] board, int r, int c) {
-        diff = new Diff(r, c, Color.GREEN);
+        diff = new Diff(Qualifier.make(r, c), 1, PiecePainter.makeCirclePainter(Color.GREEN));
         updateState(board);
     }
 
     @Override
     public void failed(int queenCount, boolean[][] board) {
-        diff = null;
-        universal = Color.RED;
+        diff = new Diff(allPieces, 2, PiecePainter.makeCirclePainter(Color.RED));
         updateState(board);
-        universal = Color.GRAY;
     }
 
     @Override
     public void restore(int queenCount, boolean[][] board, int rRestored, int cRestored) {
-        diff = new Diff(rRestored, cRestored, Color.RED);
+        diff = new Diff(Qualifier.make(rRestored, cRestored), 1, PiecePainter.makeCirclePainter(Color.RED));
         updateState(board);
     }
 
     @Override
     public void found(boolean[][] board) {
-        diff = null;
-        universal = Color.GREEN;
+        diff = new Diff(allPieces, 5, PiecePainter.makeCirclePainter(Color.GREEN));
         updateState(board);
-        universal = Color.GRAY;
     }
 
     @Override
@@ -97,28 +107,22 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
         updateState(null);
     }
 
-    private static class Diff {
-        Color color;
-        int r, c;
+    private interface Qualifier extends BiFunction<Integer, Integer, Boolean> {
 
-        Diff(int r, int c, Color color) {
-            this.r = r;
-            this.c = c;
-            this.color = color;
+        static Qualifier make(int r, int c) {
+            return (x, y) -> r == x && c == y;
         }
     }
 
-    private class EightQueenChessBoardCanvas extends ChessBoardCanvas {
-        EightQueenChessBoardCanvas(int size) {
-            super(size);
-        }
+    private static class Diff {
+        PiecePainter painter;
+        double displayIntervalUnit;
+        Qualifier qualifier;
 
-        @Override
-        protected void paintPiece(Graphics g, int r, int c, int x, int y, int w, int h) {
-            if (diff != null && diff.r == r && diff.c == c) g.setColor(diff.color);
-            else if (board != null && board[r][c]) g.setColor(universal);
-            else return;
-            g.fillOval(x, y, w, h);
+        Diff(Qualifier qualifier, double unit, PiecePainter painter) {
+            this.qualifier = qualifier;
+            this.painter = painter;
+            this.displayIntervalUnit = unit;
         }
     }
 }

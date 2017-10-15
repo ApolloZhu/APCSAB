@@ -25,21 +25,8 @@ public class EightQueenSolver {
         }
     }
 
-    public void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (Exception e) {
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    public void suspend() {
-        Thread.currentThread().suspend();
-    }
-
-    @SuppressWarnings("deprecation")
-    public void resume() {
-        Thread.currentThread().resume();
+    public Thread getThread() {
+        return Thread.currentThread();
     }
 
     public void start() {

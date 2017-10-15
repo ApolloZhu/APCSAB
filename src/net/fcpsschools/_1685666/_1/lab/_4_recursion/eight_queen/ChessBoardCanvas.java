@@ -6,14 +6,16 @@ import java.awt.*;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public abstract class ChessBoardCanvas extends JPanel {
+public class ChessBoardCanvas extends JPanel {
     private int sizeCount;
 
     private Color light = Color.WHITE;
     private Color dark = Color.BLACK;
+    private PiecePainter painter;
 
-    public ChessBoardCanvas(int size) {
+    public ChessBoardCanvas(int size, PiecePainter painter) {
         this.sizeCount = size;
+        this.painter = painter;
     }
 
     @Override
@@ -38,10 +40,8 @@ public abstract class ChessBoardCanvas extends JPanel {
                 } else {
                     g.setColor((i + j) % 2 == 1 ? light : dark);
                     g.fillRect(x, y, side, side);
-                    paintPiece(g, i - 1, j, x, y, side, side);
+                    painter.paintPiece(g, i - 1, j, x, y, side, side);
                 }
             }
     }
-
-    protected abstract void paintPiece(Graphics g, int r, int c, int x, int y, int w, int h);
 }
