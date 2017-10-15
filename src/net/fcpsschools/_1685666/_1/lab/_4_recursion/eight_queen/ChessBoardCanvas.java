@@ -33,10 +33,10 @@ public class ChessBoardCanvas extends JPanel {
                 g.setColor(Color.BLACK);
                 if (i == 0) {
                     g.drawString((sizeCount - j) + "",
-                            x + side / 2, y + side / 2);
+                            x, y + side / 2);
                 } else if (j == sizeCount) {
-                    g.drawString((char) (i - 1 + 'A') + "",
-                            x + side / 2, y + side / 2);
+                    g.drawString(EightQueenSolver.legendX(i - 1),
+                            x, y + side / 2);
                 } else {
                     g.setColor((i + j) % 2 == 1 ? light : dark);
                     g.fillRect(x, y, side, side);

@@ -7,7 +7,6 @@ import java.util.Scanner;
  */
 public class EightQueenCLI implements EightQueenSolver.MoveEventListener {
     private static final Scanner in = new Scanner(System.in);
-    private int solutionCount;
 
     static void print(boolean[][] board) {
         for (boolean[] row : board) {
@@ -44,15 +43,14 @@ public class EightQueenCLI implements EightQueenSolver.MoveEventListener {
     }
 
     @Override
-    public void found(boolean[][] board) {
-        solutionCount++;
+    public void found(boolean[][] board, long solutionCount) {
         print(board);
         // System.out.print("Return to continue...");
         // in.nextLine();
     }
 
     @Override
-    public void ended() {
+    public void ended(long solutionCount) {
         System.out.println(solutionCount > 0
                 ? solutionCount + " Solutions."
                 : "Unsolvable.");

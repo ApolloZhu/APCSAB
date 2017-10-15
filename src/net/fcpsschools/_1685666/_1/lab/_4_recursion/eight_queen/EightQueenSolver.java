@@ -12,6 +12,7 @@ public class EightQueenSolver {
     private final int queenCount;
     private final EventListenerList list = new EventListenerList();
     Thread thread;
+    private long solutionCount;
 
     public EightQueenSolver(int size) {
         if (size < 1) throw new IllegalArgumentException("Wrong size: " + size);
@@ -26,11 +27,18 @@ public class EightQueenSolver {
         }
     }
 
+    public static String legendX(int x) {
+        String c = "" + (char) ('A' + x % 26);
+        if (x < 26) return c;
+        return legendX(x / 26 - 1) + c;
+    }
+
     public Thread getThread() {
         return thread;
     }
 
     public void start() {
+        solutionCount = 0;
         thread = Thread.currentThread();
         place(1, new boolean[queenCount][queenCount]);
         stop();
@@ -38,14 +46,15 @@ public class EightQueenSolver {
 
     @SuppressWarnings("deprecation")
     public void stop() {
-        forEachMoveEventListener(MoveEventListener::ended);
+        forEachMoveEventListener(l -> l.ended(solutionCount));
         Thread.currentThread().stop();
     }
 
     private void place(int queen, boolean[][] board) {
-        if (queen > queenCount)
-            forEachMoveEventListener(l -> l.found(board));
-        else {
+        if (queen > queenCount) {
+            solutionCount++;
+            forEachMoveEventListener(l -> l.found(board, solutionCount));
+        } else {
             boolean hasPlace = false;
             for (int c = 0; c < queenCount; c++) {
                 // Try
@@ -101,8 +110,8 @@ public class EightQueenSolver {
 
         void restore(int queenCount, boolean[][] board, int rRestored, int cRestored);
 
-        void found(boolean[][] board);
+        void found(boolean[][] board, long SolutionCount);
 
-        void ended();
+        void ended(long solutionCount);
     }
 }
