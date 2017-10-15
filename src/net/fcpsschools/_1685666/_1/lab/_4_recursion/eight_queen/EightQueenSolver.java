@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 public class EightQueenSolver {
     private final int queenCount;
     private final EventListenerList list = new EventListenerList();
+    Thread thread;
 
     public EightQueenSolver(int size) {
         if (size < 1) throw new IllegalArgumentException("Wrong size: " + size);
@@ -26,12 +27,19 @@ public class EightQueenSolver {
     }
 
     public Thread getThread() {
-        return Thread.currentThread();
+        return thread;
     }
 
     public void start() {
+        thread = Thread.currentThread();
         place(1, new boolean[queenCount][queenCount]);
+        stop();
+    }
+
+    @SuppressWarnings("deprecation")
+    public void stop() {
         forEachMoveEventListener(MoveEventListener::ended);
+        Thread.currentThread().stop();
     }
 
     private void place(int queen, boolean[][] board) {

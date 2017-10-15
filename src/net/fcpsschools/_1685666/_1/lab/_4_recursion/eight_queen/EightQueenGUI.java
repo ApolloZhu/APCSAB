@@ -4,6 +4,8 @@ import com.sun.javafx.runtime.async.BackgroundExecutor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.function.BiFunction;
 
 /**
@@ -28,23 +30,52 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
     private ChessBoardCanvas canvas;
     private int size = 4;
     private EightQueenSolver solver = new EightQueenSolver(size);
+    private double scaleFactor;
+    private JButton start = new JButton("Start");
 
+    @SuppressWarnings("deprecation")
     public EightQueenGUI() {
-        solver.addMoveEventListener(this);
         solver.addMoveEventListener(new EightQueenCLI());
         setLayout(new BorderLayout());
         add(canvas = new ChessBoardCanvas(size, painter), BorderLayout.CENTER);
 
         JPanel controls = new JPanel();
-        add(controls, BorderLayout.SOUTH);
-        JButton start = new JButton("Start");
+        add(controls, BorderLayout.EAST);
+        controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
         controls.add(start);
         start.addActionListener(ignored -> {
-            start.setEnabled(false);
             BackgroundExecutor.getExecutor().execute(() -> {
-                solver.start();
-                start.setEnabled(true);
+                if (start.getText().equals("Start")) {
+                    start.setText("Stop");
+                    solver.addMoveEventListener(this);
+                    solver.start();
+                } else {
+                    solver.stop();
+                }
             });
+        });
+
+        // Speed Control Slider
+        JSlider slider = new JSlider(JSlider.VERTICAL, 0, 200, 100);
+        controls.add(slider);
+
+        Dictionary<Integer, JLabel> sliderLabels = new Hashtable<>();
+        sliderLabels.put(0, new JLabel("Pause"));
+        sliderLabels.put(10, new JLabel("Slow"));
+        sliderLabels.put(100, new JLabel("Normal"));
+        sliderLabels.put(200, new JLabel("Fast"));
+        slider.setLabelTable(sliderLabels);
+        slider.setPaintLabels(true);
+
+        scaleFactor = slider.getValue();
+        slider.addChangeListener(ignored -> {
+            double oldValue = scaleFactor;
+            double newValue = slider.getValue();
+            if (oldValue == 0 && newValue != 0)
+                solver.getThread().resume();
+            if (newValue == 0 && oldValue != 0)
+                solver.getThread().suspend();
+            scaleFactor = newValue;
         });
     }
 
@@ -65,8 +96,11 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
         this.board = board;
         canvas.repaint();
         try {
-            if (diff != null)
-                solver.getThread().sleep((long) diff.displayIntervalUnit * 100);
+            if (diff != null) {
+                double percentage = Math.max(scaleFactor / 100, 0.1);
+                long interval = (long) (diff.displayIntervalUnit * 100 / percentage);
+                solver.getThread().sleep(interval);
+            }
         } catch (Exception e) {
         }
     }
@@ -105,6 +139,8 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
     public void ended() {
         diff = null;
         updateState(null);
+        solver.removeMoveEventListener(this);
+        start.setText("Start");
     }
 
     private interface Qualifier extends BiFunction<Integer, Integer, Boolean> {
