@@ -28,7 +28,7 @@ public class EightQueenSolver {
     }
 
     public static String legendX(int x) {
-        String c = "" + (char) ('A' + x % 26);
+        String c = "" + (char) ('a' + x % 26);
         if (x < 26) return c;
         return legendX(x / 26 - 1) + c;
     }
