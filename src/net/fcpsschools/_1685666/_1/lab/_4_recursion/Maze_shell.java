@@ -30,7 +30,12 @@ public class Maze_shell
    
    public String toString()
    {
-      return null;
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i <grid.length; i++) {
+         for (int j = 0;j<grid[i].length; j++) sb.append(grid[i][j])
+         sb.append("\n");
+      }
+      return sb.toString();
    } // toString
    
    public static void main (String [] args)
