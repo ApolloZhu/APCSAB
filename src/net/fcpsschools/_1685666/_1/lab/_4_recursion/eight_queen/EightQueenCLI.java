@@ -45,8 +45,8 @@ public class EightQueenCLI implements EightQueenSolver.MoveEventListener {
     @Override
     public void found(boolean[][] board, long solutionCount) {
         print(board);
-        // System.out.print("Return to continue...");
-        // in.nextLine();
+        System.out.print("Return to continue...");
+        in.nextLine();
     }
 
     @Override

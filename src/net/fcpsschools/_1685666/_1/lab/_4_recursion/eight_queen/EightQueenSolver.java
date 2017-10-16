@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 public class EightQueenSolver {
     private final int queenCount;
     private final EventListenerList list = new EventListenerList();
-    Thread thread;
+    private Thread thread;
     private long solutionCount;
 
     public EightQueenSolver(int size) {
@@ -47,7 +47,7 @@ public class EightQueenSolver {
     @SuppressWarnings("deprecation")
     public void stop() {
         forEachMoveEventListener(l -> l.ended(solutionCount));
-        Thread.currentThread().stop();
+        thread.stop();
     }
 
     private void place(int queen, boolean[][] board) {

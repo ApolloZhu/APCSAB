@@ -195,7 +195,7 @@ public class EightQueenGUI extends JPanel
     @SuppressWarnings("deprecation")
     private void pause() {
         pauseResume.setText("Resume");
-        solver.thread.suspend();
+        solver.getThread().suspend();
     }
 
     @SuppressWarnings("deprecation")
@@ -205,7 +205,7 @@ public class EightQueenGUI extends JPanel
             slider.setValue(100);
         }
         pauseResume.setText("Pause");
-        solver.thread.resume();
+        solver.getThread().resume();
     }
 
     private interface Qualifier extends BiFunction<Integer, Integer, Boolean> {

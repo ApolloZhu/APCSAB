@@ -19,7 +19,6 @@ public interface PiecePainter {
         };
     }
 
-    // https://thenounproject.com/search/?q=QUEEN&i=783219
     static PiecePainter makeQueenPainter(Color color) {
         return (g, r, c, x, y, w, h) -> {
             makeCirclePainter(color).paintPiece(g, r, c, x, y, w, h);
