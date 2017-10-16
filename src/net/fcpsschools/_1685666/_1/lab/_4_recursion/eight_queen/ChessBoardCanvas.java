@@ -18,6 +18,11 @@ public class ChessBoardCanvas extends JPanel {
         this.painter = painter;
     }
 
+    public void setSize(int size) {
+        this.sizeCount = size;
+        repaint();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -31,13 +36,13 @@ public class ChessBoardCanvas extends JPanel {
                 int x = xOffset + side * i;
                 int y = yOffset + side * j;
                 g.setColor(Color.BLACK);
-                if (i == 0) {
+                if (i == 0)
                     g.drawString((sizeCount - j) + "",
                             x, y + side / 2);
-                } else if (j == sizeCount) {
+                else if (j == sizeCount)
                     g.drawString(EightQueenSolver.legendX(i - 1),
                             x, y + side / 2);
-                } else {
+                else {
                     g.setColor((i + j) % 2 == 1 ? light : dark);
                     g.fillRect(x, y, side, side);
                     painter.paintPiece(g, i - 1, j, x, y, side, side);

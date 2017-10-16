@@ -14,21 +14,22 @@ import java.util.function.BiFunction;
  * And playing around with threads.
  * so it will not block the UI (repaint).
  */
-public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventListener {
+public class EightQueenGUI extends JPanel
+        implements EightQueenSolver.MoveEventListener {
     private final JButton start = new JButton("Start");
     private final JLabel status = new JLabel("Waiting...");
     private final JSlider slider = new JSlider(JSlider.VERTICAL, 0, 200, 100);
     private final JButton pauseResume = new JButton("Pause");
     private boolean[][] board;
     private final Qualifier allPieces = (x, y) -> board != null && board[x][y];
-    private final Diff universal = new Diff(allPieces, 1, PiecePainter.makeCirclePainter(Color.GRAY));
+    private final Diff universal = new Diff(allPieces, 1, PiecePainter.makeQueenPainter(Color.GRAY));
     private Diff diff;
     private final PiecePainter painter = new PiecePainter() {
         @Override
         public void paintPiece(Graphics g, int r, int c, int x, int y, int w, int h) {
-            if (diff != null && diff.qualifier.apply(r, c))
+            if (diff != null && diff.qualifier != null && diff.qualifier.apply(r, c))
                 diff.painter.paintPiece(g, r, c, x, y, w, h);
-            else if (universal.qualifier.apply(r, c))
+            else if (universal != null && universal.qualifier.apply(r, c))
                 universal.painter.paintPiece(g, r, c, x, y, w, h);
         }
     };
@@ -38,14 +39,13 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
     private double scaleFactor;
 
 
-    @SuppressWarnings("deprecation")
     public EightQueenGUI() {
         setLayout(new BorderLayout());
         // Status
         add(status, BorderLayout.SOUTH);
         status.setHorizontalAlignment(SwingConstants.CENTER);
         // Chess Board Canvas
-        setSize(size = 8);
+        add(canvas = new ChessBoardCanvas(size = 8, painter), BorderLayout.CENTER);
         // Controls
         JPanel controls = new JPanel();
         add(controls, BorderLayout.EAST);
@@ -110,12 +110,8 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
             double oldValue = scaleFactor;
             double newValue = slider.getValue();
             scaleFactor = newValue;
-            if (oldValue == 0 && newValue != 0) {
-                resume();
-            }
-            if (newValue == 0 && oldValue != 0) {
-                pause();
-            }
+            if (oldValue == 0 && newValue != 0) resume();
+            if (newValue == 0 && oldValue != 0) pause();
         });
 
         SpringUtilities.makeCompactGrid(controls, 5, 1, 0, 8, 0, 8);
@@ -135,10 +131,9 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
     }
 
     public void setSize(int size) {
+        if (size == this.size) return;
         this.size = size;
-        if (canvas != null) remove(canvas);
-        add(canvas = new ChessBoardCanvas(size, painter), BorderLayout.CENTER);
-        SwingUtilities.updateComponentTreeUI(this);
+        canvas.setSize(size);
     }
 
     private void updateState(boolean[][] board) {
@@ -155,36 +150,35 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
 
     @Override
     public void check(int queenCount, boolean[][] board, int r, int c) {
-        diff = new Diff(Qualifier.make(r, c), 1, PiecePainter.makeCirclePainter(Color.YELLOW));
+        diff = new Diff(Qualifier.make(r, c), 1, PiecePainter.makeQueenPainter(Color.YELLOW));
         status.setText("Checking " + loc(r, c));
         updateState(board);
     }
 
     @Override
-
     public void placed(int queenCount, boolean[][] board, int r, int c) {
-        diff = new Diff(Qualifier.make(r, c), 1, PiecePainter.makeCirclePainter(Color.GREEN));
+        diff = new Diff(Qualifier.make(r, c), 1, PiecePainter.makeQueenPainter(Color.GREEN));
         status.setText("Place at " + loc(r, c));
         updateState(board);
     }
 
     @Override
     public void failed(int queenCount, boolean[][] board) {
-        diff = new Diff(allPieces, 2, PiecePainter.makeCirclePainter(Color.RED));
+        diff = new Diff(allPieces, 2, PiecePainter.makeQueenPainter(Color.RED));
         status.setText("Not A Solution");
         updateState(board);
     }
 
     @Override
     public void restore(int queenCount, boolean[][] board, int rRestored, int cRestored) {
-        diff = new Diff(Qualifier.make(rRestored, cRestored), 1, PiecePainter.makeCirclePainter(Color.RED));
+        diff = new Diff(Qualifier.make(rRestored, cRestored), 1, PiecePainter.makeQueenPainter(Color.RED));
         status.setText("Retract " + loc(rRestored, cRestored));
         updateState(board);
     }
 
     @Override
     public void found(boolean[][] board, long solutionCount) {
-        diff = new Diff(allPieces, 5, PiecePainter.makeCirclePainter(Color.GREEN));
+        diff = new Diff(allPieces, 5, PiecePainter.makeQueenPainter(Color.GREEN));
         status.setText("Found Solution #" + solutionCount);
         updateState(board);
         pause();
@@ -195,10 +189,8 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
         pauseResume.setEnabled(false);
         solver.removeMoveEventListener(this);
         diff = null;
-        if (solutionCount >= 0)
-            status.setText("Solution Count: " + solutionCount);
-        else
-            status.setText("Waiting...");
+        status.setText(solutionCount < 0 ? "Waiting..."
+                : "Solution Count: " + solutionCount);
         updateState(null);
         pauseResume.setText("Pause");
         start.setText("Start");
@@ -221,7 +213,6 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
     }
 
     private interface Qualifier extends BiFunction<Integer, Integer, Boolean> {
-
         static Qualifier make(int r, int c) {
             return (x, y) -> r == x && c == y;
         }
@@ -234,8 +225,8 @@ public class EightQueenGUI extends JPanel implements EightQueenSolver.MoveEventL
 
         Diff(Qualifier qualifier, double unit, PiecePainter painter) {
             this.qualifier = qualifier;
-            this.painter = painter;
             this.displayIntervalUnit = unit;
+            this.painter = painter;
         }
     }
 }
