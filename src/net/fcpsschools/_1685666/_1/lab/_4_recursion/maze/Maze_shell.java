@@ -1,4 +1,4 @@
-package net.fcpsschools._1685666._1.lab._4_recursion;
+package net.fcpsschools._1685666._1.lab._4_recursion.maze;
 
 import java.util.Scanner;
 
@@ -46,24 +46,7 @@ public class Maze_shell {
     }
 
     public boolean findAnExit(int x, int y) {
-        return findAnExitHelper(x, y, "");
-    }
-
-    private boolean findAnExitHelper(int x, int y, String path) {
-        if (x < 0 || y < 0 || x >= grid.length || y >= grid[x].length || grid[x][y] == 0 || grid[x][y] == VISITED || grid[x][y] == PATH)
-            return false;
-        String newPath = path + "[" + x + "," + y + "]";
-        grid[x][y] = PATH;
-        if (x == grid.length - 1 && y == grid[x].length - 1) {
-            System.out.println(newPath);
-            return true;
-        }
-        boolean result = findAnExitHelper(x + 1, y, newPath)
-                || findAnExitHelper(x, y + 1, newPath)
-                || findAnExitHelper(x - 1, y, newPath)
-                || findAnExitHelper(x, y - 1, newPath);
-        if (!result) grid[x][y] = VISITED;
-        return result;
+        return new MazeSolver(MazeSolver.convert(grid, 0, 1, VISITED, PATH)).start();
     }
 
     @Override

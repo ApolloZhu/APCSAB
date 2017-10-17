@@ -122,7 +122,7 @@ public class EightQueenGUI extends JPanel
     }
 
     protected final String loc(int r, int c) {
-        return EightQueenSolver.legendX(r) + (size - c);
+        return EightQueenSolver.legendX(r).toUpperCase() + (size - c);
     }
 
     public void setSize(int size) {
