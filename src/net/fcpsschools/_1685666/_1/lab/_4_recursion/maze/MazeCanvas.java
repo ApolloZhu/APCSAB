@@ -124,11 +124,11 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         setMap(map);
     }
 
-    private boolean isWall(int r, int c) {
+    public boolean isWall(int r, int c) {
         return get(r, c) == MazeCoder.Block.WALL;
     }
 
-    private MazeCoder.Block get(int r, int c) {
+    public MazeCoder.Block get(int r, int c) {
         try {
             return map[r][c];
         } catch (Exception e) {
@@ -149,7 +149,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         painters.remove(painter);
     }
 
-    public int getSide() {
+    private int getSide() {
         return Math.min(getWidth() / map[0].length, getHeight() / map.length);
     }
 
@@ -176,7 +176,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         int yOffset = (getHeight() - side * map.length) / 2;
         int r = (y - yOffset) / side;
         int c = (x - xOffset) / side;
-        if (get(r, c) == MazeCoder.Block.WALL) return null;
+        if (r < 0 || c < 0 || r >= map.length || c >= map[0].length) return null;
         return new MazeSolver.Loc(r, c);
     }
 

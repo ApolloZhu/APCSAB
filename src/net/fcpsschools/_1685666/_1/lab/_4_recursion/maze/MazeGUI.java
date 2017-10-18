@@ -12,9 +12,9 @@ import java.awt.event.MouseEvent;
  */
 public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener {
     private final MazeSolver solver = new MazeSolver();
-    private final JButton pickStartButton, pickEndButton;
+    private final JButton pickStartButton, pickEndButton, editWallButton;
     private MazeCanvas canvas;
-    private boolean isSelectingStart, isSelectingEnd;
+    private boolean isSelectingStart, isSelectingEnd, isEditingWall;
     private MazeSolver.Loc start, end;
     private MazeCoder.Block[][] map;
 
@@ -25,12 +25,20 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
         panel.add(pickStartButton = new JButton("Pick Start"));
         pickStartButton.addActionListener(l -> {
             isSelectingEnd = false;
+            isEditingWall = false;
             isSelectingStart = true;
         });
         panel.add(pickEndButton = new JButton("Pick End"));
         pickEndButton.addActionListener(l -> {
             isSelectingStart = false;
+            isEditingWall = false;
             isSelectingEnd = true;
+        });
+        panel.add(editWallButton = new JButton("Edit Wall"));
+        editWallButton.addActionListener(l -> {
+            isSelectingStart = false;
+            isSelectingEnd = false;
+            isEditingWall = true;
         });
 
         addMouseListener(new MouseAdapter() {
@@ -48,6 +56,13 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
                 } else if (isSelectingEnd) {
                     canvas.setTarget(end = loc);
                     isSelectingEnd = false;
+                } else if (isEditingWall) {
+                    MazeCoder.clear(map);
+                    canvas.setMap(map);
+                    map[loc.r][loc.c] = canvas.isWall(loc.r, loc.c)
+                            ? MazeCoder.Block.EMPTY
+                            : MazeCoder.Block.WALL;
+                    canvas.setMap(map);
                 } else return;
                 MazeCoder.clear(map);
                 canvas.setMap(map);
@@ -76,6 +91,8 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
     protected void start() {
         pickStartButton.setEnabled(false);
         pickEndButton.setEnabled(false);
+        editWallButton.setEnabled(false);
+        isEditingWall = false;
         MazeCoder.clear(map);
         canvas.setMap(map);
         solver.addEventListner(this);
@@ -86,6 +103,7 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
     protected void terminate() {
         pickStartButton.setEnabled(true);
         pickEndButton.setEnabled(true);
+        editWallButton.setEnabled(true);
         solver.removeEventListner(this);
         solver.stop();
         super.terminate();
