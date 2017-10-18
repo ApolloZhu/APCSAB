@@ -1,6 +1,6 @@
 package net.fcpsschools._1685666._1.lab._4_recursion.maze;
 
-import com.sun.javafx.runtime.async.BackgroundExecutor;
+import net.fcpsschools._1685666._1.lab._4_recursion.PlaybackPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,16 +8,12 @@ import java.awt.*;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class MazeGUI extends JPanel implements MazeSolver.MSEventListener {
-    private final MazeCanvas canvas = new MazeCanvas(MazeCoder.EXAMPLE);
+public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener {
     private final MazeSolver solver = new MazeSolver();
+    private MazeCanvas canvas;
 
     public MazeGUI() {
-        setLayout(new BorderLayout());
-        add(canvas, BorderLayout.CENTER);
         solver.addEventListner(canvas);
-        solver.addEventListner(this);
-        BackgroundExecutor.getExecutor().execute(() -> solver.start(MazeCoder.EXAMPLE, 0, 0, MazeCoder.EXAMPLE.length - 1, MazeCoder.EXAMPLE[0].length - 1));
     }
 
     public static void main(String[] args) {
@@ -28,11 +24,24 @@ public class MazeGUI extends JPanel implements MazeSolver.MSEventListener {
         frame.setVisible(true);
     }
 
-    private void sleep() {
-        try {
-            solver.getThread().sleep(100);
-        } catch (Exception e) {
-        }
+    @Override
+    protected Component getCenterComponent() {
+        return canvas = new MazeCanvas(MazeCoder.EXAMPLE());
+    }
+
+    @Override
+    protected void start() {
+        MazeCoder.Block[][] map = MazeCoder.EXAMPLE();
+        canvas.setMap(map);
+        solver.addEventListner(this);
+        solver.start(map, 0, 0, map.length - 1, map[0].length - 1);
+    }
+
+    @Override
+    protected void terminate() {
+        solver.removeEventListner(this);
+        solver.stop();
+        super.terminate();
     }
 
     @Override
@@ -57,6 +66,6 @@ public class MazeGUI extends JPanel implements MazeSolver.MSEventListener {
 
     @Override
     public void ended(boolean hasPath, MazeCoder.Block[][] map) {
-        sleep();
+        terminate();
     }
 }

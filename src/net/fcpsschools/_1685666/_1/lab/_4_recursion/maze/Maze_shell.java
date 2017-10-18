@@ -3,7 +3,7 @@ package net.fcpsschools._1685666._1.lab._4_recursion.maze;
 import java.util.Scanner;
 
 public class Maze_shell {
-    private static int[][] grid = MazeCoder.encode(MazeCoder.EXAMPLE, 0, 1, 3, 7);
+    private static int[][] grid = MazeCoder.encode(MazeCoder.EXAMPLE(), 0, 1, 3, 7);
     private static MazeSolver solver = new MazeSolver();
     private static MazeSolver.MSEventListener listener = new MazeSolver.MSEventListener() {
         @Override

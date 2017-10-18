@@ -105,7 +105,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         }
     }
 
-    private void setMap(MazeCoder.Block[][] map) {
+    public void setMap(MazeCoder.Block[][] map) {
         this.map = map;
         this.cache = new boolean[map.length][map[0].length][];
         repaint();

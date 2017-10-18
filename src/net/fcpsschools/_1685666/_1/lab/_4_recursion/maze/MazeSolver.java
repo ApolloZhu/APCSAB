@@ -10,15 +10,13 @@ import java.util.function.Consumer;
 public class MazeSolver {
     private final EventListenerList list = new EventListenerList();
     private MazeCoder.Block[][] grid;
-    private Thread thread;
 
-    public Thread getThread() {
-        return thread;
+    public void stop() {
+        forEachListener(l -> l.ended(false, grid));
     }
 
     public boolean start(MazeCoder.Block[][] input, int r, int c, int tR, int tC) {
         grid = input;
-        thread = Thread.currentThread();
         boolean hasPath = findAnExitHelper(r, c, tR, tC, "", null);
         forEachListener(l -> l.ended(hasPath, grid));
         return hasPath;

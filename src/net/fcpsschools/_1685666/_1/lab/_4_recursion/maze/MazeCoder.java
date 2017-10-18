@@ -16,7 +16,10 @@ public class MazeCoder {
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
-    public static final Block[][] EXAMPLE = decode(grid, 0, 1, VISITED, PATH);
+
+    public static Block[][] EXAMPLE() {
+        return decode(grid, 0, 1, VISITED, PATH);
+    }
 
     public static Block[][] decode(int[][] intMap, int wall, int empty, int visited, int path) {
         Block[][] converted = new Block[intMap.length][intMap[0].length];

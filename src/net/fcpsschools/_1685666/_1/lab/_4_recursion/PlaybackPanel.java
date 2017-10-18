@@ -19,9 +19,9 @@ public abstract class PlaybackPanel extends JPanel {
     private int size;
     private double scaleFactor;
 
-    PlaybackPanel(Component center) {
+    public PlaybackPanel() {
         setLayout(new BorderLayout());
-        add(center, BorderLayout.CENTER);
+        add(getCenterComponent(), BorderLayout.CENTER);
         // Controls
         JPanel controls = new JPanel();
         controls.setLayout(new SpringLayout());
@@ -36,7 +36,9 @@ public abstract class PlaybackPanel extends JPanel {
             BackgroundExecutor.getExecutor().execute(() -> {
                 if (start.getText().equals("Start")) {
                     start.setText("Terminate");
+                    pauseResume.setText("Pause");
                     pauseResume.setEnabled(true);
+                    thread = Thread.currentThread();
                     start();
                 } else terminate();
             });
@@ -69,12 +71,27 @@ public abstract class PlaybackPanel extends JPanel {
         SpringUtilities.makeCompactGrid(controls, 3, 1, 0, 8, 8, 8);
     }
 
-    abstract void start();
+    protected abstract Component getCenterComponent();
 
-    abstract void terminate();
+    protected abstract void start();
+
+    @SuppressWarnings("deprecation")
+    protected void terminate() {
+        start.setText("Start");
+        pauseResume.setEnabled(false);
+        thread.stop();
+    }
+
+    protected void sleep() {
+        sleep(1);
+    }
+
+    protected void performUpdate() {
+        getCenterComponent().repaint();
+    }
 
     protected void sleep(int unit) {
-        repaint();
+        performUpdate();
         try {
             if (scaleFactor == 200) return; // Non stop
             double percentage = Math.max(scaleFactor / 100, 0.1);
@@ -87,6 +104,7 @@ public abstract class PlaybackPanel extends JPanel {
     @SuppressWarnings("deprecation")
     protected void pause() {
         pauseResume.setText("Resume");
+        performUpdate();
         thread.suspend();
     }
 
@@ -98,5 +116,6 @@ public abstract class PlaybackPanel extends JPanel {
         }
         pauseResume.setText("Pause");
         thread.resume();
+        performUpdate();
     }
 }
