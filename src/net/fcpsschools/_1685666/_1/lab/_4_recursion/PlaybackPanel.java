@@ -103,8 +103,8 @@ public abstract class PlaybackPanel extends JPanel {
 
     @SuppressWarnings("deprecation")
     protected void pause() {
-        pauseResume.setText("Resume");
         performUpdate();
+        pauseResume.setText("Resume");
         thread.suspend();
     }
 

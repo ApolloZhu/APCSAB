@@ -43,6 +43,12 @@ public class MazeCoder {
         return converted;
     }
 
+    public static void clear(Block[][] map) {
+        for (int i = 0; i < map.length; i++)
+            for (int j = 0; j < map[i].length; j++)
+                map[i][j] = map[i][j] == Block.WALL ? Block.WALL : Block.EMPTY;
+    }
+
     public static void print(int[][] grid) {
         System.out.println(toString(grid));
     }

@@ -17,9 +17,28 @@ public class MazeSolver {
 
     public boolean start(MazeCoder.Block[][] input, int r, int c, int tR, int tC) {
         grid = input;
+        if (get(r, c) == MazeCoder.Block.WALL || get(tR, tC) == MazeCoder.Block.WALL)
+            throw new IllegalArgumentException("We don't walk through walls.");
+        set(r, c, MazeCoder.Block.EMPTY);
+        set(tR, tC, MazeCoder.Block.EMPTY);
         boolean hasPath = findAnExitHelper(r, c, tR, tC, "", null);
         forEachListener(l -> l.ended(hasPath, grid));
         return hasPath;
+    }
+
+    protected MazeCoder.Block get(int x, int y) {
+        try {
+            return grid[x][y];
+        } catch (Exception e) {
+            return MazeCoder.Block.WALL;
+        }
+    }
+
+    protected void set(int x, int y, MazeCoder.Block block) {
+        try {
+            grid[x][y] = block;
+        } catch (Exception e) {
+        }
     }
 
     private boolean findAnExitHelper(int x, int y, int tX, int tY, String path, Direction direction) {
@@ -27,9 +46,7 @@ public class MazeSolver {
             Loc back = direction.reverse(x, y);
             forEachListener(l -> l.tryout(back.r, back.c, direction, path, grid));
         } else forEachListener(l -> l.started(x, y, tX, tY, grid));
-
-        if (x < 0 || y < 0 || x >= grid.length || y >= grid[x].length
-                || grid[x][y] != MazeCoder.Block.EMPTY) return false;
+        if (get(x, y) != MazeCoder.Block.EMPTY) return false;
 
         String newPath = path + "[" + x + "," + y + "]";
         grid[x][y] = MazeCoder.Block.PATH;
@@ -79,7 +96,6 @@ public class MazeSolver {
             }
             return 0;
         }
-
 
         int dy() {
             switch (this) {
