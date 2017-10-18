@@ -3,35 +3,47 @@ package net.fcpsschools._1685666._1.lab._4_recursion.maze;
 import java.util.Scanner;
 
 public class Maze_shell {
-    private final int VISITED = 3;
-    private final int PATH = 7;
-    private int[][] grid = {
-            {1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1},
-            {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1},
-            {0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
-            {1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1},
-            {1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1},
-            {1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    private static int[][] grid = MazeCoder.encode(MazeCoder.EXAMPLE, 0, 1, 3, 7);
+    private static MazeSolver solver = new MazeSolver();
+    private static MazeSolver.MSEventListener listener = new MazeSolver.MSEventListener() {
+        @Override
+        public void started(int r, int c, int tR, int tC, MazeCoder.Block[][] map) {
+        }
+
+        @Override
+        public void tryout(int r, int c, MazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
+        }
+
+        @Override
+        public void found(int tR, int tC, String path, MazeCoder.Block[][] map) {
+            System.out.println(path);
+        }
+
+        @Override
+        public void failed(int r, int c, String path, MazeCoder.Block[][] map) {
+        }
+
+        @Override
+        public void ended(boolean hasPath, MazeCoder.Block[][] map) {
+            grid = MazeCoder.encode(map, 0, 1, 3, 7);
+        }
     };
 
     public static void main(String[] args) {
         // Assume that the exit of the maze is at
         // the lower right hand corner of the grid
-        Maze_shell m = new Maze_shell();
-
         // display the maze
-        System.out.println(m);
+        solver.addEventListner(listener);
+        MazeCoder.print(grid);
         Scanner input = new Scanner(System.in);
 
         System.out.println("Enter current location (x and y coordinates: ");
         int startX = input.nextInt();
         int startY = input.nextInt();
 
-        while (!m.findAnExit(startX, startY)) {
+        while (!findAnExit(startX, startY)) {
             System.out.println("Still trapped inside!");
-            System.out.println(m);
+            MazeCoder.print(grid);
 
             System.out.println("Re-enter current location (x and y coordinates: ");
             startX = input.nextInt();
@@ -42,22 +54,11 @@ public class Maze_shell {
 
         // display the path (indicated by 7) that leads to the exit of the maze
         // also display locations tried
-        System.out.println(m);
+        MazeCoder.print(grid);
     }
 
-    public boolean findAnExit(int x, int y) {
-        return new MazeSolver(MazeSolver.convert(grid, 0, 1, VISITED, PATH)).start();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++)
-                sb.append(grid[i][j]).append(' ');
-            sb.append("\n");
-        }
-        return sb.toString();
+    private static boolean findAnExit(int x, int y) {
+        return solver.start(MazeCoder.decode(grid, 0, 1, 3, 7), x, y, grid.length - 1, grid[0].length - 1);
     }
 }
 
