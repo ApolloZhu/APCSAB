@@ -58,35 +58,29 @@ public class MazeSolver {
         boolean isOnPathToDestination;
         CHECK:
         if (Math.abs(dX) <= Math.abs(dY)) {
-            if (dX < 0) isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
-            else isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
-            if (isOnPathToDestination) break CHECK;
-            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
-            else isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
-            if (isOnPathToDestination) break CHECK;
-            if (dX < 0) isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
-            else isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
-            if (isOnPathToDestination) break CHECK;
-            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
-            else isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
+            if (dX < 0 && findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP)
+                    || dX > 0 && findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN)
+                    || dY < 0 && findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT)
+                    || dY > 0 && findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT)
+                    || dX <= 0 && findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN)
+                    || findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP)
+                    || dY < 0 && findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT)
+                    || findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT)) return true;
         } else {
-            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
-            else isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
-            if (isOnPathToDestination) break CHECK;
-            if (dX < 0) isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
-            else isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
-            if (isOnPathToDestination) break CHECK;
-            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
-            else isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
-            if (isOnPathToDestination) break CHECK;
-            if (dX < 0) isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
-            else isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
+            if (dY < 0 && findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT)
+                    || dY > 0 && findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT)
+                    || dX < 0 && findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP)
+                    || dX > 0 && findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN)
+                    || dY <= 0 && findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT)
+                    || findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT)
+                    || dX < 0 && findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN)
+                    || findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP)) return true;
         }
-        if (!isOnPathToDestination && direction != null) {
+        if (direction != null) {
             grid[x][y] = MazeCoder.Block.VISITED;
             forEachListener(l -> l.failed(x, y, path, grid));
         }
-        return isOnPathToDestination;
+        return false;
     }
 
     public void addEventListner(MSEventListener l) {
@@ -149,6 +143,15 @@ public class MazeSolver {
         Loc(int r, int c) {
             this.r = r;
             this.c = c;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Loc) {
+                Loc loc = (Loc) obj;
+                return r == loc.r && c == loc.c;
+            }
+            return false;
         }
     }
 }

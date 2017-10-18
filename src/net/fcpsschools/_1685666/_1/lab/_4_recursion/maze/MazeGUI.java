@@ -50,18 +50,19 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
                 MazeSolver.Loc loc = canvas.getLoc(x, y);
                 if (loc == null || loc.r < 0 || loc.c < 0
                         || loc.r >= map.length || loc.c >= map[loc.r].length) return;
-                if (isSelectingStart) {
+                boolean notWall = !canvas.isWall(loc.r, loc.c);
+                if (isSelectingStart && notWall) {
                     canvas.setStart(start = loc);
                     isSelectingStart = false;
-                } else if (isSelectingEnd) {
+                } else if (isSelectingEnd && notWall) {
                     canvas.setTarget(end = loc);
                     isSelectingEnd = false;
-                } else if (isEditingWall) {
+                } else if (isEditingWall && !loc.equals(start) && !loc.equals(end)) {
                     MazeCoder.clear(map);
                     canvas.setMap(map);
-                    map[loc.r][loc.c] = canvas.isWall(loc.r, loc.c)
-                            ? MazeCoder.Block.EMPTY
-                            : MazeCoder.Block.WALL;
+                    map[loc.r][loc.c] = notWall
+                            ? MazeCoder.Block.WALL
+                            : MazeCoder.Block.EMPTY;
                     canvas.setMap(map);
                 } else return;
                 MazeCoder.clear(map);

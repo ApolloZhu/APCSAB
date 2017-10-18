@@ -29,14 +29,21 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         g.setColor(Color.BLACK);
         int centerX = x + w / 2;
         int centerY = y + h / 2;
+        boolean hasNeighbor = false;
         for (int i = r - 1, k = 0; i <= r + 1; i++)
             for (int j = c - 1; j <= c + 1; j++, k++)
                 if (k != 4 && isWall(i, j)) {
+                    hasNeighbor = true;
                     int vX = k % 3, vY = k / 3;
                     int lX = vX == 0 ? x : vX == 1 ? centerX : x + w;
                     int lY = vY == 0 ? y : vY == 1 ? centerY : y + h;
                     g.drawLine(lX, lY, centerX, centerY);
                 }
+        if (hasNeighbor) return;
+        g.drawLine(x, centerY, centerX, y);
+        g.drawLine(centerX, y, x + w, centerY);
+        g.drawLine(x + w, centerY, centerX, y + h);
+        g.drawLine(centerX, y + h, x, centerY);
     };
     private Path[][] paths;
     private final PiecePainter pathPainter = (graphics, r, c, x, y, w, h) -> {
