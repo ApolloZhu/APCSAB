@@ -54,11 +54,34 @@ public class MazeSolver {
             forEachListener(l -> l.found(x, y, newPath, grid));
             return true;
         }
-        boolean isOnPathToDestination
-                = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT)
-                || findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT)
-                || findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN)
-                || findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
+        int dX = tX - x, dY = tY - y;
+        boolean isOnPathToDestination;
+        CHECK:
+        if (Math.abs(dX) <= Math.abs(dY)) {
+            if (dX < 0) isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
+            else isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
+            if (isOnPathToDestination) break CHECK;
+            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
+            else isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
+            if (isOnPathToDestination) break CHECK;
+            if (dX < 0) isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
+            else isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
+            if (isOnPathToDestination) break CHECK;
+            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
+            else isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
+        } else {
+            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
+            else isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
+            if (isOnPathToDestination) break CHECK;
+            if (dX < 0) isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
+            else isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
+            if (isOnPathToDestination) break CHECK;
+            if (dY < 0) isOnPathToDestination = findAnExitHelper(x, y + 1, tX, tY, newPath, Direction.RIGHT);
+            else isOnPathToDestination = findAnExitHelper(x, y - 1, tX, tY, newPath, Direction.LEFT);
+            if (isOnPathToDestination) break CHECK;
+            if (dX < 0) isOnPathToDestination = findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN);
+            else isOnPathToDestination = findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP);
+        }
         if (!isOnPathToDestination && direction != null) {
             grid[x][y] = MazeCoder.Block.VISITED;
             forEachListener(l -> l.failed(x, y, path, grid));
