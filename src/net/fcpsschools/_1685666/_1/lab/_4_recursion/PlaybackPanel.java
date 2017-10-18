@@ -79,7 +79,7 @@ public abstract class PlaybackPanel extends JPanel {
     protected void terminate() {
         start.setText("Start");
         pauseResume.setEnabled(false);
-        thread.stop();
+        if (thread != null) thread.stop();
     }
 
     protected void sleep() {

@@ -40,7 +40,7 @@ public class ChessBoardCanvas extends JPanel {
                     g.drawString((sizeCount - j) + "",
                             x, y + side / 2);
                 else if (j == sizeCount)
-                    g.drawString(EightQueenSolver.legendX(i - 1),
+                    g.drawString(EightQueenSolver.legendX(i - 1).toUpperCase(),
                             x, y + side / 2);
                 else {
                     g.setColor((i + j) % 2 == 1 ? light : dark);

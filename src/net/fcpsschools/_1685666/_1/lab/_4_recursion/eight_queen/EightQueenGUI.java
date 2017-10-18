@@ -1,11 +1,9 @@
 package net.fcpsschools._1685666._1.lab._4_recursion.eight_queen;
 
-import com.sun.javafx.runtime.async.BackgroundExecutor;
-import layout.SpringUtilities;
+import net.fcpsschools._1685666._1.lab._4_recursion.PlaybackPanel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Hashtable;
 import java.util.function.BiFunction;
 
 /**
@@ -14,73 +12,30 @@ import java.util.function.BiFunction;
  * And playing around with threads.
  * so it will not block the UI (repaint).
  */
-public class EightQueenGUI extends JPanel
+public class EightQueenGUI extends PlaybackPanel
         implements EightQueenSolver.MoveEventListener {
     private static final JFrame frame = new JFrame("8 Queen Problem");
-    private final JButton start = new JButton("Start");
     private final JLabel status = new JLabel("Waiting...");
-    private final JSlider slider = new JSlider(JSlider.VERTICAL, 0, 200, 100);
-    private final JButton pauseResume = new JButton("Pause");
     private boolean[][] board;
     private final Qualifier allPieces = (x, y) -> board != null && board[x][y];
     private final Diff universal = new Diff(allPieces, 1, PiecePainter.makeQueenPainter(Color.GRAY));
     private Diff diff;
     private ChessBoardCanvas canvas;
     private int size;
+    private final JTextField tf = new JTextField(String.valueOf(size));
     private EightQueenSolver solver;
-    private double scaleFactor;
 
     public EightQueenGUI() {
-        setLayout(new BorderLayout());
         // Status
         add(status, BorderLayout.SOUTH);
         status.setHorizontalAlignment(SwingConstants.CENTER);
-        // Chess Board Canvas
-        PiecePainter painter = (g, r, c, x, y, w, h) -> {
-            if (diff != null && diff.qualifier != null && diff.qualifier.apply(r, c))
-                diff.painter.paintPiece(g, r, c, x, y, w, h);
-            else if (universal.qualifier.apply(r, c))
-                universal.painter.paintPiece(g, r, c, x, y, w, h);
-        };
-        add(canvas = new ChessBoardCanvas(size = 8, painter), BorderLayout.CENTER);
-        // Controls
-        JPanel controls = new JPanel();
-        add(controls, BorderLayout.EAST);
-        controls.add(start);
-        controls.add(pauseResume);
-        JLabel tfLabel = new JLabel("Size: ");
-        controls.add(tfLabel);
-        JTextField tf = new JTextField(String.valueOf(size));
-        controls.add(tf);
-        controls.add(slider);
 
         // Controls
-        controls.setLayout(new SpringLayout());
-        controls.setAlignmentX(SwingConstants.CENTER);
-        // Start
-        start.addActionListener(ignored -> {
-            BackgroundExecutor.getExecutor().execute(() -> {
-                if (start.getText().equals("Start")) {
-                    start.setText("Terminate");
-                    try {
-                        setSize(Integer.parseUnsignedInt(tf.getText()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        tf.setText(String.valueOf(size));
-                    }
-                    solver = new EightQueenSolver(size);
-                    solver.addMoveEventListener(this);
-                    pauseResume.setEnabled(true);
-                    solver.start();
-                } else solver.stop();
-            });
-        });
-        // Pause Resume
-        pauseResume.setEnabled(false);
-        pauseResume.addActionListener(l -> {
-            if (pauseResume.getText().equals("Pause")) pause();
-            else resume();
-        });
+        JPanel controls = new JPanel();
+        add(controls, BorderLayout.NORTH);
+        JLabel tfLabel = new JLabel("Size: ");
+        controls.add(tfLabel);
+        controls.add(tf);
         // Text Field
         tf.addActionListener(ignored -> {
             try {
@@ -91,26 +46,6 @@ public class EightQueenGUI extends JPanel
                 tf.setText(String.valueOf(size));
             }
         });
-        // Speed Control Slider
-        Hashtable<Integer, JLabel> sliderLabels = new Hashtable<>();
-        sliderLabels.put(0, new JLabel("Pause"));
-        sliderLabels.put(10, new JLabel("Slow"));
-        sliderLabels.put(100, new JLabel("Normal"));
-        sliderLabels.put(190, new JLabel("Fast"));
-        sliderLabels.put(200, new JLabel("Non Stop"));
-        slider.setLabelTable(sliderLabels);
-        slider.setPaintLabels(true);
-
-        scaleFactor = slider.getValue();
-        slider.addChangeListener(ignored -> {
-            double oldValue = scaleFactor;
-            double newValue = slider.getValue();
-            scaleFactor = newValue;
-            if (oldValue == 0 && newValue != 0) resume();
-            if (newValue == 0 && oldValue != 0) pause();
-        });
-
-        SpringUtilities.makeCompactGrid(controls, 5, 1, 0, 8, 8, 8);
     }
 
     public static void main(String[] args) {
@@ -121,8 +56,34 @@ public class EightQueenGUI extends JPanel
         frame.setVisible(true);
     }
 
+    @Override
+    protected Component getCenterComponent() {
+        if (canvas != null) return canvas;
+        // Chess Board Canvas
+        PiecePainter painter = (g, r, c, x, y, w, h) -> {
+            if (diff != null && diff.qualifier != null && diff.qualifier.apply(r, c))
+                diff.painter.paintPiece(g, r, c, x, y, w, h);
+            else if (universal.qualifier.apply(r, c))
+                universal.painter.paintPiece(g, r, c, x, y, w, h);
+        };
+        return canvas = new ChessBoardCanvas(size = 8, painter);
+    }
+
+    @Override
+    protected void start() {
+        try {
+            setSize(Integer.parseUnsignedInt(tf.getText()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            tf.setText(String.valueOf(size));
+        }
+        solver = new EightQueenSolver(size);
+        solver.addMoveEventListener(this);
+        solver.start();
+    }
+
     protected final String loc(int r, int c) {
-        return EightQueenSolver.legendX(r).toUpperCase() + (size - c);
+        return EightQueenSolver.legendX(r) + (size - c);
     }
 
     public void setSize(int size) {
@@ -134,14 +95,7 @@ public class EightQueenGUI extends JPanel
 
     private void updateState(boolean[][] board) {
         this.board = board;
-        canvas.repaint();
-        try {
-            if (scaleFactor == 200 || diff == null) return; // Non stop
-            double percentage = Math.max(scaleFactor / 100, 0.1);
-            long interval = (long) (diff.displayIntervalUnit * 100 / percentage);
-            solver.getThread().sleep(interval);
-        } catch (Exception e) {
-        }
+        if (diff != null) sleep((int) diff.displayIntervalUnit);
     }
 
     @Override
@@ -181,31 +135,20 @@ public class EightQueenGUI extends JPanel
     }
 
     @Override
-    public void ended(long solutionCount) {
-        pauseResume.setEnabled(false);
-        if (solver != null) solver.removeMoveEventListener(this);
+    protected void terminate() {
+        super.terminate();
+        if (solver != null) solver.stop();
         diff = null;
+        updateState(null);
+    }
+
+    @Override
+    public void ended(long solutionCount) {
         status.setText(solutionCount < 0 ? "Waiting..."
                 : "Solution Count: " + solutionCount);
-        updateState(null);
-        pauseResume.setText("Pause");
-        start.setText("Start");
-    }
-
-    @SuppressWarnings("deprecation")
-    private void pause() {
-        pauseResume.setText("Resume");
-        solver.getThread().suspend();
-    }
-
-    @SuppressWarnings("deprecation")
-    private void resume() {
-        if (scaleFactor == 0) {
-            scaleFactor = 100;
-            slider.setValue(100);
-        }
-        pauseResume.setText("Pause");
-        solver.getThread().resume();
+        if (solver != null)
+            solver.removeMoveEventListener(this);
+        terminate();
     }
 
     private interface Qualifier extends BiFunction<Integer, Integer, Boolean> {

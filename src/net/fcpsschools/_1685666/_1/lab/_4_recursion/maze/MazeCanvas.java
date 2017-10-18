@@ -10,28 +10,20 @@ import java.awt.*;
  */
 public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     private MazeCoder.Block[][] map;
-    private boolean[][][] cache;
     private final PiecePainter wallPainter = (graphics, r, c, x, y, w, h) -> {
-        // Update cache
-        if (cache == null) return;
-        if (cache[r][c] == null) {
-            cache[r][c] = new boolean[9];
-            for (int i = r - 1, k = 0; i <= r + 1; i++)
-                for (int j = c - 1; j <= c + 1; j++, k++)
-                    cache[r][c][k] = isWall(i, j);
-        }
         // Draw fences
         Graphics2D g = (Graphics2D) graphics;
         g.setColor(Color.BLACK);
         int centerX = x + w / 2;
         int centerY = y + h / 2;
-        for (int i = 0; i < 9; i++)
-            if (i != 4 && cache[r][c][i]) {
-                int vX = i % 3, vY = i / 3;
-                int lX = vX == 0 ? x : vX == 1 ? centerX : x + w;
-                int lY = vY == 0 ? y : vY == 1 ? centerY : y + h;
-                g.drawLine(lX, lY, centerX, centerY);
-            }
+        for (int i = r - 1, k = 0; i <= r + 1; i++)
+            for (int j = c - 1; j <= c + 1; j++, k++)
+                if (k != 4 && isWall(i, j)) {
+                    int vX = k % 3, vY = k / 3;
+                    int lX = vX == 0 ? x : vX == 1 ? centerX : x + w;
+                    int lY = vY == 0 ? y : vY == 1 ? centerY : y + h;
+                    g.drawLine(lX, lY, centerX, centerY);
+                }
     };
     private Path[][] paths;
     private final PiecePainter pathPainter = (g, r, c, x, y, w, h) -> {
@@ -107,7 +99,6 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
 
     public void setMap(MazeCoder.Block[][] map) {
         this.map = map;
-        this.cache = new boolean[map.length][map[0].length][];
         repaint();
     }
 
