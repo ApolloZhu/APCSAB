@@ -21,6 +21,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
                 x + w / 5, y + h * 4 / 5);
     };
     private static final Color DIFF_COLOR_NEW = new Color(102, 204, 255);
+    private static final Color COMMON_COLOR_FOUND = new Color(29, 135, 17);
     LinkedList<PiecePainter> painters = new LinkedList<>();
     private MazeCoder.Block[][] map;
     private final PiecePainter wallPainter = (graphics, r, c, x, y, w, h) -> {
@@ -77,7 +78,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         }
         g.setStroke(stroke);
     };
-    private Color diffColor = Color.GREEN;
+    private Color diffColor;
     private Color commonColor = Color.BLUE;
     private Path diff = null;
     private MazeSolver.Loc start, end;
@@ -215,7 +216,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
 
     @Override
     public void found(int tR, int tC, String path, MazeCoder.Block[][] map) {
-        commonColor = Color.GREEN;
+        commonColor = COMMON_COLOR_FOUND;
         diff = null;
         setMap(map);
     }
