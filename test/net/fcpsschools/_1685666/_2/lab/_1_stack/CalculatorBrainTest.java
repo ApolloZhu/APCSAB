@@ -8,30 +8,50 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author ApolloZhu, Pd. 1
  */
 class CalculatorBrainTest {
-    void evalTo(double expected, String postfix) {
+    private static void evalPostfixTo(double expected, String postfix) {
         assertEquals(expected,
                 CalculatorBrain.evaluatePostfix(postfix));
     }
 
+    private static void evalInfixTo(double expected, String infix) {
+        assertEquals(expected,
+                CalculatorBrain.evaluatePostfix(
+                        InfixToPostfix.convert(infix)));
+    }
+
     @Test
     void testEvaluatePostfix() {
-        evalTo(23,
+        evalPostfixTo(23,
                 "3 4 5 * +");
-        evalTo(17,
+        evalPostfixTo(17,
                 "3 4 * 5 +");
-        evalTo(-6,
+        evalPostfixTo(-6,
                 "4 5 + 5 3 * -");
-        evalTo(77,
+        evalPostfixTo(77,
                 "3 4 + 5 6 + *");
-        evalTo(5,
+        evalPostfixTo(5,
                 "3 4 5 + * 2 - 5 /");
-        evalTo(7,
+        evalPostfixTo(7,
                 "8 1 2 * + 9 3 / -");
-        evalTo(1,
+        evalPostfixTo(1,
                 "5 3 % ! 3 ^ pi * cos");
-        evalTo(17,
+        evalPostfixTo(17,
                 "    -3  4 5 *  + ");
-        evalTo(17,
+        evalPostfixTo(17,
                 "3 - 4 5 * +");
+
+        evalInfixTo(2, "log(100)");
+    }
+
+    @Test
+    void testNewOperator() {
+        Operator.CONSTANT.put("😀", -1.0);
+        evalInfixTo(-3, "😀 * 3");
+        Operator.registerUnaryOperator("%", Operator.Associativity.LEFT, a -> a / 100);
+        evalInfixTo(0.98, "(10^2-2)%");
+        Operator.registerUnaryOperator("sqrt", Operator.Associativity.RIGHT, Math::sqrt);
+        // FIXME: Incorrect conversion.
+        System.out.println(InfixToPostfix.convert("sqrt(sin(1-red(30)))"));
+        evalInfixTo(0.25, "sqrt(sin(1-red(30)))");
     }
 }

@@ -53,5 +53,14 @@ class InfixToPostfixTest {
                 "3 4 + -");
         infixToPostfix("+(-(-3+4))",
                 "-3 4 + - +");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> InfixToPostfix.convert("1+"));
+        assertThrows(IllegalArgumentException.class,
+                () -> InfixToPostfix.convert("*1"));
+        assertThrows(IllegalArgumentException.class,
+                () -> InfixToPostfix.convert("(1+)+2"));
+        assertThrows(IllegalArgumentException.class,
+                () -> InfixToPostfix.convert("(/1)!2"));
     }
 }

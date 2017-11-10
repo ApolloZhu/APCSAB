@@ -36,7 +36,7 @@ public class InfixToPostfix {
                         }
                     }
                 }
-                String op = "" + c;
+                String op = String.valueOf(c);
                 if (c != ')') {
                     while (true) {
                         if (Operator.isConstant(op)) {
@@ -73,13 +73,20 @@ public class InfixToPostfix {
                 if (c != ')') {
                     if (Operator.isBinary(op)) {
                         boolean isUnary = false;
+                        Operator.UnaryOperator uop;
+                        // Doesn't have an operand before
                         if (i == 1 || s.charAt(i - 2) == '(')
-                            if (op.equals("+") || op.equals("-"))
+                            if ((uop = Operator.UNARY.get(op)) != null &&
+                                    uop.getAssociativity() == Operator.Associativity.RIGHT)
                                 isUnary = true;
                             else throw new IllegalArgumentException(
                                     "Missing first operand for binary operator: " + op);
-                        if (i == s.length())
-                            throw new IllegalArgumentException(
+                        // Doesn't have an operand after
+                        if (i == s.length() || s.charAt(i) == ')')
+                            if ((uop = Operator.UNARY.get(op)) != null &&
+                                    uop.getAssociativity() == Operator.Associativity.LEFT)
+                                isUnary = true;
+                            else throw new IllegalArgumentException(
                                     "Missing second operand for binary operator: " + op);
                         if (!isUnary) postfix.append(' ');
                     }

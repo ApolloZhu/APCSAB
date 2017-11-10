@@ -10,7 +10,7 @@ import java.util.function.DoubleUnaryOperator;
  */
 public class Operator {
     public static final Hashtable<String, Double> CONSTANT = new Hashtable<>();
-    public static final Hashtable<String, DoubleUnaryOperator> UNARY = new Hashtable<>();
+    public static final Hashtable<String, UnaryOperator> UNARY = new Hashtable<>();
     public static final BinaryOperator EXPONENTIATION = new BinaryOperator();
     public static final BinaryOperator MULTIPLICATION = new BinaryOperator();
     public static final BinaryOperator ADDITION = new BinaryOperator();
@@ -18,10 +18,15 @@ public class Operator {
     static {
         CONSTANT.put("pi", Math.PI);
         CONSTANT.put("e", Math.E);
-        UNARY.put("sin", Math::sin);
-        UNARY.put("cos", Math::cos);
-        UNARY.put("tan", Math::tan);
-        UNARY.put("!", a -> {
+        registerUnaryOperator("+", Associativity.RIGHT, a -> a);
+        registerUnaryOperator("-", Associativity.RIGHT, a -> -a);
+        registerUnaryOperator("log", Associativity.RIGHT, Math::log10);
+        registerUnaryOperator("sin", Associativity.RIGHT, Math::sin);
+        registerUnaryOperator("cos", Associativity.RIGHT, Math::cos);
+        registerUnaryOperator("tan", Associativity.RIGHT, Math::tan);
+        registerUnaryOperator("deg", Associativity.RIGHT, Math::toDegrees);
+        registerUnaryOperator("red", Associativity.RIGHT, Math::toRadians);
+        registerUnaryOperator("!", Associativity.LEFT, a -> {
             int x;
             if (a < 0 || (x = (int) a) != a)
                 throw new IllegalArgumentException(a + "!");
@@ -29,14 +34,17 @@ public class Operator {
             for (int i = 2; i <= x; i++) result *= i;
             return result;
         });
-        UNARY.put("+", a -> a);
-        UNARY.put("-", a -> -a);
         EXPONENTIATION.put("^", Math::pow);
         MULTIPLICATION.put("*", (a, b) -> a * b);
         MULTIPLICATION.put("/", (a, b) -> a / b);
         MULTIPLICATION.put("%", (a, b) -> a % b);
         ADDITION.put("+", (a, b) -> a + b);
         ADDITION.put("-", (a, b) -> a - b);
+    }
+
+    public static void registerUnaryOperator(
+            String name, Associativity associativity, DoubleUnaryOperator op) {
+        UNARY.put(name, new UnaryOperator(associativity, op));
     }
 
     public static Relation compare(String op1, String op2) {
@@ -81,9 +89,9 @@ public class Operator {
     }
 
     public static double evaluate(String op, String operand) {
-        for (Map.Entry<String, DoubleUnaryOperator> entry : UNARY.entrySet())
+        for (Map.Entry<String, UnaryOperator> entry : UNARY.entrySet())
             if (entry.getKey().equals(op))
-                return entry.getValue().applyAsDouble(evaluate(operand));
+                return entry.getValue().getOperator().applyAsDouble(evaluate(operand));
         throw new IllegalArgumentException("unary operator '" + op + "' not found");
     }
 
@@ -110,9 +118,29 @@ public class Operator {
         return isUnary(s) || isBinary(s);
     }
 
-    enum Relation {LOWER, HIGHER, SAME, UNDEFINED}
+    public enum Associativity {LEFT, RIGHT}
 
-    private static class BinaryOperator
+    public enum Relation {LOWER, HIGHER, SAME, UNDEFINED}
+
+    public static class UnaryOperator {
+        private Associativity associativity;
+        private DoubleUnaryOperator operator;
+
+        public UnaryOperator(Associativity associativity, DoubleUnaryOperator operator) {
+            this.associativity = associativity;
+            this.operator = operator;
+        }
+
+        public Associativity getAssociativity() {
+            return associativity;
+        }
+
+        public DoubleUnaryOperator getOperator() {
+            return operator;
+        }
+    }
+
+    public static class BinaryOperator
             extends Hashtable<String, DoubleBinaryOperator> {
     }
 }
