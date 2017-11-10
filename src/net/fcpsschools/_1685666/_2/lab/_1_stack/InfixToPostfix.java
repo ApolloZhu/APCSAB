@@ -7,39 +7,82 @@ import java.util.Stack;
  */
 public class InfixToPostfix {
     public static String convert(String s) {
-        Stack<Character> operators = new Stack<>();
+        Stack<String> operators = new Stack<>();
         StringBuilder postfix = new StringBuilder();
-        for (char c : s.toCharArray()) {
-            if ("1234567890".indexOf(c) != -1) {
+        int i = 0;
+        boolean hasDot = false;
+        MAINLOOP:
+        while (i < s.length()) {
+            char c = s.charAt(i++);
+            if (isNumber(c)) {
                 postfix.append(c);
+            } else if (c == '.') {
+                if (hasDot) throw new NumberFormatException();
+                postfix.append(c);
+                hasDot = true;
             } else if (c == '(') {
-                operators.push(c);
-            } else {
+                hasDot = false;
+                operators.push("(");
+            } else if (c != ' ') {
+                hasDot = false;
+                String op = "" + c;
+                if (c != ')')
+                    while (true) {
+                        if (Operator.isConstant(op)) {
+                            postfix.append(op);
+                            continue MAINLOOP;
+                        }
+                        if (Operator.isOperator(op)) break;
+                        if (i < s.length()) {
+                            char next = s.charAt(i++);
+                            if (!isNumber(next) &&
+                                    "()".indexOf(next) == -1) {
+                                if (next != ' ') op += next;
+                                continue;
+                            }
+                        }
+                        throw new IllegalArgumentException(
+                                "unrecognized operator" + op);
+                    }
+
+                boolean closed = false;
                 while (!operators.isEmpty()) {
                     if (isLower(operators.peek(), c))
                         break;
-                    if (operators.peek() == '(') {
-                        if (c == ')') operators.pop();
+                    if (operators.peek().equals("(")) {
+                        if (c == ')') {
+                            operators.pop();
+                            closed = true;
+                        }
                         break;
                     }
                     postfix.append(" ");
                     postfix.append(operators.pop());
                 }
                 if (c != ')') {
-                    postfix.append(" ");
-                    operators.push(c);
-                }
+                    if (Operator.isBinary(op))
+                        postfix.append(" ");
+                    operators.push(op);
+                } else if (!closed)
+                    throw new IllegalArgumentException("extra ')'");
             }
         }
+
         while (!operators.isEmpty()) {
+            String top = operators.pop();
+            if (top.equals("(")) continue;
             postfix.append(" ");
-            postfix.append(operators.pop());
+            postfix.append(top);
         }
         return postfix.toString();
     }
 
-    private static boolean isLower(char lhs, char rhs) {
-        return Operator.compare("" + lhs, "" + rhs)
+    private static boolean isNumber(char c) {
+        return "1234567890".indexOf(c) != -1;
+    }
+
+    private static boolean isLower(String lhs, char rhs) {
+        return Operator.compare(lhs, "" + rhs)
                 == Operator.Relation.LOWER;
     }
 }

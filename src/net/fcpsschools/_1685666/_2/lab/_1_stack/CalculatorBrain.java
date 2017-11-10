@@ -16,6 +16,10 @@ public class CalculatorBrain {
         return sb.toString();
     }
 
+    public static double evaluateInfix(String s) {
+        return evaluatePostfix(InfixToPostfix.convert(s));
+    }
+
     public static double evaluatePostfix(String s) {
         Stack<String> operands = new Stack<>();
         for (String token : s.split(" ")) {

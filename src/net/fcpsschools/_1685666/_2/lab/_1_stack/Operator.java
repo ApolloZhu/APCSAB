@@ -22,7 +22,9 @@ public class Operator {
         UNARY.put("cos", Math::cos);
         UNARY.put("tan", Math::tan);
         UNARY.put("!", a -> {
-            int x = Integer.parseUnsignedInt("" + a);
+            int x;
+            if (a < 0 || (x = (int) a) != a)
+                throw new IllegalArgumentException(a + "!");
             int result = 1;
             for (int i = 2; i <= x; i++) result *= i;
             return result;
@@ -100,6 +102,10 @@ public class Operator {
             if (entry.getKey().equals(op))
                 return entry.getValue().applyAsDouble(a, b);
         throw new IllegalArgumentException("operator not found");
+    }
+
+    public static boolean isOperator(String s) {
+        return isUnary(s) || isBinary(s);
     }
 
     enum Relation {LOWER, HIGHER, SAME, UNDEFINED}

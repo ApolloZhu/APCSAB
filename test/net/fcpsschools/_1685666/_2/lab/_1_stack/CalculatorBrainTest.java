@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author ApolloZhu, Pd. 1
  */
 class CalculatorBrainTest {
-    void evalTo(int expected, String postfix) {
+    void evalTo(double expected, String postfix) {
         assertEquals(expected,
                 CalculatorBrain.evaluatePostfix(postfix));
     }
@@ -27,5 +27,6 @@ class CalculatorBrainTest {
                 "3 4 5 + * 2 - 5 /");
         evalTo(7,
                 "8 1 2 * + 9 3 / -");
+        evalTo(1, "5 3 % ! 3 ^ pi * cos");
     }
 }
