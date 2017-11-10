@@ -43,10 +43,15 @@ class InfixToPostfixTest {
         assertThrows(NumberFormatException.class,
                 () -> InfixToPostfix.convert("7.2.55"));
 
-        infixToPostfix("cos(( 5 % 3) !^ 3*pi)",
-                "5 3 % ! 3 ^ pi * cos");
+        infixToPostfix("cos(( 5 % -3) !^ 3*pi)",
+                "5 -3 % ! 3 ^ pi * cos");
 
-        infixToPostfix("-3+4*5",
-                "3 - 4 5 * +");
+        infixToPostfix(" - 3+4*-5",
+                "-3 4 -5 * +");
+
+        infixToPostfix("-(3+4)",
+                "3 4 + -");
+        infixToPostfix("+(-(-3+4))",
+                "-3 4 + - +");
     }
 }

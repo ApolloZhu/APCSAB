@@ -30,6 +30,8 @@ class CalculatorBrainTest {
         evalTo(1,
                 "5 3 % ! 3 ^ pi * cos");
         evalTo(17,
+                "    -3  4 5 *  + ");
+        evalTo(17,
                 "3 - 4 5 * +");
     }
 }

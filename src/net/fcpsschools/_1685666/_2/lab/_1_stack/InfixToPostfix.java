@@ -9,6 +9,7 @@ public class InfixToPostfix {
     public static String convert(String s) {
         Stack<String> operators = new Stack<>();
         StringBuilder postfix = new StringBuilder();
+        s = s.replaceAll("\\s", "");
         int i = 0;
         boolean hasDot = false;
         MAINLOOP:
@@ -23,10 +24,20 @@ public class InfixToPostfix {
             } else if (c == '(') {
                 hasDot = false;
                 operators.push("(");
-            } else if (c != ' ') {
+            } else {
                 hasDot = false;
+                if (c == '-') {
+                    char before = i == 1 ? ' ' : s.charAt(i - 2);
+                    if (!isNumber(before) && before != ')') {
+                        char after = s.charAt(i);
+                        if (isNumber(after) || after == '.') {
+                            postfix.append(c);
+                            continue;
+                        }
+                    }
+                }
                 String op = "" + c;
-                if (c != ')')
+                if (c != ')') {
                     while (true) {
                         if (Operator.isConstant(op)) {
                             postfix.append(op);
@@ -42,9 +53,9 @@ public class InfixToPostfix {
                             }
                         }
                         throw new IllegalArgumentException(
-                                "unrecognized operator" + op);
+                                "unrecognized operator: " + op);
                     }
-
+                }
                 boolean closed = false;
                 while (!operators.isEmpty()) {
                     if (isLower(operators.peek(), c))
@@ -56,12 +67,22 @@ public class InfixToPostfix {
                         }
                         break;
                     }
-                    postfix.append(" ");
+                    postfix.append(' ');
                     postfix.append(operators.pop());
                 }
                 if (c != ')') {
-                    if (Operator.isBinary(op))
-                        postfix.append(" ");
+                    if (Operator.isBinary(op)) {
+                        boolean isUnary = false;
+                        if (i == 1 || s.charAt(i - 2) == '(')
+                            if (op.equals("+") || op.equals("-"))
+                                isUnary = true;
+                            else throw new IllegalArgumentException(
+                                    "Missing first operand for binary operator: " + op);
+                        if (i == s.length())
+                            throw new IllegalArgumentException(
+                                    "Missing second operand for binary operator: " + op);
+                        if (!isUnary) postfix.append(' ');
+                    }
                     operators.push(op);
                 } else if (!closed)
                     throw new IllegalArgumentException("extra ')'");
@@ -71,7 +92,7 @@ public class InfixToPostfix {
         while (!operators.isEmpty()) {
             String top = operators.pop();
             if (top.equals("(")) continue;
-            postfix.append(" ");
+            postfix.append(' ');
             postfix.append(top);
         }
         return postfix.toString();
@@ -82,7 +103,7 @@ public class InfixToPostfix {
     }
 
     private static boolean isLower(String lhs, char rhs) {
-        return Operator.compare(lhs, "" + rhs)
+        return Operator.compare(lhs, String.valueOf(rhs))
                 == Operator.Relation.LOWER;
     }
 }

@@ -2,7 +2,6 @@ package net.fcpsschools._1685666._2.lab._1_stack;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 
@@ -14,7 +13,7 @@ public class Operator {
     public static final Hashtable<String, DoubleUnaryOperator> UNARY = new Hashtable<>();
     public static final BinaryOperator EXPONENTIATION = new BinaryOperator();
     public static final BinaryOperator MULTIPLICATION = new BinaryOperator();
-    public static final Hashtable<String, BiFunction<String, Double, Double>> ADDITION = new Hashtable<>();
+    public static final BinaryOperator ADDITION = new BinaryOperator();
 
     static {
         CONSTANT.put("pi", Math.PI);
@@ -30,24 +29,14 @@ public class Operator {
             for (int i = 2; i <= x; i++) result *= i;
             return result;
         });
+        UNARY.put("+", a -> a);
+        UNARY.put("-", a -> -a);
         EXPONENTIATION.put("^", Math::pow);
         MULTIPLICATION.put("*", (a, b) -> a * b);
         MULTIPLICATION.put("/", (a, b) -> a / b);
         MULTIPLICATION.put("%", (a, b) -> a % b);
-        ADDITION.put("+", (a, b) -> {
-            try {
-                return Double.parseDouble(a) + b;
-            } catch (Exception e) {
-                return b;
-            }
-        });
-        ADDITION.put("-", (a, b) -> {
-            try {
-                return Double.parseDouble(a) - b;
-            } catch (Exception e) {
-                return -b;
-            }
-        });
+        ADDITION.put("+", (a, b) -> a + b);
+        ADDITION.put("-", (a, b) -> a - b);
     }
 
     public static Relation compare(String op1, String op2) {
@@ -104,15 +93,16 @@ public class Operator {
     }
 
     public static double evaluate(String op, String lhs, String rhs) {
+        double a = evaluate(lhs), b = evaluate(rhs);
         for (Map.Entry<String, DoubleBinaryOperator> entry : EXPONENTIATION.entrySet())
             if (entry.getKey().equals(op))
-                return entry.getValue().applyAsDouble(evaluate(lhs), evaluate(rhs));
+                return entry.getValue().applyAsDouble(a, b);
         for (Map.Entry<String, DoubleBinaryOperator> entry : MULTIPLICATION.entrySet())
             if (entry.getKey().equals(op))
-                return entry.getValue().applyAsDouble(evaluate(lhs), evaluate(rhs));
-        for (Map.Entry<String, BiFunction<String, Double, Double>> entry : ADDITION.entrySet())
+                return entry.getValue().applyAsDouble(a, b);
+        for (Map.Entry<String, DoubleBinaryOperator> entry : ADDITION.entrySet())
             if (entry.getKey().equals(op))
-                return entry.getValue().apply(lhs, evaluate(rhs));
+                return entry.getValue().applyAsDouble(a, b);
         throw new IllegalArgumentException("binary operator '" + op + "' not found");
     }
 
