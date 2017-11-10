@@ -2,6 +2,7 @@ package net.fcpsschools._1685666._2.lab._1_stack;
 
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 
@@ -13,7 +14,7 @@ public class Operator {
     public static final Hashtable<String, DoubleUnaryOperator> UNARY = new Hashtable<>();
     public static final BinaryOperator EXPONENTIATION = new BinaryOperator();
     public static final BinaryOperator MULTIPLICATION = new BinaryOperator();
-    public static final BinaryOperator ADDITION = new BinaryOperator();
+    public static final Hashtable<String, BiFunction<String, Double, Double>> ADDITION = new Hashtable<>();
 
     static {
         CONSTANT.put("pi", Math.PI);
@@ -33,8 +34,20 @@ public class Operator {
         MULTIPLICATION.put("*", (a, b) -> a * b);
         MULTIPLICATION.put("/", (a, b) -> a / b);
         MULTIPLICATION.put("%", (a, b) -> a % b);
-        ADDITION.put("+", (a, b) -> a + b);
-        ADDITION.put("-", (a, b) -> a - b);
+        ADDITION.put("+", (a, b) -> {
+            try {
+                return Double.parseDouble(a) + b;
+            } catch (Exception e) {
+                return b;
+            }
+        });
+        ADDITION.put("-", (a, b) -> {
+            try {
+                return Double.parseDouble(a) - b;
+            } catch (Exception e) {
+                return -b;
+            }
+        });
     }
 
     public static Relation compare(String op1, String op2) {
@@ -70,7 +83,7 @@ public class Operator {
             for (Map.Entry<String, Double> entry : CONSTANT.entrySet())
                 if (entry.getKey().equals(constant))
                     return entry.getValue();
-            throw new IllegalArgumentException("constant not found");
+            throw new IllegalArgumentException("constant '" + constant + "' not found");
         }
     }
 
@@ -82,7 +95,7 @@ public class Operator {
         for (Map.Entry<String, DoubleUnaryOperator> entry : UNARY.entrySet())
             if (entry.getKey().equals(op))
                 return entry.getValue().applyAsDouble(evaluate(operand));
-        throw new IllegalArgumentException("operator not found");
+        throw new IllegalArgumentException("unary operator '" + op + "' not found");
     }
 
     public static boolean isBinary(String op) {
@@ -91,17 +104,16 @@ public class Operator {
     }
 
     public static double evaluate(String op, String lhs, String rhs) {
-        double a = evaluate(lhs), b = evaluate(rhs);
         for (Map.Entry<String, DoubleBinaryOperator> entry : EXPONENTIATION.entrySet())
             if (entry.getKey().equals(op))
-                return entry.getValue().applyAsDouble(a, b);
+                return entry.getValue().applyAsDouble(evaluate(lhs), evaluate(rhs));
         for (Map.Entry<String, DoubleBinaryOperator> entry : MULTIPLICATION.entrySet())
             if (entry.getKey().equals(op))
-                return entry.getValue().applyAsDouble(a, b);
-        for (Map.Entry<String, DoubleBinaryOperator> entry : ADDITION.entrySet())
+                return entry.getValue().applyAsDouble(evaluate(lhs), evaluate(rhs));
+        for (Map.Entry<String, BiFunction<String, Double, Double>> entry : ADDITION.entrySet())
             if (entry.getKey().equals(op))
-                return entry.getValue().applyAsDouble(a, b);
-        throw new IllegalArgumentException("operator not found");
+                return entry.getValue().apply(lhs, evaluate(rhs));
+        throw new IllegalArgumentException("binary operator '" + op + "' not found");
     }
 
     public static boolean isOperator(String s) {

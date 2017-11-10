@@ -30,8 +30,9 @@ public class CalculatorBrain {
                         .evaluate(token, operands.pop()));
             else if (Operator.isBinary(token)) {
                 String rhs = operands.pop();
+                String lhs = operands.isEmpty() ? "" : operands.pop();
                 operands.push("" + Operator
-                        .evaluate(token, operands.pop(), rhs));
+                        .evaluate(token, lhs, rhs));
             } else throw new IllegalArgumentException(
                     "unrecognized token: " + token);
         }

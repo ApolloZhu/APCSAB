@@ -45,5 +45,8 @@ class InfixToPostfixTest {
 
         infixToPostfix("cos(( 5 % 3) !^ 3*pi)",
                 "5 3 % ! 3 ^ pi * cos");
+
+        infixToPostfix("-3+4*5",
+                "3 - 4 5 * +");
     }
 }
