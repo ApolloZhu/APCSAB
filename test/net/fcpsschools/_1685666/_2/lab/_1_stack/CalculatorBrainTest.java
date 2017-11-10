@@ -10,13 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CalculatorBrainTest {
     private static void evalPostfixTo(double expected, String postfix) {
         assertEquals(expected,
-                CalculatorBrain.evaluatePostfix(postfix));
+                CalculatorBrain.evaluatePostfix(postfix), 0.01);
     }
 
     private static void evalInfixTo(double expected, String infix) {
         assertEquals(expected,
                 CalculatorBrain.evaluatePostfix(
-                        InfixToPostfix.convert(infix)));
+                        InfixToPostfix.convert(infix)), 0.01);
     }
 
     @Test
@@ -50,8 +50,6 @@ class CalculatorBrainTest {
         Operator.registerUnaryOperator("%", Operator.Associativity.LEFT, a -> a / 100);
         evalInfixTo(0.98, "(10^2-2)%");
         Operator.registerUnaryOperator("sqrt", Operator.Associativity.RIGHT, Math::sqrt);
-        // FIXME: Incorrect conversion.
-        System.out.println(InfixToPostfix.convert("sqrt(sin(1-red(30)))"));
-        evalInfixTo(0.25, "sqrt(sin(1-red(30)))");
+        evalInfixTo(2, "sqrt(2^3*sin(pi/6))");
     }
 }

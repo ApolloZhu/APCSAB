@@ -25,7 +25,7 @@ public class Operator {
         registerUnaryOperator("cos", Associativity.RIGHT, Math::cos);
         registerUnaryOperator("tan", Associativity.RIGHT, Math::tan);
         registerUnaryOperator("deg", Associativity.RIGHT, Math::toDegrees);
-        registerUnaryOperator("red", Associativity.RIGHT, Math::toRadians);
+        registerUnaryOperator("rad", Associativity.RIGHT, Math::toRadians);
         registerUnaryOperator("!", Associativity.LEFT, a -> {
             int x;
             if (a < 0 || (x = (int) a) != a)

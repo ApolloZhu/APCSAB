@@ -58,7 +58,7 @@ public class InfixToPostfix {
                 }
                 boolean closed = false;
                 while (!operators.isEmpty()) {
-                    if (isLower(operators.peek(), c))
+                    if (isLower(operators.peek(), op))
                         break;
                     if (operators.peek().equals("(")) {
                         if (c == ')') {
@@ -109,8 +109,7 @@ public class InfixToPostfix {
         return "1234567890".indexOf(c) != -1;
     }
 
-    private static boolean isLower(String lhs, char rhs) {
-        return Operator.compare(lhs, String.valueOf(rhs))
-                == Operator.Relation.LOWER;
+    private static boolean isLower(String lhs, String rhs) {
+        return Operator.compare(lhs, rhs) == Operator.Relation.LOWER;
     }
 }
