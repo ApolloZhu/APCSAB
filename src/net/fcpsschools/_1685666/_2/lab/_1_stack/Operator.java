@@ -26,6 +26,7 @@ public class Operator {
         registerUnaryOperator("tan", Associativity.RIGHT, Math::tan);
         registerUnaryOperator("deg", Associativity.RIGHT, Math::toDegrees);
         registerUnaryOperator("rad", Associativity.RIGHT, Math::toRadians);
+        registerUnaryOperator("sqrt", Associativity.RIGHT, Math::sqrt);
         registerUnaryOperator("!", Associativity.LEFT, a -> {
             int x;
             if (a < 0 || (x = (int) a) != a)
@@ -86,6 +87,22 @@ public class Operator {
 
     public static boolean isUnary(String op) {
         return UNARY.containsKey(op);
+    }
+
+    public static boolean isLeftAssociateUnary(String op) {
+        try {
+            return UNARY.get(op).getAssociativity() == Associativity.LEFT;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isRightAssociateUnary(String op) {
+        try {
+            return UNARY.get(op).getAssociativity() == Associativity.RIGHT;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public static double evaluate(String op, String operand) {

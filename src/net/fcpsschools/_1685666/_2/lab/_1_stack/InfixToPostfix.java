@@ -46,9 +46,8 @@ public class InfixToPostfix {
                         if (Operator.isOperator(op)) break;
                         if (i < s.length()) {
                             char next = s.charAt(i++);
-                            if (!isNumber(next) &&
-                                    "()".indexOf(next) == -1) {
-                                if (next != ' ') op += next;
+                            if (!isNumber(next) && next != '(') {
+                                op += next;
                                 continue;
                             }
                         }
@@ -57,34 +56,51 @@ public class InfixToPostfix {
                     }
                 }
                 boolean closed = false;
+                boolean isRightAssociateUnary = Operator.isRightAssociateUnary(op);
                 while (!operators.isEmpty()) {
-                    if (isLower(operators.peek(), op))
+                    String peek = operators.peek();
+                    if (isLower(peek, op))
                         break;
-                    if (operators.peek().equals("(")) {
+                    if (peek.equals("(")) {
                         if (c == ')') {
                             operators.pop();
                             closed = true;
                         }
+                        if (!operators.isEmpty() &&
+                                Operator.isRightAssociateUnary(operators.peek())) {
+                            postfix.append(' ');
+                            postfix.append(operators.pop());
+                        }
                         break;
                     }
+                    if (isRightAssociateUnary &&
+                            Operator.isRightAssociateUnary(peek))
+                        break;
                     postfix.append(' ');
                     postfix.append(operators.pop());
                 }
                 if (c != ')') {
                     if (Operator.isBinary(op)) {
                         boolean isUnary = false;
-                        Operator.UnaryOperator uop;
-                        // Doesn't have an operand before
-                        if (i == 1 || s.charAt(i - 2) == '(')
-                            if ((uop = Operator.UNARY.get(op)) != null &&
-                                    uop.getAssociativity() == Operator.Associativity.RIGHT)
+                        int index;
+                        if (i == 1 || // Nothing else in front
+                                // Or the one in front is not a number
+                                !isNumber(s.charAt(i - 1 - op.length()))
+                                        && (index = postfix.lastIndexOf(" ")) != -1
+                                        && !Operator.isConstant(postfix.substring(index + 1))
+                                        // Thus that is an operator,
+                                        // noLHS if such is not left associated
+                                        && s.charAt(i - 1 - op.length()) != ')'
+                                        && !operators.isEmpty() &&
+                                        !Operator.isLeftAssociateUnary(operators.peek()))
+                            if (Operator.isRightAssociateUnary(op))
                                 isUnary = true;
                             else throw new IllegalArgumentException(
                                     "Missing first operand for binary operator: " + op);
                         // Doesn't have an operand after
+                        // FIXME: Has an operand if is a right associate unary op.
                         if (i == s.length() || s.charAt(i) == ')')
-                            if ((uop = Operator.UNARY.get(op)) != null &&
-                                    uop.getAssociativity() == Operator.Associativity.LEFT)
+                            if (Operator.isLeftAssociateUnary(op))
                                 isUnary = true;
                             else throw new IllegalArgumentException(
                                     "Missing second operand for binary operator: " + op);

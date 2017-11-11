@@ -7,7 +7,7 @@ import java.util.Stack;
  * @author ApolloZhu, Pd. 1
  */
 public class CalculatorBrain {
-    private static <E> String toString(Stack<E> stack) {
+    public static <E> String toString(Stack<E> stack) {
         StringBuilder sb = new StringBuilder();
         for (E element : stack) {
             sb.append(element);

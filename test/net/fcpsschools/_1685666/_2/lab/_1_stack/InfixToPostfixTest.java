@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author ApolloZhu, Pd. 1
  */
 class InfixToPostfixTest {
-    private void infixToPostfix(String infix, String expected) {
+    static void infixToPostfix(String infix, String expected) {
         assertEquals(expected, InfixToPostfix.convert(infix));
     }
 
@@ -62,5 +62,8 @@ class InfixToPostfixTest {
                 () -> InfixToPostfix.convert("(1+)+2"));
         assertThrows(IllegalArgumentException.class,
                 () -> InfixToPostfix.convert("(/1)!2"));
+
+        infixToPostfix("tan(2*3^(3+2-3.123)/12.2)+sin(pi)+cos(2)*sqrt(144)",
+                "2 3 3 2 3.123 - + ^ * 12.2 / tan pi sin 2 cos 144 sqrt * + +");
     }
 }
