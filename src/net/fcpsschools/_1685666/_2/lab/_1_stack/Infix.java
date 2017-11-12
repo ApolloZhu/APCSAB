@@ -27,6 +27,7 @@ public class Infix {
                 operators.push("(");
             } else {
                 hasDot = false;
+                // Handle negative sign
                 if (c == '-') {
                     char before = i == 1 ? ' ' : s.charAt(i - 2);
                     if (!isNumber(before) && before != ')') {
@@ -37,6 +38,7 @@ public class Infix {
                         }
                     }
                 }
+                // Find shortest possible operator to use.
                 String op = String.valueOf(c);
                 if (c != ')') {
                     while (true) {
@@ -56,12 +58,44 @@ public class Infix {
                                 "unrecognized operator: " + op);
                     }
                 }
-                boolean closed = false;
-                boolean isRightAssociateUnary = Operator.isRightAssociateUnary(op);
+                boolean mightBeRightAssociateUnary = Operator.isRightAssociateUnary(op);
+                boolean isUnary = false;
+                boolean closed = c != ')';
+                String peek = operators.isEmpty()
+                        ? null : operators.peek();
+                if (closed && Operator.isBinary(op)) {
+                    int prevLast = i - 1 - op.length();
+                    String prev = postfix.substring(postfix.lastIndexOf(" ") + 1);
+                    int peekLen = peek == null ? 0 : peek.length();
+                    boolean hasLHS = false;
+                    // Nothing else in front
+                    if (i != 1) {
+                        // The thing in front is not a number or constant.
+                        hasLHS = Operator.isConstant(prev);
+                        if (!hasLHS) hasLHS = s.charAt(prevLast) == ')';
+                        // Thus that is an operator or parenthesis
+                        if (!hasLHS) {
+                            // noLHS if such is not left associated
+                            String prevOp = s.substring(prevLast + 1 - peekLen, prevLast + 1);
+                            assert prevOp.length() == peekLen;
+                            hasLHS = prevOp.equals(peek) && Operator.isLeftAssociateUnary(peek);
+                        }
+                    }
+                    if (!hasLHS)
+                        if (mightBeRightAssociateUnary) isUnary = true;
+                        else throw new IllegalArgumentException(
+                                "Missing first operand for binary operator: " + op);
+                    // Doesn't have an operand after
+                    // FIXME: Has an operand if is a right associate unary op.
+                    if (i == s.length() || s.charAt(i) == ')')
+                        if (Operator.isLeftAssociateUnary(op)) isUnary = true;
+                        else throw new IllegalArgumentException(
+                                "Missing second operand for binary operator: " + op);
+                }
+
                 while (!operators.isEmpty()) {
-                    String peek = operators.peek();
-                    if (isLower(peek, op))
-                        break;
+                    peek = operators.peek();
+                    if (isLower(peek, op)) break;
                     if (peek.equals("(")) {
                         if (c == ')') {
                             operators.pop();
@@ -74,42 +108,15 @@ public class Infix {
                         }
                         break;
                     }
-                    if (isRightAssociateUnary &&
+                    if (mightBeRightAssociateUnary && isUnary &&
                             Operator.isRightAssociateUnary(peek))
                         break;
                     postfix.append(' ');
                     postfix.append(operators.pop());
                 }
-                if (c != ')') {
-                    if (Operator.isBinary(op)) {
-                        boolean isUnary = false;
-                        int index;
-                        if (i == 1 || // Nothing else in front
-                                // Or the one in front is not a number
-                                !isNumber(s.charAt(i - 1 - op.length()))
-                                        && (index = postfix.lastIndexOf(" ")) != -1
-                                        && !Operator.isConstant(postfix.substring(index + 1))
-                                        // Thus that is an operator,
-                                        // noLHS if such is not left associated
-                                        && s.charAt(i - 1 - op.length()) != ')'
-                                        && !operators.isEmpty() &&
-                                        !Operator.isLeftAssociateUnary(operators.peek()))
-                            if (Operator.isRightAssociateUnary(op))
-                                isUnary = true;
-                            else throw new IllegalArgumentException(
-                                    "Missing first operand for binary operator: " + op);
-                        // Doesn't have an operand after
-                        // FIXME: Has an operand if is a right associate unary op.
-                        if (i == s.length() || s.charAt(i) == ')')
-                            if (Operator.isLeftAssociateUnary(op))
-                                isUnary = true;
-                            else throw new IllegalArgumentException(
-                                    "Missing second operand for binary operator: " + op);
-                        if (!isUnary) postfix.append(' ');
-                    }
-                    operators.push(op);
-                } else if (!closed)
-                    throw new IllegalArgumentException("extra ')'");
+                if (!closed) throw new IllegalArgumentException("extra ')'");
+                if (!isUnary) postfix.append(' ');
+                if (c != ')') operators.push(op);
             }
         }
 
@@ -119,7 +126,8 @@ public class Infix {
             postfix.append(' ');
             postfix.append(top);
         }
-        return postfix.toString();
+        // FIXME: Should correctly space tokens.
+        return postfix.toString().replaceAll("\\s+", " ").trim();
     }
 
     private static boolean isNumber(char c) {

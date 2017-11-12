@@ -15,7 +15,6 @@ class InfixTest {
 
     @Test
     void testBasic() {
-        // FIXME: Different style
         infixToPostfix("3+4-5+6",
                 "3 4 + 5 - 6 +");
         infixToPostfix("(3+4)*5",
@@ -36,7 +35,6 @@ class InfixTest {
                 "3 4 + 5 6 + *");
         infixToPostfix("(3*(4+5)-2)/5",
                 "3 4 5 + * 2 - 5 /");
-        // FIXME: Different style than expected
         infixToPostfix("8+1*2-9/3",
                 "8 1 2 * + 9 3 / -");
     }
@@ -61,7 +59,7 @@ class InfixTest {
         assertThrows(IllegalArgumentException.class,
                 () -> Infix.toPostfix("(1+)+2"));
         assertThrows(IllegalArgumentException.class,
-                () -> Infix.toPostfix("(/1)!2"));
+                () -> System.out.println(Infix.toPostfix("(/1)!2")));
     }
 
     // FIXME: Extra space
@@ -77,10 +75,9 @@ class InfixTest {
 
     @Test
     void testComplex() {
-        // FIXME: Missing first operand for binary operator: ^
         infixToPostfix("cos(( 5 % -3) !^ 3*pi)",
                 "5 -3 % ! 3 ^ pi * cos");
         infixToPostfix("tan(2*3^(3+2-3.123)/12.2)+sin(pi)+cos(2)*sqrt(144)",
-                "2 3 3 2 3.123 - + ^ * 12.2 / tan pi sin 2 cos 144 sqrt * + +");
+                "2 3 3 2 + 3.123 - ^ * 12.2 / tan pi sin + 2 cos 144 sqrt * +");
     }
 }
