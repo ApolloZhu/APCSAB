@@ -7,6 +7,7 @@ import java.util.Stack;
  */
 public class Infix {
     public static String toPostfix(String s) {
+        if (s == null) return null;
         Stack<String> operators = new Stack<>();
         StringBuilder postfix = new StringBuilder();
         s = s.replaceAll("\\s", "");

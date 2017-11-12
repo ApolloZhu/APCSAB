@@ -5,17 +5,13 @@ package net.fcpsschools._1685666.maze;
  */
 public class RecursiveMazeSolver extends MazeSolver {
     @Override
-    public boolean start(MazeCoder.Block[][] input, int r, int c, int tR, int tC) {
-        setGrid(input);
-        if (get(r, c) == MazeCoder.Block.WALL || get(tR, tC) == MazeCoder.Block.WALL)
-            throw new IllegalArgumentException("We don't walk through walls.");
-        set(r, c, MazeCoder.Block.EMPTY);
-        set(tR, tC, MazeCoder.Block.EMPTY);
+    protected boolean start(int r, int c, int tR, int tC) {
         boolean hasPath = findAnExitHelper(r, c, tR, tC, "", null);
         forEachListener(l -> l.ended(hasPath, getGrid()));
         return hasPath;
     }
 
+    @SuppressWarnings({"unchecked"})
     private boolean findAnExitHelper(int x, int y, int tX, int tY, String path, Direction direction) {
         if (direction != null) {
             Loc back = direction.reverse(x, y);

@@ -20,13 +20,7 @@ public class StackBasedMazeSolver extends MazeSolver {
     }
 
     @Override
-    public boolean start(MazeCoder.Block[][] input, int r, int c, int targetR, int targetC) {
-        // Clean up
-        setGrid(input);
-        if (get(r, c) == MazeCoder.Block.WALL || get(targetR, targetC) == MazeCoder.Block.WALL)
-            throw new IllegalArgumentException("We don't walk through walls.");
-        set(r, c, MazeCoder.Block.EMPTY);
-        set(targetR, targetC, MazeCoder.Block.EMPTY);
+    protected boolean start(int r, int c, int targetR, int targetC) {
         // Setup
         forEachListener(l -> l.started(r, c, targetR, targetC, getGrid()));
         Loc start = new Loc(r, c), end = new Loc(targetR, targetC);

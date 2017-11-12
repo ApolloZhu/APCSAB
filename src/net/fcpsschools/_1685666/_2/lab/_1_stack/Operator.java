@@ -51,12 +51,13 @@ public class Operator {
     public static Relation compare(String op1, String op2) {
         int p1 = precedenceOf(op1);
         int p2 = precedenceOf(op2);
-        if (p1 == -1 || p2 == -1) return Relation.UNDEFINED;
+        if (p1 < 0 || p2 < 0) return Relation.UNDEFINED;
         return p1 == p2 ? Relation.SAME :
                 p1 < p2 ? Relation.LOWER : Relation.HIGHER;
     }
 
     private static int precedenceOf(String op) {
+        if (op == null) return -2;
         if (ADDITION.containsKey(op)) return 0;
         if (MULTIPLICATION.containsKey(op)) return 1;
         if (EXPONENTIATION.containsKey(op)) return 2;
@@ -109,7 +110,7 @@ public class Operator {
         for (Map.Entry<String, UnaryOperator> entry : UNARY.entrySet())
             if (entry.getKey().equals(op))
                 return entry.getValue().getOperator().applyAsDouble(evaluate(operand));
-        throw new IllegalArgumentException("unary operator '" + op + "' not found");
+        throw new IllegalArgumentException("unrecognized unary operator '" + op + "'");
     }
 
     public static boolean isBinary(String op) {

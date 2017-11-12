@@ -16,6 +16,7 @@ public class TextEditor {
     }
 
     static Stack<Character> process(String s) {
+        if (s == null) return null;
         Stack<Character> stack = new Stack<>();
         for (char c : s.toCharArray())
             if (c == '$')
@@ -38,6 +39,6 @@ public class TextEditor {
             System.out.print("Here is the line you entered: ");
             System.out.println(dump(stack));
             System.out.print("Again (y/n)? ");
-        } while (!in.nextLine().equals("n"));
+        } while (!in.nextLine().toLowerCase().equals("n"));
     }
 }

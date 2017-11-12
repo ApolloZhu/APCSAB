@@ -20,8 +20,17 @@ public abstract class MazeSolver {
         return new StackBasedMazeSolver();
     }
 
-    public abstract boolean start(MazeCoder.Block[][] input,
-                                  int r, int c, int tR, int tC);
+    public final boolean start(MazeCoder.Block[][] input,
+                               int r, int c, int tR, int tC) {
+        setGrid(input);
+        if (get(r, c) == MazeCoder.Block.WALL || get(tR, tC) == MazeCoder.Block.WALL)
+            throw new IllegalArgumentException("We don't walk through walls.");
+        set(r, c, MazeCoder.Block.EMPTY);
+        set(tR, tC, MazeCoder.Block.EMPTY);
+        return start(r, c, tR, tC);
+    }
+
+    protected abstract boolean start(int r, int c, int tR, int tC);
 
     public void stop() {
         forEachListener(l -> l.ended(false, grid));
@@ -73,10 +82,6 @@ public abstract class MazeSolver {
 
     public enum Direction {
         UP, RIGHT, DOWN, LEFT, NONE;
-
-        Loc reverse(Loc loc) {
-            return reverse(loc.getR(), loc.getC());
-        }
 
         Loc reverse(int r, int c) {
             return new Loc(r - dx(), c - dy());

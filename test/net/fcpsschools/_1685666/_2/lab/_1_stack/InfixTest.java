@@ -14,7 +14,7 @@ class InfixTest {
     }
 
     @Test
-    void testConvert() {
+    void testBasic() {
         // FIXME: Different style
         infixToPostfix("3+4-5+6",
                 "3 4 + 5 - 6 +");
@@ -22,7 +22,10 @@ class InfixTest {
                 "3 4 + 5 *");
         infixToPostfix("3*4+5*6",
                 "3 4 * 5 6 * +");
+    }
 
+    @Test
+    void testBinary() {
         infixToPostfix("3+4*5",
                 "3 4 5 * +");
         infixToPostfix("3*4+5",
@@ -34,9 +37,12 @@ class InfixTest {
         infixToPostfix("(3*(4+5)-2)/5",
                 "3 4 5 + * 2 - 5 /");
         // FIXME: Different style than expected
-        // infixToPostfix("8+1*2-9/3",
-        // "8 1 2 * + 9 3 / -");
+        infixToPostfix("8+1*2-9/3",
+                "8 1 2 * + 9 3 / -");
+    }
 
+    @Test
+    void testUnmatched() {
         assertThrows(IllegalArgumentException.class,
                 () -> Infix.toPostfix("((5+70)))"));
         infixToPostfix("((3+4*(50+6",
@@ -44,20 +50,10 @@ class InfixTest {
         infixToPostfix("(52+7.0", "52 7.0 +");
         assertThrows(NumberFormatException.class,
                 () -> Infix.toPostfix("7.2.55"));
+    }
 
-        // FIXME: Missing first operand for binary operator: ^
-        // infixToPostfix("cos(( 5 % -3) !^ 3*pi)",
-        // "5 -3 % ! 3 ^ pi * cos");
-
-        // FIXME: Extra space
-        infixToPostfix(" - 3+4*-5",
-                "-3 4 -5 * +");
-
-        infixToPostfix("-(3+4)",
-                "3 4 + -");
-        infixToPostfix("+(-(-3+4))",
-                "-3 4 + - +");
-
+    @Test
+    void testInvalid() {
         assertThrows(IllegalArgumentException.class,
                 () -> Infix.toPostfix("1+"));
         assertThrows(IllegalArgumentException.class,
@@ -66,7 +62,24 @@ class InfixTest {
                 () -> Infix.toPostfix("(1+)+2"));
         assertThrows(IllegalArgumentException.class,
                 () -> Infix.toPostfix("(/1)!2"));
+    }
 
+    // FIXME: Extra space
+    @Test
+    void testNegate() {
+        infixToPostfix(" - 3+4*-5",
+                "-3 4 -5 * +");
+        infixToPostfix("-(3+4)",
+                "3 4 + -");
+        infixToPostfix("+(-(-3+4))",
+                "-3 4 + - +");
+    }
+
+    @Test
+    void testComplex() {
+        // FIXME: Missing first operand for binary operator: ^
+        infixToPostfix("cos(( 5 % -3) !^ 3*pi)",
+                "5 -3 % ! 3 ^ pi * cos");
         infixToPostfix("tan(2*3^(3+2-3.123)/12.2)+sin(pi)+cos(2)*sqrt(144)",
                 "2 3 3 2 3.123 - + ^ * 12.2 / tan pi sin 2 cos 144 sqrt * + +");
     }

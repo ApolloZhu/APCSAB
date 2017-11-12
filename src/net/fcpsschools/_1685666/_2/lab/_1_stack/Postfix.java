@@ -8,6 +8,7 @@ import java.util.Stack;
  */
 public class Postfix {
     public static <E> String toString(Stack<E> stack) {
+        if (stack == null) return null;
         StringBuilder sb = new StringBuilder();
         for (E element : stack) {
             sb.append(element);
@@ -18,6 +19,7 @@ public class Postfix {
     }
 
     public static double eval(String s) {
+        if (s == null) return Double.NaN;
         Stack<String> operands = new Stack<>();
         // Remove extra empty spaces.
         for (String token : s.trim()

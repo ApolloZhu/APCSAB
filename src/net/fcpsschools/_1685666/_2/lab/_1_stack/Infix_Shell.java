@@ -7,14 +7,11 @@ public class Infix_Shell {
         System.out.println("Enter an infix expression, single digits");
         System.out.println("such as 1+2*3 or (1+2)*3");
         Scanner keyboard = new Scanner(System.in);//  (3*(4+5)-2)/5
-        String s = keyboard.next();
+        String s = keyboard.next(), postfix;
         while (!s.equals("-1")) {
-            System.out.println(s + "  -->  " + trans(s) + "  -->  " + Postfix.eval(trans(s)) + "\n");
+            postfix = Infix.toPostfix(s);
+            System.out.println(s + "  -->  " + postfix + "  -->  " + Postfix.eval(postfix) + "\n");
             s = keyboard.next();
         }
-    }
-
-    public static String trans(String x) {
-        return Infix.toPostfix(x);
     }
 }
