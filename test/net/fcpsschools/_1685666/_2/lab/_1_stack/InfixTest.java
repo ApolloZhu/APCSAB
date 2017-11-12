@@ -13,6 +13,11 @@ class InfixTest {
         assertEquals(expected, Infix.toPostfix(infix));
     }
 
+    static void assertInvalidInfix(String infix) {
+        assertThrows(IllegalArgumentException.class,
+                () -> System.out.println(Infix.toPostfix(infix)));
+    }
+
     @Test
     void testBasic() {
         infixToPostfix("3+4-5+6",
@@ -41,8 +46,7 @@ class InfixTest {
 
     @Test
     void testUnmatched() {
-        assertThrows(IllegalArgumentException.class,
-                () -> Infix.toPostfix("((5+70)))"));
+        assertInvalidInfix("((5+70)))");
         infixToPostfix("((3+4*(50+6",
                 "3 4 50 6 + * +");
         infixToPostfix("(52+7.0", "52 7.0 +");
@@ -51,15 +55,31 @@ class InfixTest {
     }
 
     @Test
+    void testDifferentStyle() {
+        infixToPostfix("5+7", "5 7 +");
+        infixToPostfix("(5+7)", "5 7 +");
+        infixToPostfix("((5+7)*3", "5 7 + 3 *");
+        // FIXME: extra ']'
+        infixToPostfix("[(5+7]*3)", "5 7 + 3 *");
+        infixToPostfix("([(5+7)*3]", "5 7 + 3 *");
+        infixToPostfix("((5+7)*3)", "5 7 + 3 *");
+        infixToPostfix("<{5+7}*3>", "5 7 + 3 *");
+        infixToPostfix("(5+7)*3", "5 7 + 3 *");
+        infixToPostfix("5+(7*3)", "5 7 3 * +");
+
+        infixToPostfix("5+7*3", "5 7 3 * +");
+
+        assertInvalidInfix(")5+7(");
+        assertInvalidInfix("[(5+7)*3])");
+        assertInvalidInfix("[(5+7)*]3");
+    }
+
+    @Test
     void testInvalid() {
-        assertThrows(IllegalArgumentException.class,
-                () -> Infix.toPostfix("1+"));
-        assertThrows(IllegalArgumentException.class,
-                () -> Infix.toPostfix("*1"));
-        assertThrows(IllegalArgumentException.class,
-                () -> Infix.toPostfix("(1+)+2"));
-        assertThrows(IllegalArgumentException.class,
-                () -> System.out.println(Infix.toPostfix("(/1)!2")));
+        assertInvalidInfix("1+");
+        assertInvalidInfix("*1");
+        assertInvalidInfix("(1+)+2");
+        assertInvalidInfix("(/1)!2");
     }
 
     // FIXME: Extra space

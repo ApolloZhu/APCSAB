@@ -8,7 +8,7 @@ import java.util.function.DoubleUnaryOperator;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class Operator {
+public class Operators {
     public static final Hashtable<String, Double> CONSTANT = new Hashtable<>();
     public static final Hashtable<String, UnaryOperator> UNARY = new Hashtable<>();
     public static final BinaryOperator EXPONENTIATION = new BinaryOperator();

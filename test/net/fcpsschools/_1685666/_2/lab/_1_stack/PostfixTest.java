@@ -57,16 +57,16 @@ class PostfixTest {
 
     @Test
     void testNewOperator() {
-        Operator.CONSTANT.put("😀", -1.0);
+        Operators.CONSTANT.put("😀", -1.0);
         evalInfixToExactly(-3,
                 "😀 * 3");
-        Operator.registerUnaryOperator("%",
-                Operator.Associativity.LEFT, a -> a / 100);
+        Operators.registerUnaryOperator("%",
+                Operators.Associativity.LEFT, a -> a / 100);
         evalInfixToExactly(0.98,
                 "(10^2-2)%");
 
-        Operator.registerUnaryOperator("√",
-                Operator.Associativity.RIGHT, Math::sqrt);
+        Operators.registerUnaryOperator("√",
+                Operators.Associativity.RIGHT, Math::sqrt);
         InfixTest.infixToPostfix("√√√(2^3*sin(pi/6))",
                 "2 3 ^ pi 6 / sin * √ √ √");
         evalInfixTo(1.189207115, 1E-9,

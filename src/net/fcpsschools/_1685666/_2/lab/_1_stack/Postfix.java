@@ -27,12 +27,12 @@ public class Postfix {
                 .split(" ")) {
             // Binary operators require 2 operands
             // Thus we shall check if that is satisfied.
-            if (Operator.isBinary(token)) {
+            if (Operators.isBinary(token)) {
                 String rhs = null;
                 try {
                     // We may or may not get our operands.
                     rhs = operands.pop();
-                    double result = Operator.evaluate(
+                    double result = Operators.evaluate(
                             token, operands.pop(), rhs);
                     // We put the evaluated result back.
                     operands.push(String.valueOf(result));
@@ -45,16 +45,16 @@ public class Postfix {
             // Some operator might be both binary and unary.
             // For example, + and -.
             // Will throw empty stack exception if no operand.
-            if (Operator.isUnary(token))
-                operands.push(String.valueOf(Operator
+            if (Operators.isUnary(token))
+                operands.push(String.valueOf(Operators
                         .evaluate(token, operands.pop())));
             else // Constants has no requirements for operands.
-                if (Operator.isConstant(token))
+                if (Operators.isConstant(token))
                     operands.push(token);
                 else throw new IllegalArgumentException(
                         "unrecognized token '" + token + "'");
         }
-        double result = Operator.evaluate(operands.pop());
+        double result = Operators.evaluate(operands.pop());
         // We shall have no more operands left.
         if (!operands.isEmpty())
             throw new IllegalArgumentException(
