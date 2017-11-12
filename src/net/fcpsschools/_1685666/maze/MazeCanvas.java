@@ -9,7 +9,7 @@ import java.util.LinkedList;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class MazeCanvas extends JPanel implements RecursiveMazeSolver.MSEventListener {
+public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     public static final PiecePainter START_PAINTER = (g, r, c, x, y, w, h) -> {
         g.drawOval(x + w / 5, y + h / 5,
                 w * 3 / 5, h * 3 / 5);
@@ -81,7 +81,7 @@ public class MazeCanvas extends JPanel implements RecursiveMazeSolver.MSEventLis
     private Color diffColor;
     private Color commonColor = Color.BLUE;
     private Path diff = null;
-    private RecursiveMazeSolver.Loc start, end;
+    private MazeSolver.Loc start, end;
     private final PiecePainter painter = (graphics, r, c, x, y, w, h) -> {
         Graphics2D g = (Graphics2D) graphics;
 
@@ -92,9 +92,9 @@ public class MazeCanvas extends JPanel implements RecursiveMazeSolver.MSEventLis
         g.setStroke(new BasicStroke(w / 5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
         g.setColor(Color.RED);
-        if (start != null && r == start.r && c == start.c)
+        if (start != null && r == start.getR() && c == start.getC())
             START_PAINTER.paintPiece(g, r, c, x, y, w, h);
-        if (end != null && r == end.r && c == end.c) {
+        if (end != null && r == end.getR() && c == end.getC()) {
             TARGET_PAINTER.paintPiece(g, r, c, x, y, w, h);
             g.setStroke(stroke);
             return;
@@ -177,7 +177,7 @@ public class MazeCanvas extends JPanel implements RecursiveMazeSolver.MSEventLis
             }
     }
 
-    public RecursiveMazeSolver.Loc getLoc(int x, int y) {
+    public MazeSolver.Loc getLoc(int x, int y) {
         int side = Math.min(getWidth() / map[0].length,
                 getHeight() / map.length);
         int xOffset = (getWidth() - side * map[0].length) / 2;
@@ -185,44 +185,44 @@ public class MazeCanvas extends JPanel implements RecursiveMazeSolver.MSEventLis
         int r = (y - yOffset) / side;
         int c = (x - xOffset) / side;
         if (r < 0 || c < 0 || r >= map.length || c >= map[0].length) return null;
-        return new RecursiveMazeSolver.Loc(r, c);
+        return new MazeSolver.Loc(r, c);
     }
 
-    public void setStart(RecursiveMazeSolver.Loc start) {
+    public void setStart(MazeSolver.Loc start) {
         this.start = start;
         repaint();
     }
 
-    public void setTarget(RecursiveMazeSolver.Loc target) {
+    public void setTarget(MazeSolver.Loc target) {
         this.end = target;
         repaint();
     }
 
     @Override
     public void started(int r, int c, int tR, int tC, MazeCoder.Block[][] map) {
-        setStart(new RecursiveMazeSolver.Loc(r, c));
-        setTarget(new RecursiveMazeSolver.Loc(tR, tC));
+        setStart(new MazeSolver.Loc(r, c));
+        setTarget(new MazeSolver.Loc(tR, tC));
         this.paths = new Path[map.length][map[0].length];
         commonColor = Color.BLUE;
         setMap(map);
     }
 
     @Override
-    public void tryout(int r, int c, RecursiveMazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
+    public void tryout(int r, int c, MazeSolver.Direction direction, Object path, MazeCoder.Block[][] map) {
         diffColor = DIFF_COLOR_NEW;
         paths[r][c] = diff = new Path(r, c, direction);
         setMap(map);
     }
 
     @Override
-    public void found(int tR, int tC, String path, MazeCoder.Block[][] map) {
+    public void found(int tR, int tC, Object path, MazeCoder.Block[][] map) {
         commonColor = COMMON_COLOR_FOUND;
         diff = null;
         setMap(map);
     }
 
     @Override
-    public void failed(int r, int c, String path, MazeCoder.Block[][] map) {
+    public void failed(int r, int c, Object path, MazeCoder.Block[][] map) {
         diffColor = Color.RED;
         diff = paths[r][c];
         paths[r][c] = null;
@@ -236,9 +236,9 @@ public class MazeCanvas extends JPanel implements RecursiveMazeSolver.MSEventLis
 
     private class Path {
         int r, c;
-        RecursiveMazeSolver.Direction direction;
+        MazeSolver.Direction direction;
 
-        Path(int r, int c, RecursiveMazeSolver.Direction direction) {
+        Path(int r, int c, MazeSolver.Direction direction) {
             this.r = r;
             this.c = c;
             this.direction = direction;

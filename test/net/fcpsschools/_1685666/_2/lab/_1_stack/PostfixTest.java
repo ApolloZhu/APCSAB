@@ -7,23 +7,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author ApolloZhu, Pd. 1
  */
-class CalculatorBrainTest {
+class PostfixTest {
     private static void evalPostfixTo(double expected, double delta, String postfix) {
         assertEquals(expected,
-                CalculatorBrain.evaluatePostfix(postfix), delta);
+                Postfix.eval(postfix), delta);
     }
 
     private static void evalPostfixToExactly(double expected, String postfix) {
         assertEquals(expected,
-                CalculatorBrain.evaluatePostfix(postfix));
+                Postfix.eval(postfix));
     }
 
     private static void evalInfixTo(double expected, double delta, String infix) {
-        evalPostfixTo(expected, delta, InfixToPostfix.convert(infix));
+        evalPostfixTo(expected, delta, Infix.toPostfix(infix));
     }
 
     private static void evalInfixToExactly(double expected, String infix) {
-        evalPostfixToExactly(expected, InfixToPostfix.convert(infix));
+        evalPostfixToExactly(expected, Infix.toPostfix(infix));
     }
 
     @Test
@@ -67,7 +67,7 @@ class CalculatorBrainTest {
 
         Operator.registerUnaryOperator("√",
                 Operator.Associativity.RIGHT, Math::sqrt);
-        InfixToPostfixTest.infixToPostfix("√√√(2^3*sin(pi/6))",
+        InfixTest.infixToPostfix("√√√(2^3*sin(pi/6))",
                 "2 3 ^ pi 6 / sin * √ √ √");
         evalInfixTo(1.189207115, 1E-9,
                 "√√√(2^3*sin(pi/6))");

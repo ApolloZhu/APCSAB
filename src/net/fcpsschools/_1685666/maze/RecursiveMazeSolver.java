@@ -19,7 +19,7 @@ public class RecursiveMazeSolver extends MazeSolver {
     private boolean findAnExitHelper(int x, int y, int tX, int tY, String path, Direction direction) {
         if (direction != null) {
             Loc back = direction.reverse(x, y);
-            forEachListener(l -> l.tryout(back.r, back.c, direction, path, getGrid()));
+            forEachListener(l -> l.tryout(back.getR(), back.getC(), direction, path, getGrid()));
         } else forEachListener(l -> l.started(x, y, tX, tY, getGrid()));
         if (get(x, y) != MazeCoder.Block.EMPTY) return false;
 
@@ -55,52 +55,5 @@ public class RecursiveMazeSolver extends MazeSolver {
             forEachListener(l -> l.failed(x, y, path, getGrid()));
         }
         return false;
-    }
-
-
-    public enum Direction {
-        UP, RIGHT, DOWN, LEFT;
-
-        Loc reverse(int r, int c) {
-            return new Loc(r - dx(), c - dy());
-        }
-
-        int dx() {
-            switch (this) {
-                case DOWN:
-                    return 1;
-                case UP:
-                    return -1;
-            }
-            return 0;
-        }
-
-        int dy() {
-            switch (this) {
-                case RIGHT:
-                    return 1;
-                case LEFT:
-                    return -1;
-            }
-            return 0;
-        }
-    }
-
-    public static class Loc {
-        int r, c;
-
-        Loc(int r, int c) {
-            this.r = r;
-            this.c = c;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Loc) {
-                Loc loc = (Loc) obj;
-                return r == loc.r && c == loc.c;
-            }
-            return false;
-        }
     }
 }

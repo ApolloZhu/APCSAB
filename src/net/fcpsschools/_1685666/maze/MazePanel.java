@@ -10,12 +10,12 @@ import java.awt.event.MouseEvent;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class MazePanel extends PlaybackPanel implements RecursiveMazeSolver.MSEventListener {
+public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListener {
     private final MazeSolver solver;
     private final JButton pickStartButton, pickEndButton, editWallButton;
     private MazeCanvas canvas;
     private boolean isSelectingStart, isSelectingEnd, isEditingWall;
-    private RecursiveMazeSolver.Loc start, end;
+    private MazeSolver.Loc start, end;
     private MazeCoder.Block[][] map;
 
     public MazePanel(MazeSolver mazeSolver) {
@@ -48,10 +48,10 @@ public class MazePanel extends PlaybackPanel implements RecursiveMazeSolver.MSEv
                 MazeCanvas canvas = (MazeCanvas) getCenterComponent();
                 int x = e.getX() - canvas.getX();
                 int y = e.getY() - canvas.getY();
-                RecursiveMazeSolver.Loc loc = canvas.getLoc(x, y);
-                if (loc == null || loc.r < 0 || loc.c < 0
-                        || loc.r >= map.length || loc.c >= map[loc.r].length) return;
-                boolean notWall = !canvas.isWall(loc.r, loc.c);
+                MazeSolver.Loc loc = canvas.getLoc(x, y);
+                if (loc == null || loc.getR() < 0 || loc.getC() < 0
+                        || loc.getR() >= map.length || loc.getC() >= map[loc.getR()].length) return;
+                boolean notWall = !canvas.isWall(loc.getR(), loc.getC());
                 if (isSelectingStart && notWall) {
                     canvas.setStart(start = loc);
                     isSelectingStart = false;
@@ -61,7 +61,7 @@ public class MazePanel extends PlaybackPanel implements RecursiveMazeSolver.MSEv
                 } else if (isEditingWall && !loc.equals(start) && !loc.equals(end)) {
                     MazeCoder.clear(map);
                     canvas.setMap(map);
-                    map[loc.r][loc.c] = notWall
+                    map[loc.getR()][loc.getC()] = notWall
                             ? MazeCoder.Block.WALL
                             : MazeCoder.Block.EMPTY;
                     canvas.setMap(map);
@@ -70,8 +70,8 @@ public class MazePanel extends PlaybackPanel implements RecursiveMazeSolver.MSEv
                 canvas.setMap(map);
             }
         });
-        canvas.setStart(start = new RecursiveMazeSolver.Loc(0, 0));
-        canvas.setTarget(end = new RecursiveMazeSolver.Loc(map.length - 1, map[0].length - 1));
+        canvas.setStart(start = new MazeSolver.Loc(0, 0));
+        canvas.setTarget(end = new MazeSolver.Loc(map.length - 1, map[0].length - 1));
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MazePanel extends PlaybackPanel implements RecursiveMazeSolver.MSEv
         MazeCoder.clear(map);
         canvas.setMap(map);
         solver.addEventListener(this);
-        solver.start(map, start.r, start.c, end.r, end.c);
+        solver.start(map, start.getR(), start.getC(), end.getR(), end.getC());
     }
 
     @Override
@@ -109,17 +109,17 @@ public class MazePanel extends PlaybackPanel implements RecursiveMazeSolver.MSEv
     }
 
     @Override
-    public void tryout(int r, int c, RecursiveMazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
+    public void tryout(int r, int c, MazeSolver.Direction direction, Object path, MazeCoder.Block[][] map) {
         sleep();
     }
 
     @Override
-    public void found(int tR, int tC, String path, MazeCoder.Block[][] map) {
+    public void found(int tR, int tC, Object path, MazeCoder.Block[][] map) {
         sleep();
     }
 
     @Override
-    public void failed(int r, int c, String path, MazeCoder.Block[][] map) {
+    public void failed(int r, int c, Object path, MazeCoder.Block[][] map) {
         sleep();
     }
 

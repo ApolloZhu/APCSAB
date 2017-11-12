@@ -1,7 +1,5 @@
 package net.fcpsschools._1685666.maze;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import javax.swing.event.EventListenerList;
 import java.util.EventListener;
 import java.util.function.Consumer;
@@ -19,7 +17,7 @@ public abstract class MazeSolver {
     }
 
     public static MazeSolver makeStackBased() {
-        throw new NotImplementedException();
+        return new StackBasedMazeSolver();
     }
 
     public abstract boolean start(MazeCoder.Block[][] input,
@@ -37,12 +35,20 @@ public abstract class MazeSolver {
         this.grid = grid;
     }
 
+    protected MazeCoder.Block get(Loc loc) {
+        return get(loc.getR(), loc.getC());
+    }
+
     protected MazeCoder.Block get(int x, int y) {
         try {
             return grid[x][y];
         } catch (Exception e) {
             return MazeCoder.Block.WALL;
         }
+    }
+
+    protected void set(Loc loc, MazeCoder.Block block) {
+        set(loc.getR(), loc.getC(), block);
     }
 
     protected void set(int x, int y, MazeCoder.Block block) {
@@ -65,15 +71,86 @@ public abstract class MazeSolver {
             consumer.accept(l);
     }
 
-    public interface MSEventListener extends EventListener {
+    public enum Direction {
+        UP, RIGHT, DOWN, LEFT, NONE;
+
+        Loc reverse(Loc loc) {
+            return reverse(loc.getR(), loc.getC());
+        }
+
+        Loc reverse(int r, int c) {
+            return new Loc(r - dx(), c - dy());
+        }
+
+        Loc forward(Loc loc) {
+            return forward(loc.getR(), loc.getC());
+        }
+
+        Loc forward(int r, int c) {
+            return new Loc(r + dx(), c + dy());
+        }
+
+        int dx() {
+            switch (this) {
+                case DOWN:
+                    return 1;
+                case UP:
+                    return -1;
+            }
+            return 0;
+        }
+
+        int dy() {
+            switch (this) {
+                case RIGHT:
+                    return 1;
+                case LEFT:
+                    return -1;
+            }
+            return 0;
+        }
+    }
+
+    public interface MSEventListener<PathType> extends EventListener {
         void started(int r, int c, int tR, int tC, MazeCoder.Block[][] map);
 
-        void tryout(int r, int c, RecursiveMazeSolver.Direction direction, String path, MazeCoder.Block[][] map);
+        void tryout(int r, int c, MazeSolver.Direction direction, PathType path, MazeCoder.Block[][] map);
 
-        void found(int tR, int tC, String path, MazeCoder.Block[][] map);
+        void found(int tR, int tC, PathType path, MazeCoder.Block[][] map);
 
-        void failed(int r, int c, String path, MazeCoder.Block[][] map);
+        void failed(int r, int c, PathType path, MazeCoder.Block[][] map);
 
         void ended(boolean hasPath, MazeCoder.Block[][] map);
+    }
+
+    public static class Loc {
+        private int r, c;
+
+        public Loc(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
+
+        public int getR() {
+            return r;
+        }
+
+        public int getC() {
+            return c;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Loc) {
+                Loc loc = (Loc) obj;
+                return r == loc.r && c == loc.c;
+            }
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + r + "," + c + ")";
+        }
     }
 }

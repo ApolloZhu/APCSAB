@@ -6,7 +6,7 @@ import java.util.Stack;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class CalculatorBrain {
+public class Postfix {
     public static <E> String toString(Stack<E> stack) {
         StringBuilder sb = new StringBuilder();
         for (E element : stack) {
@@ -17,7 +17,7 @@ public class CalculatorBrain {
         return sb.toString();
     }
 
-    public static double evaluatePostfix(String s) {
+    public static double eval(String s) {
         Stack<String> operands = new Stack<>();
         // Remove extra empty spaces.
         for (String token : s.trim()

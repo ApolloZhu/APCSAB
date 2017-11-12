@@ -5,13 +5,13 @@ import java.util.Scanner;
 public class Maze_shell {
     private static int[][] grid = MazeCoder.encode(MazeCoder.EXAMPLE(), 0, 1, 3, 7);
     private static RecursiveMazeSolver solver = new RecursiveMazeSolver();
-    private static RecursiveMazeSolver.MSEventListener listener = new RecursiveMazeSolver.MSEventListener() {
+    private static RecursiveMazeSolver.MSEventListener listener = new MazeSolver.MSEventListener<String>() {
         @Override
         public void started(int r, int c, int tR, int tC, MazeCoder.Block[][] map) {
         }
 
         @Override
-        public void tryout(int r, int c, RecursiveMazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
+        public void tryout(int r, int c, MazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
         }
 
         @Override

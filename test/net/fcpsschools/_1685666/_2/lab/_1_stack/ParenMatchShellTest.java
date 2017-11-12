@@ -8,13 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author ApolloZhu, Pd. 1
  */
-class ParenMatchTest {
+class ParenMatchShellTest {
     void assertMatches(String s) {
-        assertTrue(ParenMatch.check(s));
+        assertTrue(ParenMatch_Shell.check(s));
     }
 
     void assertInvalid(String s) {
-        assertFalse(ParenMatch.check(s));
+        assertFalse(ParenMatch_Shell.check(s));
     }
 
     @Test

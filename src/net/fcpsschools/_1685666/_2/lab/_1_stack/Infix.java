@@ -5,8 +5,8 @@ import java.util.Stack;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class InfixToPostfix {
-    public static String convert(String s) {
+public class Infix {
+    public static String toPostfix(String s) {
         Stack<String> operators = new Stack<>();
         StringBuilder postfix = new StringBuilder();
         s = s.replaceAll("\\s", "");
