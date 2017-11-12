@@ -64,10 +64,11 @@ public class Infix {
                     }
                 }
                 boolean mightBeRightAssociateUnary = Operators.isRightAssociateUnary(op);
+                boolean mightBeLeftAssociateUnary = Operators.isLeftAssociateUnary(op);
                 boolean isBinary = Operators.isBinary(op);
                 boolean isUnary = !isBinary && Operators.isUnary(op);
                 Op peek = operators.isEmpty() ? null : operators.peek();
-                if (closed && isBinary) {
+                if (closed) {
                     int prevLast = i - 1 - op.length();
                     String prev = postfix.substring(postfix.lastIndexOf(" ") + 1);
                     int peekLen = peek == null ? 0 : peek.symbol.length();
@@ -76,25 +77,41 @@ public class Infix {
                     if (i != 1) {
                         // The thing in front is not a number or constant.
                         hasLHS = Operators.isConstant(prev);
-                        if (!hasLHS) hasLHS = isClosingParenthesis(s.charAt(prevLast));
+                        if (!hasLHS)
+                            hasLHS = prevLast > -1 && isClosingParenthesis(s.charAt(prevLast));
                         // Thus that is an operator or parenthesis
                         if (!hasLHS) {
                             // noLHS if such is not left associated
                             String prevOp = s.substring(prevLast + 1 - peekLen, prevLast + 1);
-                            assert prevOp.length() == peekLen;
-                            hasLHS = prevOp.equals(peek.symbol) && peek.isLeftAssociateUnary();
+                            hasLHS = peek != null && prevOp.equals(peek.symbol)
+                                    && peek.isLeftAssociateUnary();
                         }
                     }
-                    if (!hasLHS)
+                    if (isBinary && !hasLHS)
                         if (mightBeRightAssociateUnary) isUnary = true;
                         else throw new IllegalArgumentException(
                                 "Missing first operand for binary operator: " + op);
                     // Doesn't have an operand after
-                    // FIXME: Has an operand if is a right associate unary op.
-                    if (i == s.length() || isClosingParenthesis(s.charAt(i)))
-                        if (Operators.isLeftAssociateUnary(op)) isUnary = true;
+                    boolean hasRHS = false;
+                    if (i < s.length()) {
+                        hasRHS = isOpeningParenthesis(s.charAt(i));
+                        // FIXME: Inability to recognize token with length more than one.
+                        String next = String.valueOf(s.charAt(i));
+                        if (!hasRHS) hasRHS = Operators.isConstant(next);
+                        if (!hasRHS) hasRHS = Operators.isRightAssociateUnary(next);
+                    }
+                    if (isBinary && !hasRHS)
+                        if (mightBeLeftAssociateUnary) isUnary = true;
                         else throw new IllegalArgumentException(
                                 "Missing second operand for binary operator: " + op);
+                    if (isUnary) {
+                        if (mightBeRightAssociateUnary && hasLHS)
+                            throw new IllegalArgumentException("Extra left hand side operand " +
+                                    "for right associate unary operator '" + op + "'");
+                        if (mightBeLeftAssociateUnary && hasRHS)
+                            throw new IllegalArgumentException("Extra right hand side operand " +
+                                    "for left associate unary operator '" + op + "'");
+                    }
                 }
 
                 while (!operators.isEmpty()) {

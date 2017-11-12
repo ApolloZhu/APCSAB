@@ -103,6 +103,8 @@ class InfixTest {
 
     @Test
     void testComplex() {
+        infixToPostfix("sqrt(sqrt(sqrt(2^2^2!!!",
+                "2 2 ^ 2 ! ! ! ^ sqrt sqrt sqrt");
         infixToPostfix("cos(( 5 % -3) !^ 3*pi)",
                 "5 -3 % ! 3 ^ pi * cos");
         infixToPostfix("tan(2*3^(3+2-3.123)/12.2)+sin(pi)+cos(2)*sqrt(144)",
