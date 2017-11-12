@@ -1,6 +1,6 @@
-package net.fcpsschools._1685666._1.lab._4_recursion.maze;
+package net.fcpsschools._1685666.maze;
 
-import net.fcpsschools._1685666._1.lab._4_recursion.eight_queen.PiecePainter;
+import net.fcpsschools._1685666.eight_queen.PiecePainter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +9,7 @@ import java.util.LinkedList;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
+public class MazeCanvas extends JPanel implements RecursiveMazeSolver.MSEventListener {
     public static final PiecePainter START_PAINTER = (g, r, c, x, y, w, h) -> {
         g.drawOval(x + w / 5, y + h / 5,
                 w * 3 / 5, h * 3 / 5);
@@ -81,7 +81,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     private Color diffColor;
     private Color commonColor = Color.BLUE;
     private Path diff = null;
-    private MazeSolver.Loc start, end;
+    private RecursiveMazeSolver.Loc start, end;
     private final PiecePainter painter = (graphics, r, c, x, y, w, h) -> {
         Graphics2D g = (Graphics2D) graphics;
 
@@ -177,7 +177,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
             }
     }
 
-    public MazeSolver.Loc getLoc(int x, int y) {
+    public RecursiveMazeSolver.Loc getLoc(int x, int y) {
         int side = Math.min(getWidth() / map[0].length,
                 getHeight() / map.length);
         int xOffset = (getWidth() - side * map[0].length) / 2;
@@ -185,30 +185,30 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         int r = (y - yOffset) / side;
         int c = (x - xOffset) / side;
         if (r < 0 || c < 0 || r >= map.length || c >= map[0].length) return null;
-        return new MazeSolver.Loc(r, c);
+        return new RecursiveMazeSolver.Loc(r, c);
     }
 
-    public void setStart(MazeSolver.Loc start) {
+    public void setStart(RecursiveMazeSolver.Loc start) {
         this.start = start;
         repaint();
     }
 
-    public void setTarget(MazeSolver.Loc target) {
+    public void setTarget(RecursiveMazeSolver.Loc target) {
         this.end = target;
         repaint();
     }
 
     @Override
     public void started(int r, int c, int tR, int tC, MazeCoder.Block[][] map) {
-        setStart(new MazeSolver.Loc(r, c));
-        setTarget(new MazeSolver.Loc(tR, tC));
+        setStart(new RecursiveMazeSolver.Loc(r, c));
+        setTarget(new RecursiveMazeSolver.Loc(tR, tC));
         this.paths = new Path[map.length][map[0].length];
         commonColor = Color.BLUE;
         setMap(map);
     }
 
     @Override
-    public void tryout(int r, int c, MazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
+    public void tryout(int r, int c, RecursiveMazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
         diffColor = DIFF_COLOR_NEW;
         paths[r][c] = diff = new Path(r, c, direction);
         setMap(map);
@@ -236,9 +236,9 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
 
     private class Path {
         int r, c;
-        MazeSolver.Direction direction;
+        RecursiveMazeSolver.Direction direction;
 
-        Path(int r, int c, MazeSolver.Direction direction) {
+        Path(int r, int c, RecursiveMazeSolver.Direction direction) {
             this.r = r;
             this.c = c;
             this.direction = direction;

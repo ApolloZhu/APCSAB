@@ -1,6 +1,6 @@
-package net.fcpsschools._1685666._1.lab._4_recursion.maze;
+package net.fcpsschools._1685666.maze;
 
-import net.fcpsschools._1685666._1.lab._4_recursion.PlaybackPanel;
+import net.fcpsschools._1685666.PlaybackPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,16 +10,17 @@ import java.awt.event.MouseEvent;
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener {
-    private final MazeSolver solver = new MazeSolver();
+public class MazePanel extends PlaybackPanel implements RecursiveMazeSolver.MSEventListener {
+    private final MazeSolver solver;
     private final JButton pickStartButton, pickEndButton, editWallButton;
     private MazeCanvas canvas;
     private boolean isSelectingStart, isSelectingEnd, isEditingWall;
-    private MazeSolver.Loc start, end;
+    private RecursiveMazeSolver.Loc start, end;
     private MazeCoder.Block[][] map;
 
-    public MazeGUI() {
-        solver.addEventListner(canvas);
+    public MazePanel(MazeSolver mazeSolver) {
+        solver = mazeSolver;
+        solver.addEventListener(canvas);
         JPanel panel = new JPanel();
         add(panel, BorderLayout.NORTH);
         panel.add(pickStartButton = new JButton("Pick Start"));
@@ -47,7 +48,7 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
                 MazeCanvas canvas = (MazeCanvas) getCenterComponent();
                 int x = e.getX() - canvas.getX();
                 int y = e.getY() - canvas.getY();
-                MazeSolver.Loc loc = canvas.getLoc(x, y);
+                RecursiveMazeSolver.Loc loc = canvas.getLoc(x, y);
                 if (loc == null || loc.r < 0 || loc.c < 0
                         || loc.r >= map.length || loc.c >= map[loc.r].length) return;
                 boolean notWall = !canvas.isWall(loc.r, loc.c);
@@ -69,16 +70,8 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
                 canvas.setMap(map);
             }
         });
-        canvas.setStart(start = new MazeSolver.Loc(0, 0));
-        canvas.setTarget(end = new MazeSolver.Loc(map.length - 1, map[0].length - 1));
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(new MazeGUI());
-        frame.setVisible(true);
+        canvas.setStart(start = new RecursiveMazeSolver.Loc(0, 0));
+        canvas.setTarget(end = new RecursiveMazeSolver.Loc(map.length - 1, map[0].length - 1));
     }
 
     @Override
@@ -96,7 +89,7 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
         isEditingWall = false;
         MazeCoder.clear(map);
         canvas.setMap(map);
-        solver.addEventListner(this);
+        solver.addEventListener(this);
         solver.start(map, start.r, start.c, end.r, end.c);
     }
 
@@ -105,7 +98,7 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
         pickStartButton.setEnabled(true);
         pickEndButton.setEnabled(true);
         editWallButton.setEnabled(true);
-        solver.removeEventListner(this);
+        solver.removeEventListener(this);
         solver.stop();
         super.terminate();
     }
@@ -116,7 +109,7 @@ public class MazeGUI extends PlaybackPanel implements MazeSolver.MSEventListener
     }
 
     @Override
-    public void tryout(int r, int c, MazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
+    public void tryout(int r, int c, RecursiveMazeSolver.Direction direction, String path, MazeCoder.Block[][] map) {
         sleep();
     }
 

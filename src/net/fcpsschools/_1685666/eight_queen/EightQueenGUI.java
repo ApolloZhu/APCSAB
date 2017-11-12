@@ -1,6 +1,6 @@
-package net.fcpsschools._1685666._1.lab._4_recursion.eight_queen;
+package net.fcpsschools._1685666.eight_queen;
 
-import net.fcpsschools._1685666._1.lab._4_recursion.PlaybackPanel;
+import net.fcpsschools._1685666.PlaybackPanel;
 
 import javax.swing.*;
 import java.awt.*;

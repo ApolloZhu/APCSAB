@@ -1,61 +1,35 @@
-package net.fcpsschools._1685666._1.lab._4_recursion.maze;
-
-import javax.swing.event.EventListenerList;
-import java.util.EventListener;
-import java.util.function.Consumer;
+package net.fcpsschools._1685666.maze;
 
 /**
  * @author ApolloZhu, Pd. 1
  */
-public class MazeSolver {
-    private final EventListenerList list = new EventListenerList();
-    private MazeCoder.Block[][] grid;
-
-    public void stop() {
-        forEachListener(l -> l.ended(false, grid));
-    }
-
+public class RecursiveMazeSolver extends MazeSolver {
+    @Override
     public boolean start(MazeCoder.Block[][] input, int r, int c, int tR, int tC) {
-        grid = input;
+        setGrid(input);
         if (get(r, c) == MazeCoder.Block.WALL || get(tR, tC) == MazeCoder.Block.WALL)
             throw new IllegalArgumentException("We don't walk through walls.");
         set(r, c, MazeCoder.Block.EMPTY);
         set(tR, tC, MazeCoder.Block.EMPTY);
         boolean hasPath = findAnExitHelper(r, c, tR, tC, "", null);
-        forEachListener(l -> l.ended(hasPath, grid));
+        forEachListener(l -> l.ended(hasPath, getGrid()));
         return hasPath;
-    }
-
-    protected MazeCoder.Block get(int x, int y) {
-        try {
-            return grid[x][y];
-        } catch (Exception e) {
-            return MazeCoder.Block.WALL;
-        }
-    }
-
-    protected void set(int x, int y, MazeCoder.Block block) {
-        try {
-            grid[x][y] = block;
-        } catch (Exception e) {
-        }
     }
 
     private boolean findAnExitHelper(int x, int y, int tX, int tY, String path, Direction direction) {
         if (direction != null) {
             Loc back = direction.reverse(x, y);
-            forEachListener(l -> l.tryout(back.r, back.c, direction, path, grid));
-        } else forEachListener(l -> l.started(x, y, tX, tY, grid));
+            forEachListener(l -> l.tryout(back.r, back.c, direction, path, getGrid()));
+        } else forEachListener(l -> l.started(x, y, tX, tY, getGrid()));
         if (get(x, y) != MazeCoder.Block.EMPTY) return false;
 
         String newPath = path + "[" + x + "," + y + "]";
-        grid[x][y] = MazeCoder.Block.PATH;
+        set(x, y, MazeCoder.Block.PATH);
         if (x == tX && y == tY) {
-            forEachListener(l -> l.found(x, y, newPath, grid));
+            forEachListener(l -> l.found(x, y, newPath, getGrid()));
             return true;
         }
         int dX = tX - x, dY = tY - y;
-        boolean isOnPathToDestination;
         CHECK:
         if (Math.abs(dX) <= Math.abs(dY)) {
             if (dX < 0 && findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP)
@@ -77,23 +51,10 @@ public class MazeSolver {
                     || findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP)) return true;
         }
         if (direction != null) {
-            grid[x][y] = MazeCoder.Block.VISITED;
-            forEachListener(l -> l.failed(x, y, path, grid));
+            set(x, y, MazeCoder.Block.VISITED);
+            forEachListener(l -> l.failed(x, y, path, getGrid()));
         }
         return false;
-    }
-
-    public void addEventListner(MSEventListener l) {
-        list.add(MSEventListener.class, l);
-    }
-
-    public void removeEventListner(MSEventListener l) {
-        list.remove(MSEventListener.class, l);
-    }
-
-    private void forEachListener(Consumer<MSEventListener> consumer) {
-        for (MSEventListener l : list.getListeners(MSEventListener.class))
-            consumer.accept(l);
     }
 
 
@@ -123,18 +84,6 @@ public class MazeSolver {
             }
             return 0;
         }
-    }
-
-    public interface MSEventListener extends EventListener {
-        void started(int r, int c, int tR, int tC, MazeCoder.Block[][] map);
-
-        void tryout(int r, int c, Direction direction, String path, MazeCoder.Block[][] map);
-
-        void found(int tR, int tC, String path, MazeCoder.Block[][] map);
-
-        void failed(int r, int c, String path, MazeCoder.Block[][] map);
-
-        void ended(boolean hasPath, MazeCoder.Block[][] map);
     }
 
     public static class Loc {
