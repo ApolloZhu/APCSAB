@@ -19,6 +19,8 @@ class ParenMatchShellTest {
 
     @Test
     void testCheck() {
+        assertMatches("(2+3)-[5*(6+1)]");
+
         assertMatches("5+7");
         assertMatches("(5+7)");
         assertInvalid(")5+7(");

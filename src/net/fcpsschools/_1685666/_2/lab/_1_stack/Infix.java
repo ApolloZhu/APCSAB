@@ -43,7 +43,9 @@ public class Infix {
                 }
                 // Find shortest possible operator to use.
                 String op = String.valueOf(c);
-                if (!isClosingParenthesis(c)) {
+                boolean isClosingParenthesis = isClosingParenthesis(c);
+                boolean closed = !isClosingParenthesis;
+                if (closed) {
                     while (true) {
                         if (Operators.isConstant(op)) {
                             postfix.append(op);
@@ -64,7 +66,6 @@ public class Infix {
                 boolean mightBeRightAssociateUnary = Operators.isRightAssociateUnary(op);
                 boolean isBinary = Operators.isBinary(op);
                 boolean isUnary = !isBinary && Operators.isUnary(op);
-                boolean closed = !isClosingParenthesis(c);
                 Op peek = operators.isEmpty() ? null : operators.peek();
                 if (closed && isBinary) {
                     int prevLast = i - 1 - op.length();
@@ -81,7 +82,7 @@ public class Infix {
                             // noLHS if such is not left associated
                             String prevOp = s.substring(prevLast + 1 - peekLen, prevLast + 1);
                             assert prevOp.length() == peekLen;
-                            hasLHS = prevOp.equals(peek.symbol) && peek.type == OperatorType.LEFT_UNARY;
+                            hasLHS = prevOp.equals(peek.symbol) && peek.isLeftAssociateUnary();
                         }
                     }
                     if (!hasLHS)
@@ -99,27 +100,27 @@ public class Infix {
                 while (!operators.isEmpty()) {
                     peek = operators.peek();
                     if (isLower(peek.symbol, op)) break;
-                    if (peek.type == OperatorType.LEFT_PAREN) {
-                        if (isParenthesisMatch(peek, c)) {
-                            operators.pop();
-                            closed = true;
-                        }
+                    if (peek.isOpeningParenthesis()) {
+                        if (isClosingParenthesis) operators.pop();
+                        closed = isParenthesisMatch(peek, c);
                         if (!operators.isEmpty() &&
-                                operators.peek().type == OperatorType.RIGHT_UNARY) {
+                                operators.peek().isRightAssociateUnary()) {
                             postfix.append(' ');
                             postfix.append(operators.pop());
                         }
-                        break;
+                        if (closed || !isClosingParenthesis) break;
+                        continue;
                     }
-                    if (mightBeRightAssociateUnary && isUnary &&
-                            peek.type == OperatorType.RIGHT_UNARY)
-                        break;
+                    // If both are right associate unary, break.
+                    if (mightBeRightAssociateUnary && isUnary
+                            && peek.isRightAssociateUnary()) break;
                     postfix.append(' ');
                     postfix.append(operators.pop());
                 }
 
-                if (!closed) throw new IllegalArgumentException("extra '" + c + "'");
-                if (isClosingParenthesis(c)) continue;
+                if (isClosingParenthesis)
+                    if (closed) continue;
+                    else throw new IllegalArgumentException("extra '" + c + "'");
                 if (!isUnary) postfix.append(' ');
                 operators.push(new Op(op, isBinary ? OperatorType.BINARY :
                         mightBeRightAssociateUnary ? OperatorType.RIGHT_UNARY
@@ -129,7 +130,7 @@ public class Infix {
 
         while (!operators.isEmpty()) {
             Op top = operators.pop();
-            if (top.type == OperatorType.LEFT_PAREN) continue;
+            if (top.isOpeningParenthesis()) continue;
             postfix.append(' ');
             postfix.append(top);
         }
@@ -153,7 +154,8 @@ public class Infix {
     }
 
     private static boolean isParenthesisMatch(Op op, char close) {
-        return op.symbol.length() == 1 && isParenthesisMatch(op.symbol.charAt(0), close);
+        return op.isOpeningParenthesis() &&
+                isParenthesisMatch(op.symbol.charAt(0), close);
     }
 
     protected static boolean isParenthesisMatch(char open, char close) {
@@ -175,6 +177,23 @@ public class Infix {
         @Override
         public String toString() {
             return symbol;
+        }
+
+        public boolean isBinary() {
+            return type == OperatorType.BINARY;
+        }
+
+        public boolean isLeftAssociateUnary() {
+            return type == OperatorType.LEFT_UNARY;
+
+        }
+
+        public boolean isRightAssociateUnary() {
+            return type == OperatorType.RIGHT_UNARY;
+        }
+
+        public boolean isOpeningParenthesis() {
+            return type == OperatorType.LEFT_PAREN;
         }
     }
 }

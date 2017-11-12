@@ -29,7 +29,8 @@ public class ParenMatch_Shell {
                 // A closing parenthesis is alone
                 if (stack.isEmpty()) return false;
                 // Closing parenthesis doesn't match
-                if (LEFT.indexOf(stack.pop()) != rI) return false;
+                if (LEFT.indexOf(stack.pop()) != rI)
+                    return false;
             }
         }
         // Has unclosed parentheses

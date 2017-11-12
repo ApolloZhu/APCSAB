@@ -4,14 +4,19 @@ import java.util.Scanner;
 
 public class Infix_Shell {
     public static void main(String[] args) {
-        System.out.println("Enter an infix expression, single digits");
-        System.out.println("such as 1+2*3 or (1+2)*3");
-        Scanner keyboard = new Scanner(System.in);//  (3*(4+5)-2)/5
-        String s = keyboard.next(), postfix;
-        while (!s.equals("-1")) {
-            postfix = Infix.toPostfix(s);
-            System.out.println(s + "  -->  " + postfix + "  -->  " + Postfix.eval(postfix) + "\n");
-            s = keyboard.next();
-        }
+        Operators.printInfo();
+        Scanner keyboard = new Scanner(System.in);
+        String s = null, postfix;
+        do {
+            try {
+                if ((postfix = Infix.toPostfix(s)) != null)
+                    System.out.println(s + "  -->  " + postfix +
+                            "  -->  " + Postfix.eval(postfix));
+            } catch (Exception e) {
+                System.err.println(e.getLocalizedMessage());
+            }
+            System.out.println("\nEnter an infix expression");
+            System.out.println("such as 1+2*3 or (1+2)*3");
+        } while (!(s = keyboard.nextLine()).equals("-1"));
     }
 }

@@ -19,6 +19,12 @@ class InfixTest {
     }
 
     @Test
+    void testGivenExample() {
+        infixToPostfix("(3*(4+5)-2)/5",
+                "3 4 5 + * 2 - 5 /");
+    }
+
+    @Test
     void testBasic() {
         infixToPostfix("3+4-5+6",
                 "3 4 + 5 - 6 +");
@@ -59,8 +65,7 @@ class InfixTest {
         infixToPostfix("5+7", "5 7 +");
         infixToPostfix("(5+7)", "5 7 +");
         infixToPostfix("((5+7)*3", "5 7 + 3 *");
-        // FIXME: extra ']'
-        infixToPostfix("[(5+7]*3)", "5 7 + 3 *");
+        infixToPostfix("[(5+7]*3", "5 7 + 3 *");
         infixToPostfix("([(5+7)*3]", "5 7 + 3 *");
         infixToPostfix("((5+7)*3)", "5 7 + 3 *");
         infixToPostfix("<{5+7}*3>", "5 7 + 3 *");
@@ -70,6 +75,7 @@ class InfixTest {
         infixToPostfix("5+7*3", "5 7 3 * +");
 
         assertInvalidInfix(")5+7(");
+        assertInvalidInfix("[(5+7]*3)");
         assertInvalidInfix("[(5+7)*3])");
         assertInvalidInfix("[(5+7)*]3");
     }
@@ -80,9 +86,11 @@ class InfixTest {
         assertInvalidInfix("*1");
         assertInvalidInfix("(1+)+2");
         assertInvalidInfix("(/1)!2");
+
+        assertInvalidInfix("1!2");
+        assertInvalidInfix("2 sqrt 1");
     }
 
-    // FIXME: Extra space
     @Test
     void testNegate() {
         infixToPostfix(" - 3+4*-5",

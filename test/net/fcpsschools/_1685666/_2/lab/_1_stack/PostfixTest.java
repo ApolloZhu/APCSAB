@@ -27,6 +27,13 @@ class PostfixTest {
     }
 
     @Test
+    void testGivenExample() {
+        evalPostfixToExactly(161, "3 5 4 * + 7 *");
+        evalPostfixToExactly(6, "8 2 -");
+        evalPostfixToExactly(4, "8 2 /");
+    }
+
+    @Test
     void testEvaluatePostfix() {
         evalPostfixToExactly(23,
                 "3 4 5 * +");
@@ -62,8 +69,10 @@ class PostfixTest {
                 "😀 * 3");
         Operators.registerUnaryOperator("%",
                 Operators.Associativity.LEFT, a -> a / 100);
+        // Notice the first is binary, the second one
+        // is the newly registered left associate unary
         evalInfixToExactly(0.98,
-                "(10^2-2)%");
+                "(98 % 10^2)%");
 
         Operators.registerUnaryOperator("√",
                 Operators.Associativity.RIGHT, Math::sqrt);
