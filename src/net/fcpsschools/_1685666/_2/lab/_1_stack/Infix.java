@@ -11,7 +11,7 @@ public class Infix {
 
     public static String toPostfix(String s) {
         if (s == null) return null;
-        Stack<String> operators = new Stack<>();
+        Stack<Op> operators = new Stack<>();
         StringBuilder postfix = new StringBuilder();
         s = s.replaceAll("\\s", "");
         int i = 0;
@@ -27,7 +27,7 @@ public class Infix {
                 hasDot = true;
             } else if (isOpeningParenthesis(c)) {
                 hasDot = false;
-                operators.push(String.valueOf(c));
+                operators.push(new Op(String.valueOf(c), OperatorType.LEFT_PAREN));
             } else {
                 hasDot = false;
                 // Handle negative sign
@@ -65,12 +65,11 @@ public class Infix {
                 boolean isBinary = Operators.isBinary(op);
                 boolean isUnary = !isBinary && Operators.isUnary(op);
                 boolean closed = !isClosingParenthesis(c);
-                String peek = operators.isEmpty()
-                        ? null : operators.peek();
+                Op peek = operators.isEmpty() ? null : operators.peek();
                 if (closed && isBinary) {
                     int prevLast = i - 1 - op.length();
                     String prev = postfix.substring(postfix.lastIndexOf(" ") + 1);
-                    int peekLen = peek == null ? 0 : peek.length();
+                    int peekLen = peek == null ? 0 : peek.symbol.length();
                     boolean hasLHS = false;
                     // Nothing else in front
                     if (i != 1) {
@@ -82,7 +81,7 @@ public class Infix {
                             // noLHS if such is not left associated
                             String prevOp = s.substring(prevLast + 1 - peekLen, prevLast + 1);
                             assert prevOp.length() == peekLen;
-                            hasLHS = prevOp.equals(peek) && Operators.isLeftAssociateUnary(peek);
+                            hasLHS = prevOp.equals(peek.symbol) && peek.type == OperatorType.LEFT_UNARY;
                         }
                     }
                     if (!hasLHS)
@@ -99,22 +98,21 @@ public class Infix {
 
                 while (!operators.isEmpty()) {
                     peek = operators.peek();
-                    if (isLower(peek, op)) break;
-                    if (peek.length() == 1 &&
-                            isOpeningParenthesis(peek.charAt(0))) {
-                        if (isParenthesisMatch(peek.charAt(0), c)) {
+                    if (isLower(peek.symbol, op)) break;
+                    if (peek.type == OperatorType.LEFT_PAREN) {
+                        if (isParenthesisMatch(peek, c)) {
                             operators.pop();
                             closed = true;
                         }
                         if (!operators.isEmpty() &&
-                                Operators.isRightAssociateUnary(operators.peek())) {
+                                operators.peek().type == OperatorType.RIGHT_UNARY) {
                             postfix.append(' ');
                             postfix.append(operators.pop());
                         }
                         break;
                     }
                     if (mightBeRightAssociateUnary && isUnary &&
-                            Operators.isRightAssociateUnary(peek))
+                            peek.type == OperatorType.RIGHT_UNARY)
                         break;
                     postfix.append(' ');
                     postfix.append(operators.pop());
@@ -123,20 +121,19 @@ public class Infix {
                 if (!closed) throw new IllegalArgumentException("extra '" + c + "'");
                 if (isClosingParenthesis(c)) continue;
                 if (!isUnary) postfix.append(' ');
-                operators.push(op);
+                operators.push(new Op(op, isBinary ? OperatorType.BINARY :
+                        mightBeRightAssociateUnary ? OperatorType.RIGHT_UNARY
+                                : OperatorType.LEFT_UNARY));
             }
         }
 
         while (!operators.isEmpty()) {
-            String top = operators.pop();
-            if (top.length() == 1 && isOpeningParenthesis(top.charAt(0)))
-                continue;
+            Op top = operators.pop();
+            if (top.type == OperatorType.LEFT_PAREN) continue;
             postfix.append(' ');
             postfix.append(top);
         }
-        // FIXME: Should correctly space tokens.
         return postfix.toString();
-        // return postfix.toString().replaceAll("\\s+", " ").trim();
     }
 
     protected static boolean isNumber(char c) {
@@ -155,12 +152,29 @@ public class Infix {
         return CLOSE_PAREN.indexOf(c) != -1;
     }
 
+    private static boolean isParenthesisMatch(Op op, char close) {
+        return op.symbol.length() == 1 && isParenthesisMatch(op.symbol.charAt(0), close);
+    }
+
     protected static boolean isParenthesisMatch(char open, char close) {
         return isOpeningParenthesis(open) &&
                 OPEN_PAREN.indexOf(open) == CLOSE_PAREN.indexOf(close);
     }
 
-    protected static boolean isParenthesis(char c) {
-        return isOpeningParenthesis(c) || isClosingParenthesis(c);
+    enum OperatorType {BINARY, LEFT_UNARY, RIGHT_UNARY, LEFT_PAREN}
+
+    private static class Op {
+        private String symbol;
+        private OperatorType type;
+
+        public Op(String symbol, OperatorType type) {
+            this.symbol = symbol;
+            this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return symbol;
+        }
     }
 }

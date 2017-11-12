@@ -9,11 +9,7 @@ public class StackBasedMazeSolver extends MazeSolver {
     private static String debugDescriptionOf(Stack<Step> steps) {
         StringBuilder sb = new StringBuilder();
         for (Step s : steps) {
-            sb.append('#');
-            sb.append(s.pass);
-            sb.append(s.start);
-            sb.append(' ');
-            sb.append(s.direction);
+            sb.append(s);
             sb.append(' ');
         }
         return sb.toString();
@@ -73,6 +69,8 @@ public class StackBasedMazeSolver extends MazeSolver {
     }
 
     // Almost shortest path, but not really.
+    // Basically, first try to move in the direction
+    // that is shortest to the destination.
     private boolean pushNextStep(Stack<Step> steps, Loc target) {
         Step curStep = steps.peek(), nextStep = null;
         Loc curLoc = curStep.getEnd();
@@ -121,6 +119,11 @@ public class StackBasedMazeSolver extends MazeSolver {
 
         public void nextStepFailed() {
             pass++;
+        }
+
+        @Override
+        public String toString() {
+            return "#" + pass + start + " " + direction;
         }
     }
 }
