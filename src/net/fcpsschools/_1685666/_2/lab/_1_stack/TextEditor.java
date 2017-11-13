@@ -5,8 +5,7 @@ import java.util.Stack;
 
 /**
  * @author ApolloZhu, Pd. 1
- * AP$$-Compp-utee-r Sic--cei--ience
- * Ca-noe$Ra3-fx-t
+ * What I learned: Stack.
  */
 public class TextEditor {
     static <E> String dump(Stack<E> stack) {
@@ -25,8 +24,7 @@ public class TextEditor {
             else if (c == '-') {
                 if (!stack.isEmpty())
                     stack.pop();
-            } else
-                stack.push(c);
+            } else stack.push(c);
         return stack;
     }
 
@@ -42,3 +40,10 @@ public class TextEditor {
         } while (!in.nextLine().toLowerCase().equals("n"));
     }
 }
+
+// Enter a line of text: AP$$-Compp-utee-r Sic--cei--ience
+// Here is the line you entered: Computer Science
+// Again (y/n)?
+// Enter a line of text: Ca-noe$Ra3-fx-t
+// Here is the line you entered: Raft
+// Again (y/n)? n
