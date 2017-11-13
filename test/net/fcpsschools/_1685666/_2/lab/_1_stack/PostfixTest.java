@@ -10,13 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class PostfixTest {
     private static void evalPostfixTo(double expected, double delta, String postfix) {
-        assertEquals(expected,
-                Postfix.eval(postfix), delta);
+        assertEquals(expected, Postfix.eval(postfix), delta);
     }
 
     private static void evalPostfixToExactly(double expected, String postfix) {
-        assertEquals(expected,
-                Postfix.eval(postfix));
+        assertEquals(expected, Postfix.eval(postfix));
     }
 
     private static void evalInfixTo(double expected, double delta, String infix) {
@@ -65,8 +63,8 @@ class PostfixTest {
 
         evalInfixToExactly(720, "3!!");
 
-        assertThrows(ArithmeticException.class,
-                () -> System.out.println(Postfix.eval(Infix.toPostfix("1/0"))));
+        assertThrows(ArithmeticException.class, () ->
+                System.out.println(Postfix.eval(Infix.toPostfix("1/0"))));
     }
 
     @Test
