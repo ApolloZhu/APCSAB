@@ -80,7 +80,6 @@ class PostfixTest {
                 "2 3 ^ pi 6 / sin * √ √ √");
         evalInfixTo(1.189207115, 1E-9,
                 "√√√(2^3*sin(pi/6))");
-        // FIXME: Inaccurate rhs detection.
         evalInfixToExactly(0, "3!!-√(√(720^2)^2)");
     }
 }

@@ -22,8 +22,14 @@ public class Operators {
         registerUnaryOperator("-", Associativity.RIGHT, a -> -a);
         registerUnaryOperator("log", Associativity.RIGHT, Math::log10);
         registerUnaryOperator("sin", Associativity.RIGHT, Math::sin);
+        registerUnaryOperator("csc", Associativity.RIGHT, a -> 1 / Math.sin(a));
+        registerUnaryOperator("arcsin", Associativity.RIGHT, Math::asin);
         registerUnaryOperator("cos", Associativity.RIGHT, Math::cos);
+        registerUnaryOperator("sec", Associativity.RIGHT, a -> 1 / Math.cos(a));
+        registerUnaryOperator("arccos", Associativity.RIGHT, Math::acos);
         registerUnaryOperator("tan", Associativity.RIGHT, Math::tan);
+        registerUnaryOperator("cot", Associativity.RIGHT, a -> 1 / Math.tan(a));
+        registerUnaryOperator("arctan", Associativity.RIGHT, Math::tan);
         registerUnaryOperator("deg", Associativity.RIGHT, Math::toDegrees);
         registerUnaryOperator("rad", Associativity.RIGHT, Math::toRadians);
         registerUnaryOperator("sqrt", Associativity.RIGHT, Math::sqrt);

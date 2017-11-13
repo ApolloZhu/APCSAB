@@ -28,7 +28,7 @@ public class Infix {
                 hasDot = true;
             } else if (isOpeningParenthesis(c)) {
                 hasDot = false;
-                operators.push(new Op(String.valueOf(c), OperatorType.LEFT_PAREN));
+                operators.push(new Op(String.valueOf(c), Op.Type.LEFT_PAREN));
             } else {
                 hasDot = false;
                 // Handle negative sign
@@ -45,11 +45,11 @@ public class Infix {
                 String opSymbol = String.valueOf(c);
                 boolean isClosingParenthesis = isClosingParenthesis(c);
                 boolean closed = !isClosingParenthesis;
-                Op thisOp = new Op(opSymbol, OperatorType.UNKNOWN);
+                Op thisOp = new Op(opSymbol, Op.Type.UNKNOWN);
                 if (closed) {
                     // Find shortest possible operator to use.
                     thisOp = detectNext(s, i - 1);
-                    i += (opSymbol = thisOp.symbol).length() - 1;
+                    i += (opSymbol = thisOp.getSymbol()).length() - 1;
                     if (thisOp.isInvalid())
                         throw new IllegalArgumentException(
                                 "unrecognized operator: " + opSymbol);
@@ -59,24 +59,23 @@ public class Infix {
                     }
                     // Validate current operator.
                     String prev = postfix.substring(postfix.lastIndexOf(" ") + 1);
-                    OperatorRequirement requirement = operatorMeetsTypeRequirement
+                    Op.Requirement requirement = operatorMeetsTypeRequirement
                             (s, i - 1, operators, prev, thisOp).get(0);
-                    if (requirement != OperatorRequirement.MET)
-                        throw new IllegalArgumentException(
-                                thisOp.type + " " + thisOp.symbol + " " + requirement);
+                    if (requirement != Op.Requirement.MET)
+                        throw new IllegalArgumentException(thisOp + " " + requirement);
                 }
 
                 Op peek;
                 while (!operators.isEmpty()) {
                     peek = operators.peek();
-                    if (isLower(peek.symbol, opSymbol)) break;
+                    if (isLower(peek.getSymbol(), opSymbol)) break;
                     if (peek.isOpeningParenthesis()) {
                         if (isClosingParenthesis) operators.pop();
                         closed = isParenthesisMatch(peek, c);
                         if (!operators.isEmpty() &&
                                 operators.peek().isRightAssociateUnary()) {
                             postfix.append(' ');
-                            postfix.append(operators.pop());
+                            postfix.append(operators.pop().getSymbol());
                         }
                         if (closed || !isClosingParenthesis) break;
                         continue;
@@ -85,7 +84,7 @@ public class Infix {
                     if (thisOp.isRightAssociateUnary()
                             && peek.isRightAssociateUnary()) break;
                     postfix.append(' ');
-                    postfix.append(operators.pop());
+                    postfix.append(operators.pop().getSymbol());
                 }
 
                 if (isClosingParenthesis)
@@ -100,20 +99,22 @@ public class Infix {
             Op top = operators.pop();
             if (top.isOpeningParenthesis()) continue;
             postfix.append(' ');
-            postfix.append(top);
+            postfix.append(top.getSymbol());
         }
         return postfix.toString();
     }
 
     protected static Op detectNext(String s, int startIndex) {
+        if (startIndex < 0 || startIndex >= s.length())
+            return new Op(null, Op.Type.INVALID);
         String op = String.valueOf(s.charAt(startIndex));
         final int MAX_INDEX = s.length() - 1;
         while (true) {
             // FIXME: Inaccurate constant detection.
             if (Operators.isConstant(op))
-                return new Op(op, OperatorType.CONSTANT);
+                return new Op(op, Op.Type.CONSTANT);
             if (Operators.isOperator(op))
-                return new Op(op, OperatorType.UNKNOWN);
+                return new Op(op, Op.Type.UNKNOWN);
             if (startIndex < MAX_INDEX) {
                 char next = s.charAt(++startIndex);
                 if (!isNumber(next) && !isOpeningParenthesis(next)) {
@@ -121,32 +122,32 @@ public class Infix {
                     continue;
                 }
             }
-            return new Op(op, OperatorType.INVALID);
+            return new Op(op, Op.Type.INVALID);
         }
     }
 
-    protected static List<OperatorRequirement> operatorMeetsTypeRequirement
+    protected static List<Op.Requirement> operatorMeetsTypeRequirement
             (String s, int startIndex, Stack<Op> operators,
              String previousOperand, Op operator) {
 
-        String op = operator.symbol;
+        String op = operator.getSymbol();
         if (operator.isInvalid())
             throw new IllegalArgumentException("Invalid operator '" + op + "'");
         if (operator.isOpeningParenthesis())
             return op.length() == 1 && isOpeningParenthesis(op.charAt(0))
-                    ? Collections.singletonList(OperatorRequirement.MET) :
-                    Collections.singletonList(OperatorRequirement.NOT_MET_UNSPECIFIED);
+                    ? Collections.singletonList(Op.Requirement.MET) :
+                    Collections.singletonList(Op.Requirement.NOT_MET_UNSPECIFIED);
 
         boolean mightBeRightAssociateUnary = Operators.isRightAssociateUnary(op);
         boolean mightBeLeftAssociateUnary = Operators.isLeftAssociateUnary(op);
         boolean isBinary = Operators.isBinary(op);
         boolean isUnary = !isBinary && Operators.isUnary(op);
-        operator.type = isUnary ? (mightBeLeftAssociateUnary
-                ? OperatorType.LEFT_UNARY : OperatorType.RIGHT_UNARY)
-                : isBinary ? OperatorType.BINARY : operator.type;
+        operator.setType(isUnary ? (mightBeLeftAssociateUnary
+                ? Op.Type.LEFT_UNARY : Op.Type.RIGHT_UNARY)
+                : isBinary ? Op.Type.BINARY : operator.getType());
         Op peek = operators.isEmpty() ? null : operators.peek();
         int prevLast = startIndex - op.length();
-        int peekLen = peek == null ? 0 : peek.symbol.length();
+        int peekLen = peek == null ? 0 : peek.getSymbol().length();
         boolean hasLHS = false;
         // Nothing else in front
         if (startIndex != 0) {
@@ -158,31 +159,33 @@ public class Infix {
             if (!hasLHS) {
                 // noLHS if such is not left associated
                 String prevOp = s.substring(prevLast + 1 - peekLen, prevLast + 1);
-                hasLHS = peek != null && prevOp.equals(peek.symbol)
+                hasLHS = peek != null && prevOp.equals(peek.getSymbol())
                         && peek.isLeftAssociateUnary();
             }
         }
         if (isBinary && !hasLHS)
-            if (mightBeRightAssociateUnary) operator.type = OperatorType.RIGHT_UNARY;
-            else return Collections.singletonList(OperatorRequirement.NO_LHS);
+            if (mightBeRightAssociateUnary) operator.setType(Op.Type.RIGHT_UNARY);
+            else return Collections.singletonList(Op.Requirement.NO_LHS);
         // Doesn't have an operand after
         boolean hasRHS = false;
+        Op next = detectNext(s, startIndex + 1);
+        String nextSymbol = next.getSymbol();
         if (startIndex < s.length() - 1) {
-            Op next = detectNext(s, startIndex + 1);
-            String nextSymbol = next.symbol;
-            hasRHS = isOpeningParenthesis(nextSymbol.charAt(0));//next.isOpeningParenthesis();
+            hasRHS = isOpeningParenthesis(nextSymbol.charAt(0));
             // FIXME: Inaccurate rhs detection.
             if (!hasRHS) hasRHS = Operators.isConstant(nextSymbol);
             if (!hasRHS) hasRHS = Operators.isRightAssociateUnary(nextSymbol);
         }
         if (isBinary && !hasRHS)
-            if (mightBeLeftAssociateUnary) operator.type = OperatorType.LEFT_UNARY;
-            else return Collections.singletonList(OperatorRequirement.NO_RHS);
+            if (mightBeLeftAssociateUnary) operator.setType(Op.Type.LEFT_UNARY);
+            else return Collections.singletonList(Op.Requirement.NO_RHS);
         if (operator.isRightAssociateUnary() && hasLHS)
-            return Collections.singletonList(OperatorRequirement.EXTRA_LHS);
-        if (operator.isLeftAssociateUnary() && hasRHS)
-            return Collections.singletonList(OperatorRequirement.EXTRA_RHS);
-        return Collections.singletonList(OperatorRequirement.MET);
+            return Collections.singletonList(Op.Requirement.EXTRA_LHS);
+        // FIXME: Inaccurate rhs detection.
+        if (operator.isLeftAssociateUnary() && hasRHS
+                && !Operators.isBinary(nextSymbol))
+            return Collections.singletonList(Op.Requirement.EXTRA_RHS);
+        return Collections.singletonList(Op.Requirement.MET);
     }
 
     protected static boolean isNumber(char c) {
@@ -203,7 +206,7 @@ public class Infix {
 
     private static boolean isParenthesisMatch(Op op, char close) {
         return op.isOpeningParenthesis() &&
-                isParenthesisMatch(op.symbol.charAt(0), close);
+                isParenthesisMatch(op.getSymbol().charAt(0), close);
     }
 
     protected static boolean isParenthesisMatch(char open, char close) {
@@ -211,54 +214,68 @@ public class Infix {
                 OPEN_PAREN.indexOf(open) == CLOSE_PAREN.indexOf(close);
     }
 
-    enum OperatorType {BINARY, LEFT_UNARY, RIGHT_UNARY, LEFT_PAREN, CONSTANT, UNKNOWN, INVALID}
 
-    enum OperatorRequirement {MET, NO_LHS, NO_RHS, EXTRA_LHS, EXTRA_RHS, NOT_MET_UNSPECIFIED}
+}
 
-    private static class Op {
-        private String symbol;
-        private OperatorType type;
+class Op {
+    private String symbol;
+    private Type type;
 
-        public Op(String symbol, OperatorType type) {
-            this.symbol = symbol;
-            this.type = type;
-        }
-
-        @Override
-        public String toString() {
-            return symbol;
-        }
-
-        public boolean isBinary() {
-            return type == OperatorType.BINARY;
-        }
-
-        public boolean isLeftAssociateUnary() {
-            return type == OperatorType.LEFT_UNARY;
-        }
-
-        public boolean isRightAssociateUnary() {
-            return type == OperatorType.RIGHT_UNARY;
-        }
-
-        public boolean isUnary() {
-            return isLeftAssociateUnary() || isRightAssociateUnary();
-        }
-
-        public boolean isOpeningParenthesis() {
-            return type == OperatorType.LEFT_PAREN;
-        }
-
-        public boolean isConstant() {
-            return type == OperatorType.CONSTANT;
-        }
-
-        public boolean isTypeUnknwon() {
-            return type == OperatorType.UNKNOWN;
-        }
-
-        public boolean isInvalid() {
-            return type == OperatorType.INVALID;
-        }
+    public Op(String symbol, Type type) {
+        this.symbol = symbol;
+        this.type = type;
     }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return getType() + " " + getSymbol();
+    }
+
+    public boolean isBinary() {
+        return type == Type.BINARY;
+    }
+
+    public boolean isLeftAssociateUnary() {
+        return type == Type.LEFT_UNARY;
+    }
+
+    public boolean isRightAssociateUnary() {
+        return type == Type.RIGHT_UNARY;
+    }
+
+    public boolean isUnary() {
+        return isLeftAssociateUnary() || isRightAssociateUnary();
+    }
+
+    public boolean isOpeningParenthesis() {
+        return type == Type.LEFT_PAREN;
+    }
+
+    public boolean isConstant() {
+        return type == Type.CONSTANT;
+    }
+
+    public boolean isTypeUnknwon() {
+        return type == Type.UNKNOWN;
+    }
+
+    public boolean isInvalid() {
+        return type == Type.INVALID;
+    }
+
+    enum Type {BINARY, LEFT_UNARY, RIGHT_UNARY, LEFT_PAREN, CONSTANT, UNKNOWN, INVALID}
+
+    enum Requirement {MET, NO_LHS, NO_RHS, EXTRA_LHS, EXTRA_RHS, NOT_MET_UNSPECIFIED}
 }
