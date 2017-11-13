@@ -3,6 +3,7 @@ package net.fcpsschools._1685666._2.lab._1_stack;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author ApolloZhu, Pd. 1
@@ -53,13 +54,19 @@ class PostfixTest {
                 "    -3  4 5 *  + ");
         evalPostfixToExactly(17,
                 "3 - 4 5 * +");
+    }
 
+    @Test
+    void testEvalInfix() {
         evalInfixToExactly(2, "log(100)");
 
         evalInfixTo(-1.54053662, 1E-7,
                 "tan(2*3^(3+2-3.123)/12.2)+sin(pi)+cos(2)*sqrt(144)");
 
         evalInfixToExactly(720, "3!!");
+
+        assertThrows(ArithmeticException.class,
+                () -> System.out.println(Postfix.eval(Infix.toPostfix("1/0"))));
     }
 
     @Test

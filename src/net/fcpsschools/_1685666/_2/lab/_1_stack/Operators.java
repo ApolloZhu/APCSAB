@@ -43,8 +43,14 @@ public class Operators {
         });
         EXPONENTIATION.put("^", Math::pow);
         MULTIPLICATION.put("*", (a, b) -> a * b);
-        MULTIPLICATION.put("/", (a, b) -> a / b);
-        MULTIPLICATION.put("%", (a, b) -> a % b);
+        MULTIPLICATION.put("/", (a, b) -> {
+            if (b != 0) return a / b;
+            throw new ArithmeticException("/ by zero");
+        });
+        MULTIPLICATION.put("%", (a, b) -> {
+            if (b != 0) return a % b;
+            throw new ArithmeticException("/ by zero");
+        });
         ADDITION.put("+", (a, b) -> a + b);
         ADDITION.put("-", (a, b) -> a - b);
     }
