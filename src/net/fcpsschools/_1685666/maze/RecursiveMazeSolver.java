@@ -26,7 +26,6 @@ public class RecursiveMazeSolver extends MazeSolver {
             return true;
         }
         int dX = tX - x, dY = tY - y;
-        CHECK:
         if (Math.abs(dX) <= Math.abs(dY)) {
             if (dX < 0 && findAnExitHelper(x - 1, y, tX, tY, newPath, Direction.UP)
                     || dX > 0 && findAnExitHelper(x + 1, y, tX, tY, newPath, Direction.DOWN)

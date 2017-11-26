@@ -113,6 +113,14 @@ public class StackBasedMazeSolver extends MazeSolver {
                     ? Direction.NONE : direction;
         }
 
+        public Loc getStart() {
+            return start;
+        }
+
+        public Direction getDirection() {
+            return direction;
+        }
+
         public Loc getEnd() {
             return direction.forward(start);
         }
