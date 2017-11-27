@@ -12,14 +12,6 @@ public abstract class MazeSolver {
     private final EventListenerList list = new EventListenerList();
     private MazeCoder.Block[][] grid;
 
-    public static MazeSolver makeRecursive() {
-        return new RecursiveMazeSolver();
-    }
-
-    public static MazeSolver makeStackBased() {
-        return new StackBasedMazeSolver();
-    }
-
     public final boolean start(MazeCoder.Block[][] input,
                                int r, int c, int tR, int tC) {
         setGrid(input);
@@ -78,6 +70,52 @@ public abstract class MazeSolver {
     protected void forEachListener(Consumer<MSEventListener> consumer) {
         for (MSEventListener l : list.getListeners(MSEventListener.class))
             consumer.accept(l);
+    }
+
+    enum Type {
+        RECURSIVE, STACK, DFS, BFS;
+
+        Class associatedClass() {
+            switch (this) {
+                case RECURSIVE:
+                    return RecursiveMazeSolver.class;
+                case STACK:
+                    return StackBasedMazeSolver.class;
+                case DFS:
+                    return StackBasedDFSMazeSolver.class;
+                case BFS:
+                    return QueueBasedBFSMazeSolver.class;
+            }
+            throw new EnumConstantNotPresentException(Type.class, name());
+        }
+
+        MazeSolver init() {
+            switch (this) {
+                case RECURSIVE:
+                    return new RecursiveMazeSolver();
+                case STACK:
+                    return new StackBasedMazeSolver();
+                case DFS:
+                    return new StackBasedDFSMazeSolver();
+                case BFS:
+                    return new QueueBasedBFSMazeSolver();
+            }
+            throw new EnumConstantNotPresentException(Type.class, name());
+        }
+
+        String description() {
+            switch (this) {
+                case RECURSIVE:
+                    return "Recursive";
+                case STACK:
+                    return "Stack Based";
+                case DFS:
+                    return "DFS - Stack";
+                case BFS:
+                    return "BFS - Queue";
+            }
+            throw new EnumConstantNotPresentException(Type.class, name());
+        }
     }
 
     public enum Direction {

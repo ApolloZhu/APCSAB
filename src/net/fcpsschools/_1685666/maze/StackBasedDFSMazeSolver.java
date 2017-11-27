@@ -10,7 +10,7 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
     private Stack<Step> path = new Stack<>();
 
     // Same old thing, greedy algorithm
-    protected void pushNextStepsFrom(Loc curLoc, /*targeting*/ Loc target) {
+    protected void pushAllNextStepsFrom(Loc curLoc, /*targeting*/ Loc target) {
         int dX = target.getR() - curLoc.getR();
         int dY = target.getC() - curLoc.getC();
         boolean isPriorityX = Math.abs(dX) <= Math.abs(dY);
@@ -40,45 +40,30 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
         Step curStep = new Step(start, Direction.NONE), nextStep = null;
         // Mainloop
         while (curStep != null) {
+            Step copy = curStep;
+            forEachListener(l -> l.tryout(copy.getStart().getR(), copy.getStart().getC(),
+                    copy.getDirection(), path, getGrid()));
             Loc curLoc = curStep.getEnd();
             if (curLoc.equals(end)) {
                 hasPath = true;
                 forEachListener(l -> l.found(tR, tC, path, getGrid()));
                 break;
             }
-            if (get(curLoc) == MazeCoder.Block.EMPTY) {
-                // Push the next steps
-                pushNextStepsFrom(curLoc, pending, end);
-            }
-
-            int curR = cur.getR(), curC = cur.getC();
-            Direction lastStepDirection = lastStep.direction;
-            // First time here
-            if (lastStep.pass == 0 && lastStepDirection != Direction.NONE) {
-                // Fire last step event.
-
-                // Is invalid
-                if (get(cur) != MazeCoder.Block.EMPTY) {
-                    steps.pop();
-                    steps.peek().nextStepFailed();
-                    continue;
+            int curR = curLoc.getR(), curC = curLoc.getC();
+            if (get(curR, curC) == MazeCoder.Block.EMPTY) {
+                path.push(curStep);
+                set(curLoc, MazeCoder.Block.PATH);
+                pushAllNextStepsFrom(curLoc, end);
+            } else {
+                while (!pending.isEmpty() && path.peek().getDirection() != Direction.NONE
+                        && !path.peek().getEnd().equals(pending.peek().getStart())) {
+                    Step step = path.pop();
+                    set(step.getEnd(), MazeCoder.Block.VISITED);
+                    forEachListener(l -> l.failed(step.getEnd().getR(),
+                            step.getEnd().getC(), path, getGrid()));
                 }
             }
-            set(cur, MazeCoder.Block.PATH);
-            // Next step
-            nextStep = pending.isEmpty() ? null : pending.pop();
-            if (nextStep == null) break;
-            while (!path.isEmpty() && !pending.isEmpty() &&
-                    !nextStep.getStart().equals(curStep.getStart())) {
-                if (lastStepDirection == Direction.NONE) break;
-                set(curLoc, MazeCoder.Block.VISITED);
-                forEachListener(l -> l.failed(curR, curC, path, getGrid()));
-                path.pop();
-            }
-            Step copy = curStep = nextStep;
-            path.push(copy);
-            forEachListener(l -> l.tryout(copy.getStart().getR(), copy.getStart().getC(),
-                    copy.getDirection(), path, getGrid()));
+            curStep = pending.isEmpty() ? null : pending.pop();
         }
         // End search
         boolean copy = hasPath;
