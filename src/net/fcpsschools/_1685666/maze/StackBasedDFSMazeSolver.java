@@ -13,21 +13,20 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
     protected void pushAllNextStepsFrom(Loc curLoc, /*targeting*/ Loc target) {
         int dX = target.getR() - curLoc.getR();
         int dY = target.getC() - curLoc.getC();
-        boolean isPriorityX = Math.abs(dX) <= Math.abs(dY);
-        if (isPriorityX) {
-            if (dX != 0) pending.push(new Step(curLoc, dX < 0 ? Direction.UP : Direction.DOWN));
-            if (dY != 0) pending.push(new Step(curLoc, dY < 0 ? Direction.LEFT : Direction.RIGHT));
-            if (dX <= 0) pending.push(new Step(curLoc, Direction.DOWN));
-            if (dX >= 0) pending.push(new Step(curLoc, Direction.UP));
-            if (dY <= 0) pending.push(new Step(curLoc, Direction.RIGHT));
+        if (Math.abs(dX) <= Math.abs(dY)) {
             if (dY >= 0) pending.push(new Step(curLoc, Direction.LEFT));
+            if (dY <= 0) pending.push(new Step(curLoc, Direction.RIGHT));
+            if (dX >= 0) pending.push(new Step(curLoc, Direction.UP));
+            if (dX <= 0) pending.push(new Step(curLoc, Direction.DOWN));
+            if (dY != 0) pending.push(new Step(curLoc, dY < 0 ? Direction.LEFT : Direction.RIGHT));
+            if (dX != 0) pending.push(new Step(curLoc, dX < 0 ? Direction.UP : Direction.DOWN));
         } else {
-            if (dY != 0) pending.push(new Step(curLoc, dY < 0 ? Direction.LEFT : Direction.RIGHT));
-            if (dX != 0) pending.push(new Step(curLoc, dX < 0 ? Direction.UP : Direction.DOWN));
-            if (dY <= 0) pending.push(new Step(curLoc, Direction.RIGHT));
-            if (dY >= 0) pending.push(new Step(curLoc, Direction.LEFT));
-            if (dX <= 0) pending.push(new Step(curLoc, Direction.DOWN));
             if (dX >= 0) pending.push(new Step(curLoc, Direction.UP));
+            if (dX <= 0) pending.push(new Step(curLoc, Direction.DOWN));
+            if (dY >= 0) pending.push(new Step(curLoc, Direction.LEFT));
+            if (dY <= 0) pending.push(new Step(curLoc, Direction.RIGHT));
+            if (dX != 0) pending.push(new Step(curLoc, dX < 0 ? Direction.UP : Direction.DOWN));
+            if (dY != 0) pending.push(new Step(curLoc, dY < 0 ? Direction.LEFT : Direction.RIGHT));
         }
     }
 
@@ -35,7 +34,7 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
     protected boolean start(int r, int c, int tR, int tC) {
         // Setup
         forEachListener(l -> l.started(r, c, tR, tC, getGrid()));
-        Loc start = new Loc(r, c), end = new Loc(tR, tC);
+        final Loc start = new Loc(r, c), end = new Loc(tR, tC);
         boolean hasPath = false;
         Step curStep = new Step(start, Direction.NONE), nextStep = null;
         // Mainloop
@@ -43,7 +42,7 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
             Step copy = curStep;
             forEachListener(l -> l.tryout(copy.getStart().getR(), copy.getStart().getC(),
                     copy.getDirection(), path, getGrid()));
-            Loc curLoc = curStep.getEnd();
+            final Loc curLoc = curStep.getEnd();
             if (curLoc.equals(end)) {
                 hasPath = true;
                 forEachListener(l -> l.found(tR, tC, path, getGrid()));
@@ -53,6 +52,7 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
             if (get(curR, curC) == MazeCoder.Block.EMPTY) {
                 path.push(curStep);
                 set(curLoc, MazeCoder.Block.PATH);
+                System.out.println(curLoc);
                 pushAllNextStepsFrom(curLoc, end);
             } else {
                 while (!pending.isEmpty() && path.peek().getDirection() != Direction.NONE
