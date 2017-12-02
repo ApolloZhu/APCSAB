@@ -46,6 +46,33 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         g.drawLine(x + w, centerY, centerX, y + h);
         g.drawLine(centerX, y + h, x, centerY);
     };
+
+    private final PiecePainter multiPathPainter = (graphics, r, c, x, y, w, h) -> {
+        // Draw multi path
+        Graphics2D g = (Graphics2D) graphics;
+        Stroke stroke = g.getStroke();
+        g.setStroke(new BasicStroke(w / 10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        int centerX = x + w / 2;
+        int centerY = y + h / 2;
+        boolean hasNeighbor = false;
+        for (int i = r - 1, k = 0; i <= r + 1; i++)
+            for (int j = c - 1; j <= c + 1; j++, k++)
+                if ((i == r || j == c) && isPath(i, j)) {
+                    hasNeighbor = true;
+                    int vX = k % 3, vY = k / 3;
+                    int lX = vX == 0 ? x : vX == 1 ? centerX : x + w;
+                    int lY = vY == 0 ? y : vY == 1 ? centerY : y + h;
+                    g.drawLine(lX, lY, centerX, centerY);
+                }
+        if (hasNeighbor) return;
+        g.drawLine(x, centerY, centerX, y);
+        g.drawLine(centerX, y, x + w, centerY);
+        g.drawLine(x + w, centerY, centerX, y + h);
+        g.drawLine(centerX, y + h, x, centerY);
+    };
+
+
+
     private Path[][] paths;
     private final PiecePainter pathPainter = (graphics, r, c, x, y, w, h) -> {
         Graphics2D g = (Graphics2D) graphics;
@@ -116,7 +143,8 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
                 break;
             case PATH:
                 g.setColor(commonColor);
-                pathPainter.paintPiece(g, r, c, x, y, w, h);
+                // pathPainter.paintPiece(g, r, c, x, y, w, h);
+                multiPathPainter.paintPiece(g, r, c, x, y, w, h);
                 break;
             default:
                 break;
@@ -134,6 +162,10 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
 
     public boolean isWall(int r, int c) {
         return get(r, c) == MazeCoder.Block.WALL;
+    }
+
+    public boolean isPath(int r, int c) {
+        return get(r, c) == MazeCoder.Block.PATH;
     }
 
     public MazeCoder.Block get(int r, int c) {
