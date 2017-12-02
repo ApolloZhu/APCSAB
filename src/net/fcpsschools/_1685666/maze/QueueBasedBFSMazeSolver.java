@@ -8,7 +8,4 @@ public class QueueBasedBFSMazeSolver extends MazeSolver {
     protected boolean start(int r, int c, int tR, int tC) {
         return false;
     }
-    private static class State {
-        private int count;
-    }
 }

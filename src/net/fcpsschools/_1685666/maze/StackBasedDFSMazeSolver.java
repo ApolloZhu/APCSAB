@@ -2,6 +2,8 @@ package net.fcpsschools._1685666.maze;
 
 import java.util.Stack;
 
+import static net.fcpsschools._1685666.maze.StackBasedMazeSolver.Step;
+
 /**
  * @author ApolloZhu, Pd. 1
  */
@@ -36,7 +38,7 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
         forEachListener(l -> l.started(r, c, tR, tC, getGrid()));
         final Loc start = new Loc(r, c), end = new Loc(tR, tC);
         boolean hasPath = false;
-        Step curStep = new Step(start, Direction.NONE), nextStep = null;
+        Step curStep = new Step(start, Direction.NONE);
         // Mainloop
         while (curStep != null) {
             Step copy = curStep;
@@ -54,14 +56,12 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
                 set(curLoc, MazeCoder.Block.PATH);
                 System.out.println(curLoc);
                 pushAllNextStepsFrom(curLoc, end);
-            } else {
-                while (!pending.isEmpty() && path.peek().getDirection() != Direction.NONE
-                        && !path.peek().getEnd().equals(pending.peek().getStart())) {
-                    Step step = path.pop();
-                    set(step.getEnd(), MazeCoder.Block.VISITED);
-                    forEachListener(l -> l.failed(step.getEnd().getR(),
-                            step.getEnd().getC(), path, getGrid()));
-                }
+            } else while (!pending.isEmpty() && path.peek().getDirection() != Direction.NONE
+                    && !path.peek().getEnd().equals(pending.peek().getStart())) {
+                Step step = path.pop();
+                set(step.getEnd(), MazeCoder.Block.VISITED);
+                forEachListener(l -> l.failed(step.getEnd().getR(),
+                        step.getEnd().getC(), path, getGrid()));
             }
             curStep = pending.isEmpty() ? null : pending.pop();
         }
@@ -69,11 +69,5 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
         boolean copy = hasPath;
         forEachListener(l -> l.ended(copy, getGrid()));
         return hasPath;
-    }
-
-    public static class Step extends StackBasedMazeSolver.Step {
-        public Step(Loc start, Direction direction) {
-            super(start, direction);
-        }
     }
 }
