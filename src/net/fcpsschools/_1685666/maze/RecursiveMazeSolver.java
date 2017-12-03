@@ -22,6 +22,7 @@ public class RecursiveMazeSolver extends MazeSolver {
         String newPath = path + "[" + x + "," + y + "]";
         set(x, y, MazeCoder.Block.PATH);
         if (x == tX && y == tY) {
+            set(tX, tY, MazeCoder.Block.PATH);
             forEachListener(l -> l.found(x, y, newPath, getGrid()));
             return true;
         }

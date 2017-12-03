@@ -47,6 +47,7 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
             final Loc curLoc = curStep.getEnd();
             if (curLoc.equals(end)) {
                 hasPath = true;
+                set(tR, tC, MazeCoder.Block.PATH);
                 forEachListener(l -> l.found(tR, tC, path, getGrid()));
                 break;
             }
@@ -54,7 +55,6 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
             if (get(curR, curC) == MazeCoder.Block.EMPTY) {
                 path.push(curStep);
                 set(curLoc, MazeCoder.Block.PATH);
-                System.out.println(curLoc);
                 pushAllNextStepsFrom(curLoc, end);
             } else while (!pending.isEmpty() && path.peek().getDirection() != Direction.NONE
                     && !path.peek().getEnd().equals(pending.peek().getStart())) {

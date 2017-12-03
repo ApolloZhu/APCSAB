@@ -93,14 +93,13 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
         solver.start(map, start.getR(), start.getC(), end.getR(), end.getC());
     }
 
-    @Override
-    protected void terminate() {
+    protected void terminate(boolean hasPath) {
         pickStartButton.setEnabled(true);
         pickEndButton.setEnabled(true);
         editWallButton.setEnabled(true);
         solver.removeEventListener(this);
-        solver.stop();
-        super.terminate();
+        solver.stop(hasPath);
+        terminate();
     }
 
     @Override
@@ -125,6 +124,6 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
 
     @Override
     public void ended(boolean hasPath, MazeCoder.Block[][] map) {
-        terminate();
+        terminate(hasPath);
     }
 }

@@ -52,7 +52,6 @@ public class StackBasedMazeSolver extends MazeSolver {
                 steps.pop();
                 steps.peek().nextStepFailed();
             }
-
         }
         // End search
         boolean copy = hasPath;
@@ -62,6 +61,7 @@ public class StackBasedMazeSolver extends MazeSolver {
 
     private boolean isAtTarget(Stack<Step> steps, Loc end) {
         if (steps.peek().getEnd().equals(end)) {
+            set(end, MazeCoder.Block.PATH);
             forEachListener(l -> l.found(end.getR(), end.getC(), steps, getGrid()));
             return true;
         }

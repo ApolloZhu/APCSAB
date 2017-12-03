@@ -25,7 +25,11 @@ public abstract class MazeSolver {
     protected abstract boolean start(int r, int c, int tR, int tC);
 
     public void stop() {
-        forEachListener(l -> l.ended(false, grid));
+        stop(false);
+    }
+
+    public void stop(boolean hasPath) {
+        forEachListener(l -> l.ended(hasPath, grid));
     }
 
     public MazeCoder.Block[][] getGrid() {

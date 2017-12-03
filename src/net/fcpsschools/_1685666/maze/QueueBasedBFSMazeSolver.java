@@ -46,6 +46,7 @@ public class QueueBasedBFSMazeSolver extends MazeSolver {
             final Loc curLoc = curStep.getEnd();
             if (curLoc.equals(end)) {
                 hasPath = true;
+                set(end, MazeCoder.Block.PATH);
                 forEachListener(l -> l.found(tR, tC, null, getGrid()));
                 break;
             }
@@ -58,9 +59,9 @@ public class QueueBasedBFSMazeSolver extends MazeSolver {
             } else {
                 if (curStep.isLastStep()) {
                     Loc failed = curStep.getStart();
-                set(failed, MazeCoder.Block.VISITED);
-                forEachListener(l -> l.failed(failed.getR(),
-                        failed.getC(), null, getGrid()));
+                    set(failed, MazeCoder.Block.VISITED);
+                    forEachListener(l -> l.failed(failed.getR(),
+                            failed.getC(), null, getGrid()));
                 }
 //                while (!pending.isEmpty() && path.peek().getDirection() != Direction.NONE
 //                    && !path.peek().getEnd().equals(pending.peek().getStart())) {

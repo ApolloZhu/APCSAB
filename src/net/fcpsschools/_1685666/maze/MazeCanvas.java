@@ -5,16 +5,19 @@ import net.fcpsschools._1685666.eight_queen.PiecePainter;
 import javax.swing.*;
 import java.awt.*;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author ApolloZhu, Pd. 1
  */
 public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     public static final PiecePainter START_PAINTER = (g, r, c, x, y, w, h) -> {
+        g.setColor(Color.RED);
         g.drawOval(x + w / 5, y + h / 5,
                 w * 3 / 5, h * 3 / 5);
     };
     public static final PiecePainter TARGET_PAINTER = (g, r, c, x, y, w, h) -> {
+        g.setColor(Color.RED);
         g.drawLine(x + w / 5, y + h / 5,
                 x + w * 4 / 5, y + h * 4 / 5);
         g.drawLine(x + w * 4 / 5, y + h / 5,
@@ -22,7 +25,9 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     };
     private static final Color DIFF_COLOR_NEW = new Color(102, 204, 255);
     private static final Color COMMON_COLOR_FOUND = new Color(29, 135, 17);
-    LinkedList<PiecePainter> painters = new LinkedList<>();
+    private static final Color COMMON_COLOR_NORMAL = Color.blue;
+    private static final Color COMMON_COLOR_FAILED = Color.red;
+    List<PiecePainter> painters = new LinkedList<>();
     private MazeCoder.Block[][] map;
     private final PiecePainter wallPainter = (graphics, r, c, x, y, w, h) -> {
         // Draw fences
@@ -46,35 +51,9 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         g.drawLine(x + w, centerY, centerX, y + h);
         g.drawLine(centerX, y + h, x, centerY);
     };
-
-    private final PiecePainter multiPathPainter = (graphics, r, c, x, y, w, h) -> {
-        // Draw multi path
-        Graphics2D g = (Graphics2D) graphics;
-        Stroke stroke = g.getStroke();
-        g.setStroke(new BasicStroke(w / 10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        int centerX = x + w / 2;
-        int centerY = y + h / 2;
-        boolean hasNeighbor = false;
-        for (int i = r - 1, k = 0; i <= r + 1; i++)
-            for (int j = c - 1; j <= c + 1; j++, k++)
-                if ((i == r || j == c) && isPath(i, j)) {
-                    hasNeighbor = true;
-                    int vX = k % 3, vY = k / 3;
-                    int lX = vX == 0 ? x : vX == 1 ? centerX : x + w;
-                    int lY = vY == 0 ? y : vY == 1 ? centerY : y + h;
-                    g.drawLine(lX, lY, centerX, centerY);
-                }
-        if (hasNeighbor) return;
-        g.drawLine(x, centerY, centerX, y);
-        g.drawLine(centerX, y, x + w, centerY);
-        g.drawLine(x + w, centerY, centerX, y + h);
-        g.drawLine(centerX, y + h, x, centerY);
-    };
-
-
-
     private Path[][] paths;
-    private final PiecePainter pathPainter = (graphics, r, c, x, y, w, h) -> {
+    private Color diffColor;
+    private final PiecePainter diffPainter = (graphics, r, c, x, y, w, h) -> {
         Graphics2D g = (Graphics2D) graphics;
         Path path = paths[r][c];
         if (path == null) return; // In between trials
@@ -82,6 +61,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         int headY = y + h / 2 + path.direction.dx() * h;
         Stroke stroke = g.getStroke();
         g.setStroke(new BasicStroke(w / 10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setColor(diffColor);
         g.drawLine(x + w / 2, y + h / 2, headX, headY);
         int dX = w / 5;
         int dY = h / 5;
@@ -105,8 +85,30 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         }
         g.setStroke(stroke);
     };
-    private Color diffColor;
-    private Color commonColor = Color.BLUE;
+    private Color commonColor = COMMON_COLOR_NORMAL;
+    private final PiecePainter multiPathPainter = (graphics, r, c, x, y, w, h) -> {
+        // Draw multi path
+        Graphics2D g = (Graphics2D) graphics;
+        g.setStroke(new BasicStroke(w / 10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.setColor(commonColor);
+        int centerX = x + w / 2;
+        int centerY = y + h / 2;
+        boolean hasNeighbor = false;
+        for (int i = r - 1, k = 0; i <= r + 1; i++)
+            for (int j = c - 1; j <= c + 1; j++, k++)
+                if ((i == r || j == c) && isPath(i, j)) {
+                    hasNeighbor = true;
+                    int vX = k % 3, vY = k / 3;
+                    int lX = vX == 0 ? x : vX == 1 ? centerX : x + w;
+                    int lY = vY == 0 ? y : vY == 1 ? centerY : y + h;
+                    g.drawLine(lX, lY, centerX, centerY);
+                }
+        if (hasNeighbor) return;
+        g.drawLine(x, centerY, centerX, y);
+        g.drawLine(centerX, y, x + w, centerY);
+        g.drawLine(x + w, centerY, centerX, y + h);
+        g.drawLine(centerX, y + h, x, centerY);
+    };
     private Path diff = null;
     private MazeSolver.Loc start, end;
     private final PiecePainter painter = (graphics, r, c, x, y, w, h) -> {
@@ -118,7 +120,6 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         Stroke stroke = g.getStroke();
         g.setStroke(new BasicStroke(w / 5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
-        g.setColor(Color.RED);
         if (start != null && r == start.getR() && c == start.getC())
             START_PAINTER.paintPiece(g, r, c, x, y, w, h);
         if (end != null && r == end.getR() && c == end.getC()) {
@@ -129,7 +130,6 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
 
         switch (map[r][c]) {
             case WALL:
-                g.setColor(Color.BLACK);
                 wallPainter.paintPiece(g, r, c, x, y, w, h);
                 break;
             case VISITED:
@@ -142,16 +142,13 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
                         x + w / 2, y + h / 5);
                 break;
             case PATH:
-                g.setColor(commonColor);
-                // pathPainter.paintPiece(g, r, c, x, y, w, h);
                 multiPathPainter.paintPiece(g, r, c, x, y, w, h);
                 break;
             default:
                 break;
         }
         if (diff != null && diff.r == r && diff.c == c) {
-            g.setColor(diffColor);
-            pathPainter.paintPiece(g, r, c, x, y, w, h);
+            diffPainter.paintPiece(g, r, c, x, y, w, h);
         }
         g.setStroke(stroke);
     };
@@ -235,7 +232,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         setStart(new MazeSolver.Loc(r, c));
         setTarget(new MazeSolver.Loc(tR, tC));
         this.paths = new Path[map.length][map[0].length];
-        commonColor = Color.BLUE;
+        commonColor = COMMON_COLOR_NORMAL;
         setMap(map);
     }
 
@@ -255,7 +252,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
 
     @Override
     public void failed(int r, int c, Object path, MazeCoder.Block[][] map) {
-        diffColor = Color.RED;
+        diffColor = COMMON_COLOR_FAILED;
         diff = paths[r][c];
         paths[r][c] = null;
         setMap(map);
@@ -263,6 +260,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
 
     @Override
     public void ended(boolean hasPath, MazeCoder.Block[][] map) {
+        commonColor = hasPath ? COMMON_COLOR_FOUND : COMMON_COLOR_FAILED;
         setMap(map);
     }
 
