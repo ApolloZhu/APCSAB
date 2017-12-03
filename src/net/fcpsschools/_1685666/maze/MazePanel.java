@@ -6,21 +6,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
 /**
  * @author ApolloZhu, Pd. 1
  */
 public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListener {
-    private final MazeSolver solver;
+    private static MazeSolver.Type[] types = MazeSolver.Type.values();
     private final JButton pickStartButton, pickEndButton, editWallButton;
+    private final JComboBox<String> solverComboBox;
+    private MazeSolver solver;
     private MazeCanvas canvas;
     private boolean isSelectingStart, isSelectingEnd, isEditingWall;
     private MazeSolver.Loc start, end;
     private MazeCoder.Block[][] map;
+    private int selectedSolverIndex;
 
-    public MazePanel(MazeSolver mazeSolver) {
-        solver = mazeSolver;
-        solver.addEventListener(canvas);
+    public MazePanel() {
         JPanel panel = new JPanel();
         add(panel, BorderLayout.NORTH);
         panel.add(pickStartButton = new JButton("Pick Start"));
@@ -41,6 +43,13 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
             isSelectingEnd = false;
             isEditingWall = true;
         });
+
+        String[] solverTypes = Arrays.stream(types)
+                .map(MazeSolver.Type::description).toArray(String[]::new);
+        panel.add(solverComboBox = new JComboBox<>(solverTypes));
+        setMazeSolverAtIndex(selectedSolverIndex);
+        solverComboBox.addActionListener(ignored ->
+                setMazeSolverAtIndex(solverComboBox.getSelectedIndex()));
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -66,8 +75,7 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
                             : MazeCoder.Block.EMPTY;
                     canvas.setMap(map);
                 } else return;
-                MazeCoder.clear(map);
-                canvas.setMap(map);
+                clearMap();
             }
         });
         canvas.setStart(start = new MazeSolver.Loc(0, 0));
@@ -81,25 +89,58 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
         return canvas = new MazeCanvas(map = MazeCoder.EXAMPLE());
     }
 
+    public void setMazeSolverAtIndex(int index) {
+        index = Math.max(Math.min(types.length, index), 0);
+        if (solver != null && selectedSolverIndex == index) return;
+        setMazeSolver(types[selectedSolverIndex = index].init());
+    }
+
+    public void setMazeSolver(MazeSolver solver) {
+        terminate();
+        clearMap();
+        if (this.solver != null)
+            this.solver.removeEventListener(canvas);
+        this.solver = solver;
+        for (int i = 0; i < types.length; i++)
+            if (types[i].getClass().equals(solver.getClass())) {
+                solverComboBox.setSelectedIndex(i);
+                break;
+            }
+        solver.addEventListener(canvas);
+    }
+
     @Override
     protected void start() {
         pickStartButton.setEnabled(false);
         pickEndButton.setEnabled(false);
         editWallButton.setEnabled(false);
+        solverComboBox.setEnabled(false);
         isEditingWall = false;
-        MazeCoder.clear(map);
-        canvas.setMap(map);
+        clearMap();
         solver.addEventListener(this);
         solver.start(map, start.getR(), start.getC(), end.getR(), end.getC());
+    }
+
+    @Override
+    protected void terminate() {
+        terminate(false);
     }
 
     protected void terminate(boolean hasPath) {
         pickStartButton.setEnabled(true);
         pickEndButton.setEnabled(true);
         editWallButton.setEnabled(true);
-        solver.removeEventListener(this);
-        solver.stop(hasPath);
-        terminate();
+        solverComboBox.setEnabled(true);
+        if (solver != null) {
+            solver.removeEventListener(this);
+            solver.stop(hasPath);
+        }
+        super.terminate();
+    }
+
+    protected void clearMap() {
+        MazeCoder.clear(map);
+        canvas.resetMap(map);
     }
 
     @Override

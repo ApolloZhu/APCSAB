@@ -7,8 +7,7 @@ import java.util.Queue;
  * @author ApolloZhu, Pd. 1
  */
 public class QueueBasedBFSMazeSolver extends MazeSolver {
-    //    Stack<Step> path = new Stack<>();
-    Queue<Step> pending = new LinkedList<>();
+    Queue<Step> pending;
 
     // Same old thing, greedy algorithm
     protected void pushAllNextStepsFrom(Loc curLoc, /*targeting*/ Loc target) {
@@ -34,6 +33,7 @@ public class QueueBasedBFSMazeSolver extends MazeSolver {
     @Override
     protected boolean start(int r, int c, int tR, int tC) {
         // Setup
+        pending = new LinkedList<>();
         forEachListener(l -> l.started(r, c, tR, tC, getGrid()));
         final Loc start = new Loc(r, c), end = new Loc(tR, tC);
         boolean hasPath = false;
@@ -52,20 +52,12 @@ public class QueueBasedBFSMazeSolver extends MazeSolver {
             }
             int curR = curLoc.getR(), curC = curLoc.getC();
             if (get(curR, curC) == MazeCoder.Block.EMPTY) {
-//                path.push(curStep);
                 set(curLoc, MazeCoder.Block.PATH);
-                System.out.println(curLoc);
                 pushAllNextStepsFrom(curLoc, end);
-            } else {
-                if (curStep.isLastStep()) {
-                    Loc failed = curStep.getStart();
-                    set(failed, MazeCoder.Block.VISITED);
-                    forEachListener(l -> l.failed(failed.getR(),
-                            failed.getC(), null, getGrid()));
-                }
-//                while (!pending.isEmpty() && path.peek().getDirection() != Direction.NONE
-//                    && !path.peek().getEnd().equals(pending.peek().getStart())) {
-//
+            } else if (curStep.isLastStep()) {
+                Loc failed = curStep.getStart();
+                set(failed, MazeCoder.Block.VISITED);
+                forEachListener(l -> l.failed(failed.getR(), failed.getC(), null, getGrid()));
             }
             curStep = pending.isEmpty() ? null : pending.remove();
         }

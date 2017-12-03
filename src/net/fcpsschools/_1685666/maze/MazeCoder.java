@@ -63,5 +63,14 @@ public class MazeCoder {
         return sb.toString();
     }
 
+    private static Block[][] generate(int r, int c, double pathPossibility) {
+        pathPossibility = Math.max(Math.min(1, pathPossibility), 0);
+        Block[][] map = new Block[r][c];
+        for (int i = 0; i < r; i++)
+            for (int j = 0; j < c; j++)
+                map[i][j] = Math.random() < pathPossibility ? Block.PATH : Block.WALL;
+        return map;
+    }
+
     public enum Block {WALL, EMPTY, VISITED, PATH}
 }

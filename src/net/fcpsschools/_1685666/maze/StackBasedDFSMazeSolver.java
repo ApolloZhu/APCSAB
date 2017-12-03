@@ -8,8 +8,7 @@ import static net.fcpsschools._1685666.maze.StackBasedMazeSolver.Step;
  * @author ApolloZhu, Pd. 1
  */
 public class StackBasedDFSMazeSolver extends MazeSolver {
-    private Stack<Step> pending = new Stack<>();
-    private Stack<Step> path = new Stack<>();
+    private Stack<Step> pending, path;
 
     // Same old thing, greedy algorithm
     protected void pushAllNextStepsFrom(Loc curLoc, /*targeting*/ Loc target) {
@@ -35,6 +34,8 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
     @Override
     protected boolean start(int r, int c, int tR, int tC) {
         // Setup
+        pending = new Stack<>();
+        path = new Stack<>();
         forEachListener(l -> l.started(r, c, tR, tC, getGrid()));
         final Loc start = new Loc(r, c), end = new Loc(tR, tC);
         boolean hasPath = false;
@@ -60,8 +61,7 @@ public class StackBasedDFSMazeSolver extends MazeSolver {
                     && !path.peek().getEnd().equals(pending.peek().getStart())) {
                 Step step = path.pop();
                 set(step.getEnd(), MazeCoder.Block.VISITED);
-                forEachListener(l -> l.failed(step.getEnd().getR(),
-                        step.getEnd().getC(), path, getGrid()));
+                forEachListener(l -> l.failed(step.getEnd().getR(), step.getEnd().getC(), path, getGrid()));
             }
             curStep = pending.isEmpty() ? null : pending.pop();
         }

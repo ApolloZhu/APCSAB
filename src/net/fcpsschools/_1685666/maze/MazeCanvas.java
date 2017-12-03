@@ -173,6 +173,12 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         }
     }
 
+    public void resetMap(MazeCoder.Block[][] map) {
+        this.map = map;
+        reset();
+        repaint();
+    }
+
     public void setMap(MazeCoder.Block[][] map) {
         this.map = map;
         repaint();
@@ -187,12 +193,14 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     }
 
     private int getSide() {
+        if (map == null || map.length == 0 || map[0].length == 0) return 0;
         return Math.min(getWidth() / map[0].length, getHeight() / map.length);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (map == null || map.length == 0 || map[0].length == 0) return;
         int side = getSide();
         int xOffset = (getWidth() - side * map[0].length) / 2;
         int yOffset = (getHeight() - side * map.length) / 2;
@@ -207,6 +215,7 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     }
 
     public MazeSolver.Loc getLoc(int x, int y) {
+        if (map == null || map.length == 0 || map[0].length == 0) return null;
         int side = Math.min(getWidth() / map[0].length,
                 getHeight() / map.length);
         int xOffset = (getWidth() - side * map[0].length) / 2;
@@ -227,13 +236,16 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
         repaint();
     }
 
+    protected void reset() {
+        commonColor = COMMON_COLOR_NORMAL;
+        this.paths = new Path[map.length][map[0].length];
+    }
+
     @Override
     public void started(int r, int c, int tR, int tC, MazeCoder.Block[][] map) {
         setStart(new MazeSolver.Loc(r, c));
         setTarget(new MazeSolver.Loc(tR, tC));
-        this.paths = new Path[map.length][map[0].length];
-        commonColor = COMMON_COLOR_NORMAL;
-        setMap(map);
+        resetMap(map);
     }
 
     @Override

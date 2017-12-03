@@ -12,20 +12,7 @@ public class MazeGUI {
         JFrame frame = new JFrame();
         frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        MazeSolver.Type[] types = MazeSolver.Type.values();
-        String[] solverTypes = Arrays.stream(types)
-                .map(MazeSolver.Type::description).toArray(String[]::new);
-        Object selectedSolver = JOptionPane
-                .showInputDialog(null,
-                        "Choose maze solver type", "Maze",
-                        JOptionPane.INFORMATION_MESSAGE, null,
-                        solverTypes, solverTypes[0]);
-
-        for (int i = 0; i < types.length; i++)
-            if (solverTypes[i].equals(selectedSolver)) {
-                frame.setContentPane(new MazePanel(types[i].init()));
-                break;
-            }
+        frame.setContentPane(new MazePanel());
         frame.setVisible(true);
     }
 }
