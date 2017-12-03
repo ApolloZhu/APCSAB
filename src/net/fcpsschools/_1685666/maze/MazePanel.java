@@ -1,5 +1,6 @@
 package net.fcpsschools._1685666.maze;
 
+import layout.SpringUtilities;
 import net.fcpsschools._1685666.PlaybackPanel;
 
 import javax.swing.*;
@@ -17,7 +18,8 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
     private final JButton pickStartButton, pickEndButton, editWallButton;
     private final JComboBox<String> solverComboBox;
     private final JTextField rowTextField, columnTextField, percentageTextField;
-    private final JPanel panel = new JPanel();
+    private final JPanel panel = new JPanel(),
+            mapGenerationControlPanel = new JPanel(), controlsPanel = new JPanel();
     private MazeSolver solver;
     private MazeCanvas canvas;
     private boolean isSelectingStart, isSelectingEnd, isEditingWall;
@@ -29,43 +31,59 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
 
     public MazePanel() {
         add(panel, BorderLayout.NORTH);
-        panel.add(pickStartButton = new JButton("Pick Start"));
+        panel.setLayout(new GridLayout(2, 1));
+        panel.add(mapGenerationControlPanel);
+        mapGenerationControlPanel.setLayout(new SpringLayout());
+
+        mapGenerationControlPanel.add(new JLabel("Row: "));
+        mapGenerationControlPanel.add(rowTextField = new JTextField("" + MazeCoder.getRawExample().length));
+        rowTextField.addActionListener(this::regenerateMap);
+        mapGenerationControlPanel.add(new JLabel("Column: "));
+        mapGenerationControlPanel.add(
+                columnTextField = new JTextField("" + MazeCoder.getRawExample()[0].length));
+        columnTextField.addActionListener(this::regenerateMap);
+        mapGenerationControlPanel.add(new JLabel("Path percentage: "));
+        mapGenerationControlPanel.add(percentageTextField = new JTextField("" + pathPercentage));
+        percentageTextField.addActionListener(this::regenerateMap);
+        JButton regenerateButton = new JButton("Re-Generate");
+        mapGenerationControlPanel.add(regenerateButton);
+        regenerateButton.addActionListener(this::regenerateMap);
+        SpringUtilities.makeCompactGrid(mapGenerationControlPanel,
+                1, mapGenerationControlPanel.getComponentCount(),
+                8, 8, 8, 8);
+
+        panel.add(controlsPanel);
+        controlsPanel.setLayout(new SpringLayout());
+        controlsPanel.add(pickStartButton = new JButton("Pick Start"));
         pickStartButton.addActionListener(l -> {
             isSelectingEnd = false;
             isEditingWall = false;
             isSelectingStart = true;
         });
-        panel.add(pickEndButton = new JButton("Pick End"));
+        controlsPanel.add(pickEndButton = new JButton("Pick End"));
         pickEndButton.addActionListener(l -> {
             isSelectingStart = false;
             isEditingWall = false;
             isSelectingEnd = true;
         });
-        panel.add(editWallButton = new JButton("Edit Wall"));
+        controlsPanel.add(editWallButton = new JButton("Edit Wall"));
         editWallButton.addActionListener(l -> {
             isSelectingStart = false;
             isSelectingEnd = false;
             isEditingWall = true;
         });
-        panel.add(new JLabel("Row: "));
-        panel.add(rowTextField = new JTextField("" + MazeCoder.getRawExample().length));
-        rowTextField.addActionListener(this::regenerateMap);
-        panel.add(new JLabel("Column: "));
-        panel.add(columnTextField = new JTextField("" + MazeCoder.getRawExample()[0].length));
-        columnTextField.addActionListener(this::regenerateMap);
-        panel.add(new JLabel("Path percentage: "));
-        panel.add(percentageTextField = new JTextField("" + pathPercentage));
-        percentageTextField.addActionListener(this::regenerateMap);
-        JButton regenerateButton = new JButton("Regenerate");
-        panel.add(regenerateButton);
-        regenerateButton.addActionListener(this::regenerateMap);
 
+        controlsPanel.add(new JLabel("Solver: ", SwingConstants.TRAILING));
         String[] solverTypes = Arrays.stream(types)
                 .map(MazeSolver.Type::description).toArray(String[]::new);
-        panel.add(solverComboBox = new JComboBox<>(solverTypes));
+        controlsPanel.add(solverComboBox = new JComboBox<>(solverTypes));
         setMazeSolverAtIndex(selectedSolverIndex);
         solverComboBox.addActionListener(ignored ->
                 setMazeSolverAtIndex(solverComboBox.getSelectedIndex()));
+
+        SpringUtilities.makeGrid(controlsPanel,
+                1, controlsPanel.getComponentCount(),
+                8, 8, 8, 8);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -147,7 +165,8 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
 
     @Override
     protected void start() {
-        for (Component comp : panel.getComponents()) comp.setEnabled(false);
+        for (Component comp : mapGenerationControlPanel.getComponents()) comp.setEnabled(false);
+        for (Component comp : controlsPanel.getComponents()) comp.setEnabled(false);
         isEditingWall = false;
         clearMap();
         solver.addEventListener(this);
@@ -160,7 +179,8 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
     }
 
     protected void terminate(boolean hasPath) {
-        for (Component comp : panel.getComponents()) comp.setEnabled(true);
+        for (Component comp : mapGenerationControlPanel.getComponents()) comp.setEnabled(true);
+        for (Component comp : controlsPanel.getComponents()) comp.setEnabled(true);
         if (solver != null) {
             solver.removeEventListener(this);
             solver.stop(hasPath);

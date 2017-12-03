@@ -111,7 +111,7 @@ public abstract class MazeSolver {
                 case RECURSIVE:
                     return "Recursive";
                 case STACK:
-                    return "Stack Based";
+                    return "Recursive - Stack Rewrite";
                 case DFS:
                     return "DFS - Stack";
                 case BFS:

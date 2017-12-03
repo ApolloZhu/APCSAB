@@ -6,15 +6,6 @@ import java.util.Stack;
  * @author ApolloZhu, Pd. 1
  */
 public class StackBasedMazeSolver extends MazeSolver {
-    private static String debugDescriptionOf(Stack<Step> steps) {
-        StringBuilder sb = new StringBuilder();
-        for (Step s : steps) {
-            sb.append(s);
-            sb.append(' ');
-        }
-        return sb.toString();
-    }
-
     @Override
     protected boolean start(int r, int c, int targetR, int targetC) {
         // Setup
