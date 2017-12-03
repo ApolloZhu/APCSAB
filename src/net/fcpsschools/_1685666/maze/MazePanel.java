@@ -4,6 +4,7 @@ import net.fcpsschools._1685666.PlaybackPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
@@ -15,15 +16,18 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
     private static MazeSolver.Type[] types = MazeSolver.Type.values();
     private final JButton pickStartButton, pickEndButton, editWallButton;
     private final JComboBox<String> solverComboBox;
+    private final JTextField rowTextField, columnTextField, percentageTextField;
+    private final JPanel panel = new JPanel();
     private MazeSolver solver;
     private MazeCanvas canvas;
     private boolean isSelectingStart, isSelectingEnd, isEditingWall;
     private MazeSolver.Loc start, end;
     private MazeCoder.Block[][] map;
     private int selectedSolverIndex;
+    private double pathPercentage = 0.7;
+
 
     public MazePanel() {
-        JPanel panel = new JPanel();
         add(panel, BorderLayout.NORTH);
         panel.add(pickStartButton = new JButton("Pick Start"));
         pickStartButton.addActionListener(l -> {
@@ -43,6 +47,18 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
             isSelectingEnd = false;
             isEditingWall = true;
         });
+        panel.add(new JLabel("Row: "));
+        panel.add(rowTextField = new JTextField("" + MazeCoder.getRawExample().length));
+        rowTextField.addActionListener(this::regenerateMap);
+        panel.add(new JLabel("Column: "));
+        panel.add(columnTextField = new JTextField("" + MazeCoder.getRawExample()[0].length));
+        columnTextField.addActionListener(this::regenerateMap);
+        panel.add(new JLabel("Path percentage: "));
+        panel.add(percentageTextField = new JTextField("" + pathPercentage));
+        percentageTextField.addActionListener(this::regenerateMap);
+        JButton regenerateButton = new JButton("Regenerate");
+        panel.add(regenerateButton);
+        regenerateButton.addActionListener(this::regenerateMap);
 
         String[] solverTypes = Arrays.stream(types)
                 .map(MazeSolver.Type::description).toArray(String[]::new);
@@ -78,8 +94,7 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
                 clearMap();
             }
         });
-        canvas.setStart(start = new MazeSolver.Loc(0, 0));
-        canvas.setTarget(end = new MazeSolver.Loc(map.length - 1, map[0].length - 1));
+        resetStartEnd();
     }
 
     @Override
@@ -89,13 +104,13 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
         return canvas = new MazeCanvas(map = MazeCoder.EXAMPLE());
     }
 
-    public void setMazeSolverAtIndex(int index) {
+    protected void setMazeSolverAtIndex(int index) {
         index = Math.max(Math.min(types.length, index), 0);
         if (solver != null && selectedSolverIndex == index) return;
         setMazeSolver(types[selectedSolverIndex = index].init());
     }
 
-    public void setMazeSolver(MazeSolver solver) {
+    protected void setMazeSolver(MazeSolver solver) {
         terminate();
         clearMap();
         if (this.solver != null)
@@ -109,12 +124,30 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
         solver.addEventListener(canvas);
     }
 
+    protected void regenerateMap(ActionEvent ignored) {
+        int r = map.length, c = map[0].length, newR = r, newC = c;
+        double newPrecentage = pathPercentage;
+        try {
+            newR = Integer.parseUnsignedInt(rowTextField.getText());
+        } catch (Exception e) {
+            rowTextField.setText("" + r);
+        }
+        try {
+            newC = Integer.parseUnsignedInt(columnTextField.getText());
+        } catch (Exception e) {
+            columnTextField.setText("" + c);
+        }
+        try {
+            newPrecentage = Double.parseDouble(percentageTextField.getText());
+        } catch (Exception e) {
+            percentageTextField.setText("" + pathPercentage);
+        }
+        setMap(MazeCoder.generate(newR, newC, pathPercentage = newPrecentage));
+    }
+
     @Override
     protected void start() {
-        pickStartButton.setEnabled(false);
-        pickEndButton.setEnabled(false);
-        editWallButton.setEnabled(false);
-        solverComboBox.setEnabled(false);
+        for (Component comp : panel.getComponents()) comp.setEnabled(false);
         isEditingWall = false;
         clearMap();
         solver.addEventListener(this);
@@ -127,15 +160,24 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
     }
 
     protected void terminate(boolean hasPath) {
-        pickStartButton.setEnabled(true);
-        pickEndButton.setEnabled(true);
-        editWallButton.setEnabled(true);
-        solverComboBox.setEnabled(true);
+        for (Component comp : panel.getComponents()) comp.setEnabled(true);
         if (solver != null) {
             solver.removeEventListener(this);
             solver.stop(hasPath);
         }
         super.terminate();
+    }
+
+    protected void setMap(MazeCoder.Block[][] newMap) {
+        map = newMap.clone();
+        canvas.resetMap(map);
+        resetStartEnd();
+    }
+
+    protected void resetStartEnd() {
+        map[0][0] = map[map.length - 1][map[0].length - 1] = MazeCoder.Block.EMPTY;
+        canvas.setStart(start = new MazeSolver.Loc(0, 0));
+        canvas.setTarget(end = new MazeSolver.Loc(map.length - 1, map[0].length - 1));
     }
 
     protected void clearMap() {
@@ -165,6 +207,7 @@ public class MazePanel extends PlaybackPanel implements MazeSolver.MSEventListen
 
     @Override
     public void ended(boolean hasPath, MazeCoder.Block[][] map) {
+        JOptionPane.showMessageDialog(this, hasPath ? "It is doable." : "Can do better.");
         terminate(hasPath);
     }
 }

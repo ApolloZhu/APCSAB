@@ -15,8 +15,7 @@ public abstract class MazeSolver {
     public final boolean start(MazeCoder.Block[][] input,
                                int r, int c, int tR, int tC) {
         setGrid(input);
-        if (get(r, c) == MazeCoder.Block.WALL || get(tR, tC) == MazeCoder.Block.WALL)
-            throw new IllegalArgumentException("We don't walk through walls.");
+        if (get(r, c) == MazeCoder.Block.WALL || get(tR, tC) == MazeCoder.Block.WALL) return false;
         set(r, c, MazeCoder.Block.EMPTY);
         set(tR, tC, MazeCoder.Block.EMPTY);
         return start(r, c, tR, tC);

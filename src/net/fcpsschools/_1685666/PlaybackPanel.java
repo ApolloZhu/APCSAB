@@ -11,9 +11,9 @@ import java.util.Hashtable;
  * @author ApolloZhu, Pd. 1
  */
 public abstract class PlaybackPanel extends JPanel {
-
+    private final int MAX = 1000;
     private final JButton start = new JButton("Start");
-    private final JSlider slider = new JSlider(JSlider.VERTICAL, 0, 200, 100);
+    private final JSlider slider = new JSlider(JSlider.VERTICAL, 0, MAX, 100);
     private final JButton pauseResume = new JButton("Pause");
     Thread thread;
     private int size;
@@ -52,10 +52,10 @@ public abstract class PlaybackPanel extends JPanel {
         // Speed Control Slider
         Hashtable<Integer, JLabel> sliderLabels = new Hashtable<>();
         sliderLabels.put(0, new JLabel("Pause"));
-        sliderLabels.put(10, new JLabel("Slow"));
+        sliderLabels.put(50, new JLabel("Slow"));
         sliderLabels.put(100, new JLabel("Normal"));
-        sliderLabels.put(190, new JLabel("Fast"));
-        sliderLabels.put(200, new JLabel("Non Stop"));
+        sliderLabels.put(800, new JLabel("Fast"));
+        sliderLabels.put(MAX, new JLabel("Non Stop"));
         slider.setLabelTable(sliderLabels);
         slider.setPaintLabels(true);
 
@@ -93,9 +93,9 @@ public abstract class PlaybackPanel extends JPanel {
     protected void sleep(int unit) {
         performUpdate();
         try {
-            if (scaleFactor == 200) return; // Non stop
+            if (scaleFactor == MAX) return; // Non stop
             double percentage = Math.max(scaleFactor / 100, 0.1);
-            long interval = (long) (unit * 100 / percentage);
+            long interval = (long) (unit * 50 / percentage);
             thread.sleep(interval);
         } catch (Exception e) {
         }

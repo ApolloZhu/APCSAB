@@ -2,7 +2,6 @@ package net.fcpsschools._1685666.maze;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
 
 /**
  * @author ApolloZhu, Pd. 1

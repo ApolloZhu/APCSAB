@@ -6,7 +6,9 @@ package net.fcpsschools._1685666.maze;
 public class MazeCoder {
     private static final int VISITED = 3;
     private static final int PATH = 7;
-    private static int[][] grid = {
+    private static final int WALL = 0;
+    private static final int EMPTY = 1;
+    private static final int[][] grid = {
             {1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1},
             {1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1},
             {0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0},
@@ -17,8 +19,12 @@ public class MazeCoder {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
 
+    static int[][] getRawExample() {
+        return grid;
+    }
+
     public static Block[][] EXAMPLE() {
-        return decode(grid, 0, 1, VISITED, PATH);
+        return decode(grid, WALL, EMPTY, VISITED, PATH);
     }
 
     public static Block[][] decode(int[][] intMap, int wall, int empty, int visited, int path) {
@@ -63,12 +69,12 @@ public class MazeCoder {
         return sb.toString();
     }
 
-    private static Block[][] generate(int r, int c, double pathPossibility) {
-        pathPossibility = Math.max(Math.min(1, pathPossibility), 0);
+    public static Block[][] generate(int r, int c, double emptyPossibility) {
+        emptyPossibility = Math.max(Math.min(1, emptyPossibility), 0);
         Block[][] map = new Block[r][c];
         for (int i = 0; i < r; i++)
             for (int j = 0; j < c; j++)
-                map[i][j] = Math.random() < pathPossibility ? Block.PATH : Block.WALL;
+                map[i][j] = Math.random() < emptyPossibility ? Block.EMPTY : Block.WALL;
         return map;
     }
 

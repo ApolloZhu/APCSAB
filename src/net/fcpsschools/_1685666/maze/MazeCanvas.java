@@ -273,12 +273,13 @@ public class MazeCanvas extends JPanel implements MazeSolver.MSEventListener {
     @Override
     public void ended(boolean hasPath, MazeCoder.Block[][] map) {
         commonColor = hasPath ? COMMON_COLOR_FOUND : COMMON_COLOR_FAILED;
+        diff = null;
         setMap(map);
     }
 
-    private class Path {
-        int r, c;
-        MazeSolver.Direction direction;
+    private static class Path {
+        private int r, c;
+        private MazeSolver.Direction direction;
 
         Path(int r, int c, MazeSolver.Direction direction) {
             this.r = r;

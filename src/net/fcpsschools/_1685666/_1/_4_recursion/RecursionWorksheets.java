@@ -16,6 +16,7 @@ public class RecursionWorksheets {
         System.out.println(recurCountDigits(9));
         System.out.println(recurCountDigits(10));
     }
+
     static int iterateLog2(int n) {
         int c = 0;
         while (n > 1) {
@@ -24,9 +25,11 @@ public class RecursionWorksheets {
         }
         return c;
     }
+
     static int recurLog2(int n) {
         return n < 2 ? 0 : 1 + recurLog2(n / 2);
     }
+
     static int iterateCountDigits(int n) {
         int c = 1;
         while (n > 9) {
@@ -35,6 +38,7 @@ public class RecursionWorksheets {
         }
         return c;
     }
+
     static int recurCountDigits(int n) {
         return n < 10 ? 1 : 1 + recurCountDigits(n / 10);
     }
