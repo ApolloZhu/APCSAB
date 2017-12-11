@@ -58,10 +58,9 @@ public class MyStack<E> implements Iterable<E> {
 
         public E next() {
             if (-1 == size) size = MyStack.this.size;
-            if (size != size()) throw new ConcurrentModificationException();
+            if (size != MyStack.this.size) throw new ConcurrentModificationException();
             E value = current.value;
             current = current.getNext();
-            size -= 1;
             return value;
         }
 
