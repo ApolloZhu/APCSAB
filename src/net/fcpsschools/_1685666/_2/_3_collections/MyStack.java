@@ -28,12 +28,12 @@ public class MyStack<E> implements Iterable<E> {
     }
 
     public E seek(E v) {
-        if (head == null) throw new NoSuchElementException();
+        if (isEmpty()) throw new NoSuchElementException();
         return head.getValue();
     }
 
     public E pop() {
-        if (head == null) throw new NoSuchElementException();
+        if (isEmpty()) throw new NoSuchElementException();
         E value = head.getValue();
         head = head.getNext();
         size--;
@@ -49,15 +49,18 @@ public class MyStack<E> implements Iterable<E> {
     }
 
     public class MyIterator implements Iterator<E> {
-        private ListNode current = head;
+        private ListNode current;
         private int size = -1;
 
         public boolean hasNext() {
-            return current != null;
+            return !isEmpty() && (size == -1 || current != null);
         }
 
         public E next() {
-            if (-1 == size) size = MyStack.this.size;
+            if (-1 == size) {
+                size = MyStack.this.size;
+                current = head;
+            }
             if (size != MyStack.this.size) throw new ConcurrentModificationException();
             E value = current.value;
             current = current.getNext();
