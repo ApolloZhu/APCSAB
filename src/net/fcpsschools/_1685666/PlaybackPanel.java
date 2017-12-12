@@ -1,11 +1,12 @@
 package net.fcpsschools._1685666;
 
-import com.sun.javafx.runtime.async.BackgroundExecutor;
 import layout.SpringUtilities;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Hashtable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author ApolloZhu, Pd. 1
@@ -13,10 +14,9 @@ import java.util.Hashtable;
 public abstract class PlaybackPanel extends JPanel {
     private final int MAX = 1000;
     private final JButton start = new JButton("Start");
-    private final JSlider slider = new JSlider(JSlider.VERTICAL, 0, MAX, 100);
+    private final JSlider slider = new JSlider(JSlider.VERTICAL, 0, MAX, 10);
     private final JButton pauseResume = new JButton("Pause");
     Thread thread;
-    private int size;
     private double scaleFactor;
 
     public PlaybackPanel() {
@@ -33,15 +33,26 @@ public abstract class PlaybackPanel extends JPanel {
 
         // Start
         start.addActionListener(ignored -> {
-            BackgroundExecutor.getExecutor().execute(() -> {
+            new Thread(() -> {
                 if (start.getText().equals("Start")) {
                     start.setText("Terminate");
                     pauseResume.setText("Pause");
                     pauseResume.setEnabled(true);
                     thread = Thread.currentThread();
-                    start();
+                    try {
+                        start();
+                    } catch (Throwable t) {
+                        if (t instanceof ThreadDeath) return;
+                        String message = t.getLocalizedMessage();
+                        if (message == null || message.isEmpty())
+                            message = "Something went wrong. Please see system log for details.";
+                        Logger.getGlobal().log(Level.WARNING, "Subclass implementation failed", t);
+                        JOptionPane.showMessageDialog(this,
+                                message, "Oops!", JOptionPane.WARNING_MESSAGE);
+                        terminate();
+                    }
                 } else terminate();
-            });
+            }).start();
         });
         // Pause Resume
         pauseResume.setEnabled(false);
@@ -95,8 +106,8 @@ public abstract class PlaybackPanel extends JPanel {
         try {
             if (scaleFactor == MAX) return; // Non stop
             double percentage = Math.max(scaleFactor / 100, 0.1);
-            long interval = (long) (unit * 50 / percentage);
-            thread.sleep(interval);
+            long interval = (long) (unit * 25 / percentage);
+            Thread.sleep(interval);
         } catch (Exception e) {
         }
     }

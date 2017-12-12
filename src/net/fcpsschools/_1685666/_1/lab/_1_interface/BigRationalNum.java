@@ -1,19 +1,17 @@
 package net.fcpsschools._1685666._1.lab._1_interface;
 
-/* What I learned?
- * > The actual definition of Euclidean Algorithm.
- * > Looked through one of my old programs for recursive implementation.
- * > BigDecimal class has similar features, so I extended Number and implemented Comparable,
- *   and switched to BigInteger as internal representation.
- * > After Mr. Lau showed someone else's approach, I realized BigInteger has it's own gcd implementation.
- */
-
-/* How I feel about this lab?
- * Toooooooo easy. Polynomial lab is more interesting.
- */
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+// > I learned the actual definition of Euclidean Algorithm,
+// but I looked through one of my old programs for recursive implementation.
+// > Similar to BigDecimal, I extended Number and implemented Comparable
+// > I switched to BigInteger as internal representation,
+// but only until after Mr. Lau showed someone else's approach,
+// I realized BigInteger has it's own gcd implementation.
+//
+// How I feel about this lab?
+// Toooooooo easy. Polynomial lab is more interesting.
 
 /**
  * Representing a rational number using a fraction.
@@ -66,6 +64,21 @@ public class BigRationalNum extends Number implements Comparable<BigRationalNum>
     }
 
     /**
+     * Recursively finds the greatest common divisor
+     * using the Euclidean Algorithm.
+     *
+     * @param a the divisor if b is 0, otherwise the previous b.
+     * @param b reduced to zero, otherwise is a mod b.
+     * @return the greatest common divisor for a and b.
+     * @implSpec Euclidean Algorithm is defined as follows:
+     * 1. if a or b is 0, then gcd(a,b) is b or a, stop;
+     * 2. since a = bk + m, gcd(a, b) = gcd(b, m).
+     */
+    private static BigInteger gcd(BigInteger a, BigInteger b) {
+        return b.equals(BigInteger.ZERO) ? a : gcd(b, a.remainder(b));
+    }
+
+    /**
      * Make sure
      * 1. the denominator is not zero
      * 2. this is in the lowest ratio
@@ -88,21 +101,6 @@ public class BigRationalNum extends Number implements Comparable<BigRationalNum>
             numerator = numerator.negate();
             denominator = denominator.negate();
         }
-    }
-
-    /**
-     * Recursively finds the greatest common divisor
-     * using the Euclidean Algorithm.
-     *
-     * @param a the divisor if b is 0, otherwise the previous b.
-     * @param b reduced to zero, otherwise is a mod b.
-     * @return the greatest common divisor for a and b.
-     * @implSpec Euclidean Algorithm is defined as follows:
-     * 1. if a or b is 0, then gcd(a,b) is b or a, stop;
-     * 2. since a = bk + m, gcd(a, b) = gcd(b, m).
-     */
-    private static BigInteger gcd(BigInteger a, BigInteger b) {
-        return b.equals(BigInteger.ZERO) ? a : gcd(b, a.remainder(b));
     }
 
     /**
