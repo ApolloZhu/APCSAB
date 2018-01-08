@@ -3,7 +3,6 @@ package net.fcpsschools._1685666._2.lab._4_tree;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.function.Predicate;
 
 /**
  * NAME: Zhiyu Zhu
@@ -11,11 +10,13 @@ import java.util.function.Predicate;
  * DUE DATE: 2018-01-09
  * <p>
  * PURPOSE:
- * <p>
+ * - Practice common TreeNode tasks.
  * WHAT I LEARNED:
- * - Very excited to see bitwise operator (`&`) in real world again.
- * HOW I FEELED:
- * - Kinda disappointed to see how TreeNode is not generic.
+ * - Everyone has a different opinion on what level means.
+ * - Java log is base e, not 2.
+ * HOW I FEEL:
+ * - Kinda disappointed and wonders why TreeNode is not generic.
+ * - Very excited to see bitwise operator (`&` and `<<`) in real world again.
  * CREDITS (BE SPECIFIC: FRIENDS, PEERS, ONLINE WEBSITE):
  */
 public class ZhuZhiyu_Period1_BinaryTreeLab {
@@ -24,22 +25,20 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
 
         TreeNode root = new TreeNode(s.charAt(1), null, null);
 
-        // The root node has index 1
-        // The second level nodes' indices: 2, 3
-        // The third level nodes' indices: 4,5,6,7
-        // Idea: based on the index of the node, log (pos) of base 2 calculates the level of the
-        //          node: root (index 1) on level 1. Node with index 2 or 3 is on level 2
+        // The root node has index 1, on level 0
+        // The first level nodes' indices: 2, 3
+        // The second level nodes' indices: 4,5,6,7
+        // Idea: based on the index of the node,
+        // log_2(pos) calculates the level of the node.
         for (int pos = 2; pos < s.length(); pos++)
-            insert(root, s.charAt(pos), pos, (int) (1 + Math.log(pos) / Math.log(2)));
-        TreeFormatter.display(root);
-        insert(root, "A", 17, 5);
-        TreeFormatter.display(root);
-        insert(root, "B", 18, 5);
-        TreeFormatter.display(root);
-        insert(root, "C", 37, 6); //B's right child
-        TreeFormatter.display(root);
+            insert(root, s.charAt(pos), pos, (int) (Math.log(pos) / Math.log(2)));
 
-        displaySideway(root, 0);
+        insert(root, "A", 17, 4);
+        insert(root, "B", 18, 4);
+        insert(root, "C", 37, 5); //B's right child
+
+        // displaySideway(root, 0);
+        TreeFormatter.display(root);
 
         System.out.print("\nPreorder: ");
         preorderTraverse(root);
@@ -55,6 +54,7 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
 
         // System.out.println("\nDepth = " + numOfLevels(root));
         System.out.println("Height = " + height(root));
+        System.out.println("Width  = " + width(root));
 
         System.out.println("Min = " + min(root));
         System.out.println("Max = " + max(root));
@@ -63,7 +63,6 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
         displayLevelOrder(root);
 
         System.out.println();
-        TreeFormatter.display(root);
     }
 
     /**
@@ -71,7 +70,7 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
      */
     public static void insert(TreeNode t, Object s, int pos, int level) {
         TreeNode p = t;
-        for (int k = level - 2; k > 0; k--)
+        for (int k = level - 1; k > 0; k--)
             p = 0 == (pos & (1 << k)) ? p.getLeft() : p.getRight();
         if (0 == (pos & 1)) p.setLeft(new TreeNode(s, null, null));
         else p.setRight(new TreeNode(s, null, null));
@@ -99,15 +98,15 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
 
     public static void inorderTraverse(TreeNode t) {
         if (null == t) return;
-        preorderTraverse(t.getLeft());
+        inorderTraverse(t.getLeft());
         System.out.print(t.getValue() + " ");
-        preorderTraverse(t.getRight());
+        inorderTraverse(t.getRight());
     }
 
     public static void postorderTraverse(TreeNode t) {
         if (null == t) return;
-        preorderTraverse(t.getLeft());
-        preorderTraverse(t.getRight());
+        postorderTraverse(t.getLeft());
+        postorderTraverse(t.getRight());
         System.out.print(t.getValue() + " ");
     }
 
@@ -118,7 +117,7 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
 
     public static int countLeaves(TreeNode t) {
         if (null == t) return 0;
-        if (null == t.getLeft() && null == t.getRight()) return 1;
+        if (isLeafOrNull(t)) return 1;
         return countLeaves(t.getLeft()) + countLeaves(t.getRight());
     }
 
@@ -126,13 +125,13 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
      * count the number grandparent nodes
      */
     public static int countGrands(TreeNode t) {
-        Predicate<TreeNode> isLeafOrNull = node -> null == node
-                || null == node.getLeft() && null == node.getRight();
-        Predicate<TreeNode> isGrand = node -> null != node
-                && !(isLeafOrNull.test(node.getLeft()) && isLeafOrNull.test(node.getRight()));
-        return isGrand.test(t)
-                ? 1 + countGrands(t.getLeft()) + countGrands(t.getRight())
-                : 0;
+        boolean isGrand = null != t &&
+                !(isLeafOrNull(t.getLeft()) && isLeafOrNull(t.getRight()));
+        return isGrand ? 1 + countGrands(t.getLeft()) + countGrands(t.getRight()) : 0;
+    }
+
+    private static boolean isLeafOrNull(TreeNode t) {
+        return null == t || null == t.getLeft() && null == t.getRight();
     }
 
     /**
@@ -152,6 +151,26 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
 
     public static int height(TreeNode t) {
         return depth(t);
+    }
+
+    public static int width(TreeNode t) {
+        int maxWdith = 0, levelWidth = 0;
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(t);
+        q.add(null);
+        while (!q.isEmpty()) {
+            if (null == (t = q.poll())) {
+                if (levelWidth > maxWdith)
+                    maxWdith = levelWidth;
+                levelWidth = 0;
+                if (null != q.peek()) q.add(null);
+            } else {
+                levelWidth++;
+                if (null != t.getLeft()) q.add(t.getLeft());
+                if (null != t.getRight()) q.add(t.getRight());
+            }
+        }
+        return maxWdith;
     }
 
     public static Object min(TreeNode t) {
@@ -216,7 +235,7 @@ class TreeFormatter {
      * @see #display(TreeNode t, int 0, boolean false)
      */
     public static void display(TreeNode t) {
-        display(t, 0, false);
+        display(t, 1, false);
     }
 
     /**
@@ -229,13 +248,12 @@ class TreeFormatter {
     public static void display(TreeNode t, int eachPad, boolean withSpaces) {
         List<String[]> lines = new LinkedList<>(); // For quicker appending.
         int maxNodeWidth = build(t, null, 0, lines) + eachPad * 2;
-        String empty = emptyStringOfLength(maxNodeWidth), cur;
-        StringBuilder thisLevel;
+        String cur;
         for (int level = 0; ; level++) {
+            // The StringBuilder replacement
             char[] arr = new char[lines.size() * maxNodeWidth];
             int i = 0, start = -1;
             boolean needsRight = false;
-            // thisLevel = new StringBuilder();
             for (String[] subList : lines) {
                 if (null == (cur = get(subList, level, maxNodeWidth))) {
                     i += maxNodeWidth;
@@ -244,6 +262,7 @@ class TreeFormatter {
                     for (int j = 0; j < curA.length; j++, i++) {
                         final char c = arr[i] = curA[j];
                         if (!Character.isWhitespace(c)) {
+                            // This is why we can't print directly.
                             if (CR == c || needsRight) {
                                 int offset = needsRight && withSpaces ? eachPad : 0;
                                 int bound = i - offset;
@@ -324,47 +343,27 @@ class TreeFormatter {
         return max;
     }
 }
+ /*
+                   ┌───────────C───────────┐
+       ┌───────────O─────┐           ┌─────M─────┐
+ ┌─────P────────┐     ┌──U──┐     ┌──T──┐     ┌──E──┐
+ R──┐     ┌─────S     C     I     E     N     C     E
+    A     B──┐
+             C
 
-// @formatter:off
-   /***************************************************
+Preorder: C O P R A S B C U C I M T E N E C E
+Inorder: R A P B C S O C U I C E T N M C E E
+Postorder: A R C B S P C I U O E N T C E E M C
 
-      ----jGRASP exec: java Lab01
+Nodes = 18
+Leaves = 8
+Grandparents = 5
+Only childs = 3
+Height = 5
+Width  = 8
+Min = A
+Max = U
 
-    			E
-    		E
-    			C
-    	M
-    			N
-    		T
-    			E
-    C
-    			I
-    		U
-    			C
-    	O
-    			S
-    					C
-    				B
-    		P
-    				A
-    			R
-
-    Preorder: C O P R A S B C U C I M T E N E C E
-    Inorder: R A P B C S O C U I C E T N M C E E
-    Postorder: A R C B S P C I U O E N T C E E M C
-
-    Nodes = 18
-    Leaves = 8
-    Grandparents = 5
-    Only childs = 3
-
-    Depth = 5
-    Height = 5
-    Min = A
-    Max = U
-
-    By Level:
-    COMPUTERSCIENCEABC
-
-    *******************************************************/
-// @formatter:on
+By Level:
+COMPUTERSCIENCEABC
+*/
