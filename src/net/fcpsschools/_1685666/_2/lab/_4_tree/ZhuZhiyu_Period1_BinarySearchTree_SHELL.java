@@ -1,5 +1,11 @@
 package net.fcpsschools._1685666._2.lab._4_tree;
 
+import javax.swing.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
 /**
@@ -13,18 +19,22 @@ import java.util.Scanner;
  * - Confirmed the syntax of constrained generics.
  * CREDITS (BE SPECIFIC: FRIENDS, PEERS, ONLINE WEBSITE):
  * - Mr. Lau: the PURPOSE part above.
+ * - My Maze Solver program: how to use JFileChooser.
  */
 public class ZhuZhiyu_Period1_BinarySearchTree_SHELL {
+    private static JDialog getWindow() {
+        JDialog window = new JDialog();
+        window.setVisible(true);
+        window.toFront();
+        window.setAlwaysOnTop(true);
+        return window;
+    }
+
     public static void main(final String[] args) {
         // Prompt the user for an input string.
         final Scanner in = new Scanner(System.in);
         System.out.print("Build tree with: ");
-        TreeNode<String> t = null;
-        // Build a Binary Search Tree using Comparable
-        for (char c : in.nextLine().toCharArray()) {
-            // Instead of String
-            t = insert(t, String.valueOf(c));
-        }
+        TreeNode<String> t = treeOf(in.nextLine());
         while (true) {
             // Display the tree (take the code from the Tree Lab).
             TreeFormatter.display(t);
@@ -44,12 +54,23 @@ public class ZhuZhiyu_Period1_BinarySearchTree_SHELL {
                 } else {
                     System.out.println(target + " is not in the tree.");
                 }
+            } else if (cmd.startsWith("e")) { // Export
+                export(t);
             } else if (cmd.startsWith("f")) { // Find
                 String target = in.next();
                 System.out.println(target + " is " +
                         (find(t, target) ? "" : "not ") +
                         "in the tree.");
-            } else break;
+            } else if (cmd.startsWith("i")) { // Import
+                t = load(t);
+            } else if (cmd.startsWith("p")) { // Prefix
+                System.out.print("Infix: ");
+                String infix = in.next();
+                System.out.print("Postfix: ");
+                String postfix = in.next();
+                System.out.print("Prefix: ");
+                System.out.println(toPrefix(infix, postfix));
+            } else System.exit(0);
         }
     }
 
@@ -156,10 +177,89 @@ public class ZhuZhiyu_Period1_BinarySearchTree_SHELL {
         }
         return node;
     }
+
+    private static String inLevelOrder(TreeNode t) {
+        StringBuilder builder = new StringBuilder();
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(t);
+        while (!q.isEmpty()) {
+            t = q.poll();
+            if (null == t) continue;
+            builder.append(t.getValue());
+            q.add(t.getLeft());
+            q.add(t.getRight());
+        }
+        return builder.toString();
+    }
+
+    /**
+     * Build a Binary Search Tree using String
+     */
+    public static TreeNode<String> treeOf(String s) {
+        TreeNode<String> t = null;
+        for (char c : s.toCharArray()) {
+            t = insert(t, String.valueOf(c));
+        }
+        return t;
+    }
+
+    public static boolean export(TreeNode t) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Save tree as...");
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(getWindow())) {
+            Path path = chooser.getSelectedFile().toPath();
+            try {
+                Files.write(path, inLevelOrder(t).getBytes(), StandardOpenOption.CREATE);
+                System.out.println("Tree saved to " + path);
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        } else System.out.println("You didn't choose a path to save the tree.");
+        return false;
+    }
+
+    public static TreeNode<String> load(TreeNode<String> t) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Open tree file");
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(getWindow())) {
+            try {
+                Path path = chooser.getSelectedFile().toPath();
+                String s = Files.readAllLines(path).get(0);
+                TreeNode<String> tree = treeOf(s);
+                System.out.println("Loaded tree in " + path);
+                return tree;
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        } else System.out.println("You didn't choose a tree.");
+        return t;
+    }
+
+    public static String toPrefix(String infix, String postfix) {
+        if (1 >= postfix.length()) return postfix;
+        int last = postfix.length() - 1;
+        char val = postfix.charAt(last);
+        int mid = infix.indexOf(val);
+        String left = infix.substring(0, mid);
+        String right = infix.substring(mid + 1);
+        return val + toPrefix(left, postfix.substring(0, left.length()))
+                + toPrefix(right, postfix.substring(left.length(), last));
+    }
 }
 
 /*
 Build tree with: 537246819
+       ┌─────5─────┐
+    ┌──3──┐     ┌──7──┐
+ ┌──2     4     6     8──┐
+ 1                       9
+Min: 1
+Max: 9
+1 2 3 4 5 6 7 8 9
+I want to: export
+Tree saved to /Users/Apollonian/tree.txt
        ┌─────5─────┐
     ┌──3──┐     ┌──7──┐
  ┌──2     4     6     8──┐
@@ -198,6 +298,15 @@ I want to: add 5
     ┌──3        ┌──7──┐
  ┌──2        ┌──6     8──┐
  1           5           9
+Min: 1
+Max: 9
+1 2 3 4 5 6 7 8 9
+I want to: import
+Loaded tree in /Users/Apollonian/tree.txt
+       ┌─────5─────┐
+    ┌──3──┐     ┌──7──┐
+ ┌──2     4     6     8──┐
+ 1                       9
 Min: 1
 Max: 9
 1 2 3 4 5 6 7 8 9
