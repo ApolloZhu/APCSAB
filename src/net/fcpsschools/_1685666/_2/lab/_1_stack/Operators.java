@@ -148,7 +148,7 @@ public class Operators {
         return isUnary(s) || isBinary(s);
     }
 
-    public static void printInfo() {
+    public static void printSupportedBinary() {
         System.out.print("Supported Binary Operators:");
         for (String op : EXPONENTIATION.keySet())
             System.out.print(" " + op);
@@ -156,6 +156,9 @@ public class Operators {
             System.out.print(" " + op);
         for (String op : ADDITION.keySet())
             System.out.print(" " + op);
+    }
+
+    public static void printSupportedUnary() {
         System.out.print("\nSupported Right Associate Unary Operators:");
         UNARY.entrySet().stream()
                 .filter(entry -> entry.getValue().getAssociativity() == Associativity.RIGHT)
@@ -164,10 +167,19 @@ public class Operators {
         UNARY.entrySet().stream()
                 .filter(entry -> entry.getValue().getAssociativity() == Associativity.LEFT)
                 .forEach(entry -> System.out.print(" " + entry.getKey()));
+    }
+
+    public static void printSupportedConstant() {
         System.out.print("\nSupported Constants:");
         for (String constant : CONSTANT.keySet())
             System.out.print(" " + constant);
         System.out.println("\nSupported Number Format: Double.parseDouble");
+    }
+
+    public static void printInfo() {
+        printSupportedBinary();
+        printSupportedUnary();
+        printSupportedConstant();
     }
 
     public enum Associativity {LEFT, RIGHT}
