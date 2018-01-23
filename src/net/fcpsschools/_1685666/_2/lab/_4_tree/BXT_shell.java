@@ -1,4 +1,7 @@
-//Name:      Date:
+// Lab : BXT_shell
+// Name: Zhiyu Zhu
+// Date: 2018/01/23
+
 package net.fcpsschools._1685666._2.lab._4_tree;
 
 import net.fcpsschools._1685666._2.lab._1_stack.Operators;
@@ -24,6 +27,7 @@ public class BXT_shell {
             // The BXT can build itself from a postorder expression.
             tree.buildTree(s);
         } catch (Throwable t) {
+            System.out.print("Can't build tree: ");
             System.out.println(t.getLocalizedMessage());
             System.out.println("Existing...");
             System.exit(t.hashCode());
@@ -42,6 +46,7 @@ public class BXT_shell {
         } catch (Throwable t) {
             System.out.print("\nIncalculable: " + t.getLocalizedMessage());
         }
+        System.out.println();
     }
 }
 /*
