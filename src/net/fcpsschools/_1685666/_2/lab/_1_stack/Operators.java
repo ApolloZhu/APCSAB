@@ -17,6 +17,7 @@ public class Operators {
 
     static {
         CONSTANT.put("pi", Math.PI);
+        CONSTANT.put("π", Math.PI);
         CONSTANT.put("e", Math.E);
         registerUnaryOperator("+", Associativity.RIGHT, a -> a);
         registerUnaryOperator("-", Associativity.RIGHT, a -> -a);
@@ -33,9 +34,10 @@ public class Operators {
         registerUnaryOperator("deg", Associativity.RIGHT, Math::toDegrees);
         registerUnaryOperator("rad", Associativity.RIGHT, Math::toRadians);
         registerUnaryOperator("sqrt", Associativity.RIGHT, Math::sqrt);
+        registerUnaryOperator("√", Associativity.RIGHT, Math::sqrt);
         registerUnaryOperator("!", Associativity.LEFT, a -> {
             int x;
-            if (a < 0 || (x = (int) a) != a)
+            if (a < 0 || a != (x = (int) a))
                 throw new IllegalArgumentException(a + "!");
             int result = 1;
             for (int i = 2; i <= x; i++) result *= i;
@@ -44,11 +46,11 @@ public class Operators {
         EXPONENTIATION.put("^", Math::pow);
         MULTIPLICATION.put("*", (a, b) -> a * b);
         MULTIPLICATION.put("/", (a, b) -> {
-            if (b != 0) return a / b;
+            if (0 != b) return a / b;
             throw new ArithmeticException("/ by zero");
         });
         MULTIPLICATION.put("%", (a, b) -> {
-            if (b != 0) return a % b;
+            if (0 != b) return a % b;
             throw new ArithmeticException("/ by zero");
         });
         ADDITION.put("+", (a, b) -> a + b);
@@ -69,7 +71,7 @@ public class Operators {
     }
 
     private static int precedenceOf(String op) {
-        if (op == null) return -2;
+        if (null == op) return -2;
         if (ADDITION.containsKey(op)) return 0;
         if (MULTIPLICATION.containsKey(op)) return 1;
         if (EXPONENTIATION.containsKey(op)) return 2;
@@ -82,7 +84,7 @@ public class Operators {
         try {
             Double.parseDouble(constant);
             return true;
-        } catch (Exception e) {
+        } catch (Throwable ignored) {
             return CONSTANT.containsKey(constant);
         }
     }
@@ -104,16 +106,16 @@ public class Operators {
 
     public static boolean isLeftAssociateUnary(String op) {
         try {
-            return UNARY.get(op).getAssociativity() == Associativity.LEFT;
-        } catch (Exception e) {
+            return Associativity.LEFT == UNARY.get(op).getAssociativity();
+        } catch (Throwable ignored) {
             return false;
         }
     }
 
     public static boolean isRightAssociateUnary(String op) {
         try {
-            return UNARY.get(op).getAssociativity() == Associativity.RIGHT;
-        } catch (Exception e) {
+            return Associativity.RIGHT == UNARY.get(op).getAssociativity();
+        } catch (Throwable ignored) {
             return false;
         }
     }
@@ -161,11 +163,11 @@ public class Operators {
     public static void printSupportedUnary() {
         System.out.print("\nSupported Right Associate Unary Operators:");
         UNARY.entrySet().stream()
-                .filter(entry -> entry.getValue().getAssociativity() == Associativity.RIGHT)
+                .filter(entry -> Associativity.RIGHT == entry.getValue().getAssociativity())
                 .forEach(entry -> System.out.print(" " + entry.getKey()));
         System.out.print("\nSupported Left Associate Unary Operators:");
         UNARY.entrySet().stream()
-                .filter(entry -> entry.getValue().getAssociativity() == Associativity.LEFT)
+                .filter(entry -> Associativity.LEFT == entry.getValue().getAssociativity())
                 .forEach(entry -> System.out.print(" " + entry.getKey()));
     }
 

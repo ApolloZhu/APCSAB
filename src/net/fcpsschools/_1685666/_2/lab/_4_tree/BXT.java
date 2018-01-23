@@ -45,11 +45,17 @@ public class BXT {
     }
 
     private static double computeTerm(String s, double a, double b) {
-        return Operators.evaluate(s, "" + a, "" + b);
+        if (Operators.isBinary(s)) {
+            return Operators.evaluate(s, "" + a, "" + b);
+        } else if (Operators.isLeftAssociateUnary(s)) {
+            return Operators.evaluate(s, "" + a);
+        } else if (Operators.isRightAssociateUnary(s)) {
+            return Operators.evaluate(s, "" + b);
+        } else throw new IllegalStateException(s + " is not an operator");
     }
 
     private static boolean isOperator(String s) {
-        return Operators.isBinary(s);
+        return Operators.isOperator(s);
     }
 
     /**
@@ -62,9 +68,11 @@ public class BXT {
         String operator = node.getValue();
         boolean isLeaf = null == node.getLeft() && null == node.getRight();
         boolean isNegative = isLeaf && operator.startsWith("-");
-        boolean lowerPrecedency = null != parent &&
+        boolean lowerPrecedence = null != parent &&
                 Operators.Relation.LOWER == Operators.compare(operator, parent);
-        boolean needsParenthesis = lowerPrecedency || isNegative;
+        boolean isRightAssociate = !Operators.isBinary(parent)
+                && Operators.isRightAssociateUnary(parent);
+        boolean needsParenthesis = isRightAssociate || lowerPrecedence || isNegative;
         System.out.print(needsParenthesis ? "(" : "");
         // print “(“ before traversing left subtree
         printExpression(node.getLeft(), operator);
@@ -73,6 +81,18 @@ public class BXT {
         // print “)“ after traversing right subtree
         printExpression(node.getRight(), operator);
         System.out.print(needsParenthesis ? ")" : "");
+    }
+
+    private static <E> String toString(Stack<TreeNode<E>> stack) {
+        if (null == stack) return null;
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (TreeNode node : stack) {
+            sb.append(node.getValue());
+            sb.append(", ");
+        }
+        sb.delete(sb.lastIndexOf(", "), sb.length());
+        return sb.append("]").toString();
     }
 
     /**
@@ -92,19 +112,28 @@ public class BXT {
         // While the tokenizer still has token, do the following:
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
+            if ("pi".equals(token)) token = "π";
             // If the token is an operator,
             if (isOperator(token)) {
-                // Pop two TreeNodes from the stack and .
-                TreeNode<String> right = nodeStack.pop();
-                // Form a new operator, a inner TreeNode with two children.
+                TreeNode<String> operand = nodeStack.pop();
                 // Let the new TreeNode be the root, and
-                // push the root onto the stack
-                nodeStack.push(new TreeNode<>(token, nodeStack.pop(), right));
+                // push the root operator onto the stack
+                if (Operators.isBinary(token)) {
+                    // Pop two TreeNodes from the stack
+                    // Form a new inner TreeNode with two children.
+                    nodeStack.push(new TreeNode<>(token, nodeStack.pop(), operand));
+                } else if (Operators.isLeftAssociateUnary(token)) {
+                    nodeStack.push(new TreeNode<>(token, operand, null));
+                } else if (Operators.isRightAssociateUnary(token)) {
+                    nodeStack.push(new TreeNode<>(token, null, operand));
+                } else throw new IllegalStateException(token + " can't be classified");
             } else { // If the token is an operand
                 // Create a leaf TreeNode and push onto the stack
                 nodeStack.push(new TreeNode<>(token, null, null));
             }
         }
+        if (1 != nodeStack.size())
+            throw new IllegalStateException("Unused " + toString(nodeStack));
         root = nodeStack.pop();
     }
 
