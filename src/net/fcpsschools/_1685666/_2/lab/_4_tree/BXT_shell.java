@@ -52,40 +52,48 @@ Supported Constants: π e pi
 Supported Number Format: Double.parseDouble
 
 Input postfix string: 14 -5 /
- ┌───/───┐
+ ┌── / ──┐
  14      -5
 Infix order:  14/(-5)
 Prefix order: / 14 -5
 Evaluates to: -2.8
 
-Input postfix string: 3 4 5 + *  ,  2 3 + 5 / 4 5 - *
-          ┌─────*─────┐
-    ┌─────/──┐     ┌──-──┐
- ┌──+──┐     5     4     5
+Input postfix string: 3 4 5 + *
+ ┌─ * ────┐
+ 3     ┌─ + ─┐
+       4     5
+Infix order:  3*(4+5)
+Prefix order: * 3 + 4 5
+Evaluates to: 27.0
+
+Input postfix string: 2 3 + 5 / 4 5 - *
+          ┌──── * ────┐
+    ┌──── / ─┐     ┌─ - ─┐
+ ┌─ + ─┐     5     4     5
  2     3
 Infix order:  (2+3)/5*(4-5)
 Prefix order: * / + 2 3 5 - 4 5
 Evaluates to: -1.0
 
 Input postfix string: 5 6 4 * ! ^ cos
- cos────────┐
-       ┌────^───────────────────┐
-       5              ┌─────────!
-                 ┌────*────┐
+ cos ───────┐
+       ┌─── ^ ──────────────────┐
+       5              ┌──────── !
+                 ┌─── * ───┐
                  6         4
 Infix order:  cos(5^(6*4)!)
 Prefix order: cos ^ 5 ! * 6 4
 Evaluates to: 1.0
 
 Input postfix string: 1.44 sqrt
- sqrt───┐
+ sqrt ──┐
        1.44
 Infix order:  sqrt(1.44)
 Prefix order: sqrt 1.44
 Evaluates to: 1.2
 
 Input postfix string: e 0 /
- ┌──/──┐
+ ┌─ / ─┐
  e     0
 Infix order:  e/0
 Prefix order: / e 0

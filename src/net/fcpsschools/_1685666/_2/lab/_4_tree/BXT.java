@@ -151,7 +151,7 @@ public class BXT {
      * display() from TreeLab
      */
     public void display() {
-        TreeFormatter.display(root);
+        TreeFormatter.display(root, 1, true);
     }
 
     /**
