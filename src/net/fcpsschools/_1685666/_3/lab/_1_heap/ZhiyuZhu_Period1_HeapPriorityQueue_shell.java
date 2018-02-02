@@ -7,6 +7,7 @@ package net.fcpsschools._1685666._3.lab._1_heap;
 
 import net.fcpsschools._1685666.AbstractTreeFormatter;
 
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 
@@ -30,8 +31,21 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
     }
 
     public static void main(String[] args) {
-        ZhiyuZhu_Period1_HeapPriorityQueue_shell<Integer> heap = new ZhiyuZhu_Period1_HeapPriorityQueue_shell<>();
-        // TODO: Tests
+        // 1-6-5-7-8-9 add 10
+        Heap<Integer> heap = heapOf(1, 6, 5, 7, 8, 9);
+        heap.display();
+        heap.add(10);
+        heap.display();
+        while (!heap.isEmpty()) {
+            heap.remove();
+            heap.display();
+        }
+    }
+
+    private static <E extends Comparable<E>> Heap<E> heapOf(E... elements) {
+        Heap<E> heap = new Heap<>();
+        Collections.addAll(heap, elements);
+        return heap;
     }
 
     public boolean isEmpty() {
@@ -48,12 +62,9 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
 
     public E remove() {
         E toRemove = peek();
-        if (1 == numItems) {
-            items[numItems--] = null;
-        } else {
-            items[1] = items[numItems--];
-            reheapDown();
-        }
+        items[1] = items[numItems];
+        items[numItems--] = null;
+        reheapDown();
         return toRemove;
     }
 
@@ -66,17 +77,27 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
     }
 
     private void reheapDown() {
-        int endIndex = numItems / 2;
-        for (int i = 1; i <= endIndex; i *= 2) {
-            int left = i * 2, right = i * 2 + 1;
-            if (items[left].compareTo(items[right]) < 0) {
+        int i = 1, endIndex = numItems / 2;
+        while (endIndex >= i) {
+            final int left = i * 2, right = i * 2 + 1;
+            if (numItems < right) { // No right child
                 if (items[left].compareTo(items[i]) < 0) {
                     swapAt(left, i);
+                    i = left;
                 } else return;
             } else {
-                if (items[right].compareTo(items[i]) < 0) {
-                    swapAt(right, i);
-                } else return;
+                if (items[left].compareTo(items[right]) < 0) {
+                    if (items[left].compareTo(items[i]) < 0) {
+                        swapAt(left, i);
+                        i = left;
+                    } else return;
+                } else {
+                    if (items[right].compareTo(items[i]) < 0) {
+                        swapAt(right, i);
+                        i = right;
+                    } else return;
+                }
+
             }
         }
     }
@@ -105,6 +126,17 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
 
     public void display() {
         formatter.display(iterator, 1);
+    }
+
+    private static class Heap<E extends Comparable<E>>
+            extends ZhiyuZhu_Period1_HeapPriorityQueue_shell<E> {
+        private Heap() {
+            super();
+        }
+
+        private Heap(int initialCapacity) {
+            super(initialCapacity);
+        }
     }
 
     protected class Iterator implements AbstractTreeFormatter.TreeIterator<Integer, E> {
