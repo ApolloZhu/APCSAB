@@ -2,8 +2,12 @@ package net.fcpsschools._1685666._3.lab._1_heap;
 // Name: Zhiyu Zhu
 // Date: 2018/02/04
 // What I learned:
+// - Using array to represent a complete tree.
 // How I feel about this lab:
+// - Either too hard, or too easy to test.
 // I am wondering:
+// - Why can't they redesign Java to erase generic type info after compilation?
+// - How to choose a good default capacity?
 
 import net.fcpsschools._1685666.AbstractTreeFormatter;
 
@@ -11,10 +15,7 @@ import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 
-public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
-        <E extends Comparable<E>>
-        extends PriorityQueue<E> {
-
+public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> extends PriorityQueue<E> {
     private static final int DFLT_CAPACITY = 1024;
     private final Iterator iterator = new Iterator();
     private final AbstractTreeFormatter<Integer, E> formatter = new AbstractTreeFormatter<>();
@@ -26,19 +27,20 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
     }
 
     @SuppressWarnings({"unchecked"})
+    /// Can hold up to `initialCapacity-1` elements.
     public ZhiyuZhu_Period1_HeapPriorityQueue_shell(int initialCapacity) {
         items = (E[]) new Comparable[initialCapacity];
     }
 
     public static void main(String[] args) {
-        // 1-6-5-7-8-9 add 10
+        // 1-6-5-7-8-9, add 10
         Heap<Integer> heap = heapOf(1, 6, 5, 7, 8, 9);
         heap.display();
+        System.out.println("Add 10");
         heap.add(10);
-        heap.display();
         while (!heap.isEmpty()) {
-            heap.remove();
             heap.display();
+            System.out.println("Removed " + heap.remove());
         }
     }
 
@@ -97,7 +99,6 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
                         i = right;
                     } else return;
                 }
-
             }
         }
     }
@@ -125,7 +126,7 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
     }
 
     public void display() {
-        formatter.display(iterator, 1);
+        formatter.display(iterator, 1, 0, false);
     }
 
     private static class Heap<E extends Comparable<E>>
@@ -161,3 +162,33 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell
         }
     }
 }
+/*
+ ┌─1─┐
+┌6┐ ┌5
+7 8 9
+Add 10
+  ┌───1───┐
+┌─6─┐   ┌─5─┐
+7   8   9   10
+Removed 1
+  ┌───5───┐
+┌─6─┐   ┌─9
+7   8   10
+Removed 5
+  ┌───6─┐
+┌─7─┐   9
+10  8
+Removed 6
+  ┌─7─┐
+┌─8   9
+10
+Removed 7
+┌─8─┐
+10  9
+Removed 8
+┌─9
+10
+Removed 9
+10
+Removed 10
+*/
