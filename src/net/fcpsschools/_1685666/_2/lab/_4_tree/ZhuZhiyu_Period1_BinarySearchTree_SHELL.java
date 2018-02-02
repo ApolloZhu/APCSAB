@@ -35,9 +35,10 @@ public class ZhuZhiyu_Period1_BinarySearchTree_SHELL {
         final Scanner in = new Scanner(System.in);
         System.out.print("Build tree with: ");
         TreeNode<String> t = treeOf(in.nextLine());
+        TreeFormatter<String> formatter = new TreeFormatter<>();
         while (true) {
             // Display the tree (take the code from the Tree Lab).
-            TreeFormatter.display(t);
+            formatter.display(t);
             // Display the tree's minimum and maximum values.
             System.out.println("Min: " + min(t));
             System.out.println("Max: " + max(t));

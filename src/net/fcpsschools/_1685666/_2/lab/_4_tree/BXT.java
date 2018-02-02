@@ -13,6 +13,7 @@ import java.util.StringTokenizer;
  * @since 1/18/18
  */
 public class BXT {
+    private static final TreeFormatter<String> formatter = new TreeFormatter<>();
     private TreeNode<String> root;
 
     public BXT() {
@@ -151,7 +152,7 @@ public class BXT {
      * display() from TreeLab
      */
     public void display() {
-        TreeFormatter.display(root, 1, true);
+        formatter.display(root, 1, true);
     }
 
     /**

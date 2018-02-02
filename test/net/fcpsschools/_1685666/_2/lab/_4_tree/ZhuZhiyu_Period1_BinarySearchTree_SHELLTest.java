@@ -15,11 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class ZhuZhiyu_Period1_BinarySearchTree_SHELLTest {
 
+    private TreeFormatter formatter = new TreeFormatter();
+
     @Test
     void testFind() {
         String s = "american";
         TreeNode<String> t = treeOf(s);
-        TreeFormatter.display(t);
+        formatter.display(t);
         System.out.print("Inorder: ");
         smallToLarge(t);
         assertFalse(find(t, "x"));
@@ -28,7 +30,7 @@ class ZhuZhiyu_Period1_BinarySearchTree_SHELLTest {
 
         s = "MAENIRAC";
         t = treeOf(s);
-        TreeFormatter.display(t);
+        formatter.display(t);
         System.out.print("Inorder: ");
         smallToLarge(t);
         assertTrue(find(t, "I"));

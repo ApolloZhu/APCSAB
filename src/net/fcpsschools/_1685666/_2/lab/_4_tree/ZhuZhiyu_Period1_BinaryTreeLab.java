@@ -37,7 +37,7 @@ public class ZhuZhiyu_Period1_BinaryTreeLab {
         insert(root, "C", 37, 5); //B's right child
 
         // displaySideway(root, 0);
-        TreeFormatter.display(root);
+        new TreeFormatter().display(root);
 
         System.out.print("\nPreorder: ");
         preorderTraverse(root);
