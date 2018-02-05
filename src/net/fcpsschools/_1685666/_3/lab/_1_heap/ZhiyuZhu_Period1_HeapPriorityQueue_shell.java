@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 
 public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> extends PriorityQueue<E> {
-    private static final int DFLT_CAPACITY = 1024;
+    private static final int DFLT_CAPACITY = 1023;
     private final Iterator iterator = new Iterator();
     private final AbstractTreeFormatter<Integer, E> formatter = new AbstractTreeFormatter<>();
     private E items[];  // use a 1-D array instead of ArrayList
@@ -36,14 +36,15 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> e
         // 1-6-5-7-8-9, add 10
         Heap<Integer> heap = heapOf(1, 6, 5, 7, 8, 9);
         heap.display();
-        System.out.println("Add 10");
-        heap.add(10);
+        System.out.println("Add 0");
+        heap.add(0);
         while (!heap.isEmpty()) {
             heap.display();
             System.out.println("Removed " + heap.remove());
         }
     }
 
+    @SafeVarargs
     private static <E extends Comparable<E>> Heap<E> heapOf(E... elements) {
         Heap<E> heap = new Heap<>(elements.length + 1);
         Collections.addAll(heap, elements);
@@ -79,37 +80,35 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> e
     }
 
     private void reheapDown() {
-        int i = 1, endIndex = numItems / 2;
-        while (endIndex >= i) {
-            final int left = i * 2, right = i * 2 + 1;
-            if (numItems < right) { // No right child
-                if (items[left].compareTo(items[i]) < 0) {
-                    swapAt(left, i);
-                    i = left;
-                } else return;
-            } else {
-                if (items[left].compareTo(items[right]) < 0) {
-                    if (items[left].compareTo(items[i]) < 0) {
-                        swapAt(left, i);
-                        i = left;
-                    } else return;
-                } else {
-                    if (items[right].compareTo(items[i]) < 0) {
-                        swapAt(right, i);
-                        i = right;
-                    } else return;
-                }
+        reheapDown(1);
+    }
+
+    private void reheapDown(int i) {
+        if (numItems / 2 < i) return;
+        final int left = i * 2, right = i * 2 + 1;
+        if (numItems >= right && items[right].compareTo(items[left]) < 0) {
+            if (items[right].compareTo(items[i]) < 0) {
+                swapAt(right, i);
+                reheapDown(left);
+            }
+        } else {
+            if (items[left].compareTo(items[i]) < 0) {
+                swapAt(left, i);
+                reheapDown(left);
             }
         }
     }
 
     private void reheapUp() {
-        for (int i = numItems; i > 1; i /= 2) {
-            int parent = i / 2;
-            if (items[i].compareTo(items[parent]) < 0) {
-                swapAt(parent, i);
-            } else return;
-        }
+        reheapUp(numItems);
+    }
+
+    private void reheapUp(int i) {
+        if (1 >= i) return;
+        int parent = i / 2;
+        if (items[i].compareTo(items[parent]) >= 0) return;
+        swapAt(parent, i);
+        reheapUp(i / 2);
     }
 
     private void swapAt(int i, int j) {
@@ -166,29 +165,29 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> e
  ┌─1─┐
 ┌6┐ ┌5
 7 8 9
-Add 10
-  ┌───1───┐
-┌─6─┐   ┌─5─┐
-7   8   9   10
+Add 0
+ ┌─0─┐
+┌6┐ ┌1┐
+7 8 9 5
+Removed 0
+ ┌─1─┐
+┌6┐ ┌5
+7 8 9
 Removed 1
-  ┌───5───┐
-┌─6─┐   ┌─9
-7   8   10
+ ┌─5┐
+┌6┐ 9
+7 8
 Removed 5
-  ┌───6─┐
-┌─7─┐   9
-10  8
+ ┌6┐
+┌7 9
+8
 Removed 6
-  ┌─7─┐
-┌─8   9
-10
+┌7┐
+8 9
 Removed 7
-┌─8─┐
-10  9
+┌8
+9
 Removed 8
-┌─9
-10
+9
 Removed 9
-10
-Removed 10
 */
