@@ -45,7 +45,7 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> e
     }
 
     private static <E extends Comparable<E>> Heap<E> heapOf(E... elements) {
-        Heap<E> heap = new Heap<>();
+        Heap<E> heap = new Heap<>(elements.length + 1);
         Collections.addAll(heap, elements);
         return heap;
     }
@@ -71,9 +71,9 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> e
     }
 
     public boolean add(E obj) {
-        if (items.length == numItems)
+        if (items.length == ++numItems)
             doubleCapacity();
-        items[++numItems] = obj;
+        items[numItems] = obj;
         reheapUp();
         return true;
     }
