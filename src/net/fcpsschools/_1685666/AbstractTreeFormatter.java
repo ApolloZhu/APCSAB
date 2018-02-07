@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A class that visualizes `TreeNode`
+ * A class that visualizes trees
  * in a more human friendly way.
  *
  * @author ApolloZhu, Pd. 1

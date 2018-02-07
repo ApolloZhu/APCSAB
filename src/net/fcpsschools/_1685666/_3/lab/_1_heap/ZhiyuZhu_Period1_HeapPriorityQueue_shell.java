@@ -9,16 +9,12 @@ package net.fcpsschools._1685666._3.lab._1_heap;
 // - Why can't they redesign Java to erase generic type info after compilation?
 // - How to choose a good default capacity?
 
-import net.fcpsschools._1685666.AbstractTreeFormatter;
-
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 
 public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> extends PriorityQueue<E> {
     private static final int DFLT_CAPACITY = 1023;
-    private final Iterator iterator = new Iterator();
-    private final AbstractTreeFormatter<Integer, E> formatter = new AbstractTreeFormatter<>();
     private E items[];  // use a 1-D array instead of ArrayList
     private int numItems;  // number of elements in items
 
@@ -125,7 +121,7 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> e
     }
 
     public void display() {
-        formatter.display(iterator, 1, 0, false);
+        HeapFormatter.display(numItems, items);
     }
 
     private static class Heap<E extends Comparable<E>>
@@ -136,28 +132,6 @@ public class ZhiyuZhu_Period1_HeapPriorityQueue_shell<E extends Comparable<E>> e
 
         private Heap(int initialCapacity) {
             super(initialCapacity);
-        }
-    }
-
-    protected class Iterator implements AbstractTreeFormatter.TreeIterator<Integer, E> {
-        private Integer nullIfInvalid(int t) {
-            if (t > 0 && t <= numItems) return t;
-            return null;
-        }
-
-        @Override
-        public Integer getLeft(Integer t) {
-            return nullIfInvalid(t * 2);
-        }
-
-        @Override
-        public Integer getRight(Integer t) {
-            return nullIfInvalid(t * 2 + 1);
-        }
-
-        @Override
-        public E getValue(Integer t) {
-            return items[t];
         }
     }
 }
