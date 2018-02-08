@@ -37,7 +37,9 @@ public class ZhiyuZhu_Period1_HeapSort_shell {
     }
 
     public static void swap(double[] array, int a, int b) {
-
+        double temp = array[a];
+        array[a] = array[b];
+        array[b] = temp;
     }
 
     public static void heapDown(double[] array, int k, int size) {
