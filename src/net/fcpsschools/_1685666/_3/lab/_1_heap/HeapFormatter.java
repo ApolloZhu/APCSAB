@@ -9,8 +9,7 @@ import net.fcpsschools._1685666.AbstractTreeFormatter;
  * @author ApolloZhu, Pd. 1
  */
 public class HeapFormatter<E> extends AbstractTreeFormatter<Integer, E> {
-    @SafeVarargs
-    public static <E> void display(int numItems, E... heap) {
+    public static <E> void display(int numItems, E[] heap) {
         display(0, false, numItems, heap);
     }
 
@@ -24,8 +23,7 @@ public class HeapFormatter<E> extends AbstractTreeFormatter<Integer, E> {
         private int numItems;
         private E[] items;
 
-        @SafeVarargs
-        public Iterator(int numItems, E... items) {
+        public Iterator(int numItems, E[] items) {
             this.numItems = numItems;
             this.items = items;
         }
