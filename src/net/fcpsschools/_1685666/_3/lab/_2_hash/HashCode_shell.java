@@ -21,25 +21,21 @@ public class HashCode_shell {
         System.out.print("Enter the size of the array: ");
         int arrayLength = keyboard.nextInt(); // 20
         keyboard.nextLine();
-        System.out.println("Use Linear Probing? (Y/N): ");
+        System.out.print("Use Linear Probing? (Y/N): ");
         boolean useProbing = keyboard.nextLine().equals("Y");
         Hashtable table = Hashtable.init(arrayLength, useProbing);
-        System.out.println(table);
-
-        System.out.print("\nEnter the number of items: ");
+        System.out.print("Enter the number of items: ");
         int numItems = keyboard.nextInt(); // 15
         keyboard.nextLine();
-        System.out.println("\nThe Load Factor is " + (double) numItems / arrayLength);
+        System.out.println("The Load Factor is " + (double) numItems / arrayLength);
         for (int i = 0; i < numItems; i++) {
-            System.out.println("\nNext item: ");
+            System.out.print("Next item: ");
             table.add(keyboard.nextLine());
         }
-
-        System.out.println();
+        System.out.println(table);
         System.out.print("Search for: ");
         String key = keyboard.nextLine();
         boolean found = table.contains(key);
         System.out.println(key + (found ? " " : " NOT ") + "found");
-        System.out.println(table);
     }
 }

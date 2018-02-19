@@ -1,7 +1,5 @@
 package net.fcpsschools._1685666._3.lab._2_hash;
 
-import java.util.Objects;
-
 /*****************************************************************************
  Assignment: Notice that collisions occur. You are to implement
  three different collision schemes, namely, linear probing,
@@ -19,55 +17,44 @@ public abstract class Hashtable {
     }
 
     public static Hashtable init(int numSlots, boolean useProbing) {
-        return null;
+        if (useProbing) return new LinearHashTable(numSlots);
+        else return new LinkedHashTable(numSlots);
     }
 
     /**
      * Rehash
      */
-    protected int index(Object obj) {
-        obj = Objects.requireNonNull(obj);
+    protected int expectedIndexOf(Object obj) {
         int hash = Math.abs(obj.hashCode());
         return hash % table.length;
     }
 
     public void add(Object obj) {
         if (null == obj) return;
-        int index = index(obj);
+        int index = expectedIndexOf(obj);
         if (null == table[index]) {
             table[index] = obj;
         } else resolve(obj, index);
-        //if (useProbing) { /*Linear Probing*/
-        //    TODO: call the linearProbe method
-        //}
     }
 
-    protected abstract void resolve(Object obj, int index);
+    protected abstract void resolve(Object obj, int expectedIndex);
 
     /**
      * @return true if obj can be found in the table
-     * if (useProbing) { Linear Probing }
-     * else { Chaining }
      */
     public boolean contains(Object obj) {
         if (null == obj) return false;
-        int index = index(obj);
+        int index = expectedIndexOf(obj);
         if (null == table[index]) return false;
         return obj.equals(table[index]) ||
                 containsResolved(obj, index);
     }
 
-    // TODO: implement collision resolution methods one at a time
-    protected abstract boolean containsResolved(Object obj, int index);
-
     /**
-     * @param index
-     * @return
-     * @apiNote implement this method recursively
+     * Implement collision resolution methods,
+     * one at a time.
      */
-    private int linearProbe(int index) {
-        return 0;
-    }
+    protected abstract boolean containsResolved(Object obj, int expectedIndex);
 
     public String toString() {
         StringBuilder sb = new StringBuilder();

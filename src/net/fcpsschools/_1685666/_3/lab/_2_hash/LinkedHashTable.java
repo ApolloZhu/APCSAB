@@ -7,19 +7,19 @@ public class LinkedHashTable extends Hashtable {
     }
 
     @Override
-    protected void resolve(Object obj, int index) {
-        if (table[index] instanceof ListNode) {
-            table[index] = new ListNode(obj, (ListNode) table[index]);
+    protected void resolve(Object obj, int expectedIndex) {
+        if (table[expectedIndex] instanceof ListNode) {
+            table[expectedIndex] = new ListNode(obj, (ListNode) table[expectedIndex]);
         } else {
-            ListNode previous = new ListNode(table[index], null);
-            table[index] = new ListNode(obj, previous);
+            ListNode previous = new ListNode(table[expectedIndex], null);
+            table[expectedIndex] = new ListNode(obj, previous);
         }
     }
 
     @Override
-    public boolean containsResolved(Object obj, int index) {
-        if (table[index] instanceof ListNode) {
-            ListNode node = (ListNode) table[index];
+    public boolean containsResolved(Object obj, int expectedIndex) {
+        if (table[expectedIndex] instanceof ListNode) {
+            ListNode node = (ListNode) table[expectedIndex];
             do {
                 if (obj.equals(node.value))
                     return true;
@@ -40,9 +40,8 @@ public class LinkedHashTable extends Hashtable {
         @Override
         public String toString() {
             String rest = null == next ? ""
-                    : "-" + next.toString();
+                    : "~>" + next.toString();
             return String.valueOf(value) + rest;
         }
     }
 }
-
