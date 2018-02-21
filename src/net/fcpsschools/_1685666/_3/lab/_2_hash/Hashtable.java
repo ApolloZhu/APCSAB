@@ -1,16 +1,8 @@
 package net.fcpsschools._1685666._3.lab._2_hash;
 
-/*****************************************************************************
- Assignment: Notice that collisions occur. You are to implement
- three different collision schemes, namely, linear probing,
- rehashing, and chaining (using a LinkedList <Object>).
-
- Make sure you find a way to prove that your program works for linear probing, separate chaining. Show me enough cases to convince me that. Follow file naming convention when you are ready to send me the file.
-
- For separate chaining,if you want to use a table of LinkedList objects, it is fine with me.
- *****************************************************************************/
 public abstract class Hashtable {
     protected Object[] table;
+    protected int count;
 
     protected Hashtable(int size) {
         this.table = new Object[size];
@@ -21,21 +13,44 @@ public abstract class Hashtable {
         else return new LinkedHashTable(numSlots);
     }
 
-    /**
-     * Rehash
-     */
+    public static Hashtable init(int numSlots, CollisionResolutionMethod method) {
+        switch (method) {
+            case LINEAR_PROBING:
+                return new LinearHashTable(numSlots);
+            case QUADRATIC_PROBING:
+                return new QuadraticHashTable(numSlots);
+            case CHAINING:
+                return new LinkedHashTable(numSlots);
+        }
+        throw new EnumConstantNotPresentException(
+                CollisionResolutionMethod.class, method.name()
+        );
+    }
+
+    public int size() {
+        return table.length;
+    }
+
+    public double loadFactor() {
+        return count / size();
+    }
+
     protected int expectedIndexOf(Object obj) {
         int hash = Math.abs(obj.hashCode());
-        return hash % table.length;
+        return hash % size();
     }
 
     public void add(Object obj) {
         if (null == obj) return;
+        if (count >= size()) rehash();
         int index = expectedIndexOf(obj);
         if (null == table[index]) {
             table[index] = obj;
         } else resolve(obj, index);
+        count++;
     }
+
+    protected abstract void rehash();
 
     protected abstract void resolve(Object obj, int expectedIndex);
 
@@ -43,7 +58,7 @@ public abstract class Hashtable {
      * @return true if obj can be found in the table
      */
     public boolean contains(Object obj) {
-        if (null == obj) return false;
+        if (null == obj || 0 == count) return false;
         int index = expectedIndexOf(obj);
         if (null == table[index]) return false;
         return obj.equals(table[index]) ||
@@ -60,7 +75,7 @@ public abstract class Hashtable {
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         int i = 0;
-        while (i < table.length - 1) {
+        while (i < size() - 1) {
             sb.append(table[i++]);
             sb.append(", ");
         }

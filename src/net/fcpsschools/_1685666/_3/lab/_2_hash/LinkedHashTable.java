@@ -7,6 +7,21 @@ public class LinkedHashTable extends Hashtable {
     }
 
     @Override
+    protected void rehash() {
+        LinkedHashTable newTable = new LinkedHashTable(size() * 2);
+        for (Object obj : table) {
+            if (null == obj) continue;
+            if (obj instanceof ListNode) {
+                ListNode node = (ListNode) obj;
+                do {
+                    newTable.add(node.value);
+                } while (null != (node = node.next));
+            } else newTable.add(obj);
+        }
+        table = newTable.table;
+    }
+
+    @Override
     protected void resolve(Object obj, int expectedIndex) {
         if (table[expectedIndex] instanceof ListNode) {
             table[expectedIndex] = new ListNode(obj, (ListNode) table[expectedIndex]);

@@ -6,27 +6,31 @@ public class LinearHashTable extends Hashtable {
     }
 
     @Override
+    protected void rehash() {
+        LinearHashTable newTable = new LinearHashTable(size() * 2);
+        for (Object obj: table) newTable.add(obj);
+        table = newTable.table;
+    }
+
+    @Override
     protected void resolve(Object obj, int expectedIndex) {
-        int resolvedIndex = linearProbe(expectedIndex);
-        if (resolvedIndex < 0) return;
-        table[resolvedIndex] = obj;
+        table[linearProbe(expectedIndex)] = obj;
     }
 
     /**
-     * FIXME: Infinite recursion
-     *
      * @apiNote implement this method recursively
+     * @implNote infinite recursion prevented by super class
      */
     private int linearProbe(int index) {
-        int nextIndex = (index + 1) % table.length;
+        int nextIndex = (index + 1) % size();
         if (null == table[nextIndex]) return nextIndex;
-        return linearProbe(nextIndex) - 1;
+        return linearProbe(nextIndex);
     }
 
     @Override
     protected boolean containsResolved(Object obj, int expectedIndex) {
-        for (int i = 1; i < table.length; i++) {
-            int cur = (expectedIndex + i) % table.length;
+        for (int i = 1; i < size(); i++) {
+            int cur = (expectedIndex + i) % size();
             if (null == table[cur]) return false;
             if (table[cur].equals(obj)) return true;
         }
