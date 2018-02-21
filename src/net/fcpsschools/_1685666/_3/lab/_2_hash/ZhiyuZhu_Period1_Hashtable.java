@@ -1,26 +1,26 @@
 package net.fcpsschools._1685666._3.lab._2_hash;
 
-public abstract class Hashtable {
+public abstract class ZhiyuZhu_Period1_Hashtable {
     protected Object[] table;
     protected int count;
 
-    protected Hashtable(int size) {
+    protected ZhiyuZhu_Period1_Hashtable(int size) {
         this.table = new Object[size];
     }
 
-    public static Hashtable init(int numSlots, boolean useProbing) {
-        if (useProbing) return new LinearHashTable(numSlots);
-        else return new LinkedHashTable(numSlots);
+    public static ZhiyuZhu_Period1_Hashtable init(int numSlots, boolean useProbing) {
+        if (useProbing) return new ZhiyuZhu_Period1_LinearHashTable(numSlots);
+        else return new ZhiyuZhu_Period1_LinkedHashTable(numSlots);
     }
 
-    public static Hashtable init(int numSlots, CollisionResolutionMethod method) {
+    public static ZhiyuZhu_Period1_Hashtable init(int numSlots, CollisionResolutionMethod method) {
         switch (method) {
             case LINEAR_PROBING:
-                return new LinearHashTable(numSlots);
+                return new ZhiyuZhu_Period1_LinearHashTable(numSlots);
             case QUADRATIC_PROBING:
-                return new QuadraticHashTable(numSlots);
+                return new ZhiyuZhu_Period1_QuadraticHashTable(numSlots);
             case CHAINING:
-                return new LinkedHashTable(numSlots);
+                return new ZhiyuZhu_Period1_LinkedHashTable(numSlots);
         }
         throw new EnumConstantNotPresentException(
                 CollisionResolutionMethod.class, method.name()

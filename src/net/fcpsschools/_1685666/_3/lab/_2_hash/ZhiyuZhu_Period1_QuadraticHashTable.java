@@ -4,8 +4,8 @@ package net.fcpsschools._1685666._3.lab._2_hash;
  * Andrew Li pointed out that quadratic probing requires
  * the table size to be prime and <=50% load capacity.
  */
-public class QuadraticHashTable extends Hashtable {
-    protected QuadraticHashTable(int size) {
+public class ZhiyuZhu_Period1_QuadraticHashTable extends ZhiyuZhu_Period1_Hashtable {
+    protected ZhiyuZhu_Period1_QuadraticHashTable(int size) {
         super(nextPrime(size));
     }
 
@@ -33,7 +33,7 @@ public class QuadraticHashTable extends Hashtable {
     @Override
     protected void rehash() {
         int size = nextPrime(size() * 2);
-        QuadraticHashTable newTable = new QuadraticHashTable(size);
+        ZhiyuZhu_Period1_QuadraticHashTable newTable = new ZhiyuZhu_Period1_QuadraticHashTable(size);
         for (Object obj : table) newTable.add(obj);
         table = newTable.table;
     }

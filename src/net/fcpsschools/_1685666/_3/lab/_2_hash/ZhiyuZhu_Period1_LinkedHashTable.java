@@ -1,14 +1,14 @@
 package net.fcpsschools._1685666._3.lab._2_hash;
 
 
-public class LinkedHashTable extends Hashtable {
-    public LinkedHashTable(int size) {
+public class ZhiyuZhu_Period1_LinkedHashTable extends ZhiyuZhu_Period1_Hashtable {
+    public ZhiyuZhu_Period1_LinkedHashTable(int size) {
         super(size);
     }
 
     @Override
     protected void rehash() {
-        LinkedHashTable newTable = new LinkedHashTable(size() * 2);
+        ZhiyuZhu_Period1_LinkedHashTable newTable = new ZhiyuZhu_Period1_LinkedHashTable(size() * 2);
         for (Object obj : table) {
             if (null == obj) continue;
             if (obj instanceof ListNode) {

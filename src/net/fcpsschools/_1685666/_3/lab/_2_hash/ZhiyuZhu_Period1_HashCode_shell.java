@@ -2,14 +2,14 @@ package net.fcpsschools._1685666._3.lab._2_hash;
 
 import java.util.Scanner;
 
-import static net.fcpsschools._1685666._3.lab._2_hash.Hashtable.CollisionResolutionMethod.*;
+import static net.fcpsschools._1685666._3.lab._2_hash.ZhiyuZhu_Period1_Hashtable.CollisionResolutionMethod.*;
 
 /**
  * Name: Zhiyu Zhu
  * Date: 2018/02/20 23:59:59
  * <p>
  * What I learned:
- * - Quadratic probing has special requirements, see {@link QuadraticHashTable}.
+ * - Quadratic probing has special requirements, see {@link ZhiyuZhu_Period1_QuadraticHashTable}.
  * How I feel about this lab:
  * - Looks better to have an abstract super class.
  * - Maybe I can introduce a new abstract method called "shouldRehash".
@@ -20,8 +20,8 @@ import static net.fcpsschools._1685666._3.lab._2_hash.Hashtable.CollisionResolut
  * Credits:
  * - Andrew Li and google "quadratic probing half prime"
  */
-public class HashCode_shell {
-    private static Hashtable.CollisionResolutionMethod[] methods
+public class ZhiyuZhu_Period1_HashCode_shell {
+    private static ZhiyuZhu_Period1_Hashtable.CollisionResolutionMethod[] methods
             = {LINEAR_PROBING, QUADRATIC_PROBING, CHAINING};
 
     public static void main(String[] args) {
@@ -35,7 +35,7 @@ public class HashCode_shell {
                 "2. Chaining\n" +
                 ">_ ");
         int strategy = Integer.parseInt(keyboard.nextLine());
-        Hashtable table = Hashtable.init(arrayLength, methods[strategy]);
+        ZhiyuZhu_Period1_Hashtable table = ZhiyuZhu_Period1_Hashtable.init(arrayLength, methods[strategy]);
         System.out.print("Enter the number of items: ");
         int numItems = keyboard.nextInt(); // 15
         keyboard.nextLine();

@@ -1,13 +1,13 @@
 package net.fcpsschools._1685666._3.lab._2_hash;
 
-public class LinearHashTable extends Hashtable {
-    public LinearHashTable(int size) {
+public class ZhiyuZhu_Period1_LinearHashTable extends ZhiyuZhu_Period1_Hashtable {
+    public ZhiyuZhu_Period1_LinearHashTable(int size) {
         super(size);
     }
 
     @Override
     protected void rehash() {
-        LinearHashTable newTable = new LinearHashTable(size() * 2);
+        ZhiyuZhu_Period1_LinearHashTable newTable = new ZhiyuZhu_Period1_LinearHashTable(size() * 2);
         for (Object obj: table) newTable.add(obj);
         table = newTable.table;
     }
