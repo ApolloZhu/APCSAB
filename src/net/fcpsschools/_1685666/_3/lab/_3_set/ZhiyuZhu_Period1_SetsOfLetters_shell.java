@@ -4,7 +4,7 @@ package net.fcpsschools._1685666._3.lab._3_set;
 // What I learned:
 // - In Java, the `union` operation is called `retainAll`.
 // How I feel about this lab:
-// - Easy.
+// - OK.
 // What I wonder:
 // - I suspect this won't compile with Java 7.
 // Question:  If Java didn't implement Sets, how would you solve this programming problem?  Be creative!
@@ -35,9 +35,9 @@ public class ZhiyuZhu_Period1_SetsOfLetters_shell {
         Set<Character> lower = null, upper = null, other = null;
         // for each line read
         for (String line : Files.readAllLines(path)) {
-            // Make sure it is ordered
+            // I think this hash set will be ordered.
             Set<Character> l = new HashSet<>(26);
-            Set<Character> u = new HashSet<>(26);
+            Set<Character> u = new TreeSet<>();
             Set<Character> o = new TreeSet<>();
             // convert to a character array by using toCharArrays()
             // for each character in each line
