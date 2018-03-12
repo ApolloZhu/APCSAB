@@ -1,10 +1,16 @@
 package net.fcpsschools._1685666._3.lab._4_map;
 // Name: Zhiyu Zhu
 // Date: 2018/3/11 23:59
-// Purpose: Learn how to create a map and its inverse (its inverse may not be a 1-1 mapping; as such, the value field for the  reverse map is a collections class)
+// Purpose: Learn how to create a map and its inverse
+// (its inverse may not be a 1-1 mapping; as such,
+// the value field for the reverse map is a collections class)
 // What I learned:
+// - HashMap might also be ordered, after a few trials.
 // How I feel about this lab:
+// - Looks a lot simpler with current version of Java.
 // I am wondering:
+// - How unlikely it is for a HashMap to be ordered.
+// - Where I can find an online platform that supports Java 9.
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,12 +36,13 @@ public class ActingSchool_shell {
             System.out.println(name + " (" + grade + ")");
             // reverse the map
             if (!reversed.containsKey(grade))
+                // put an empty list there to append to
                 reversed.put(grade, new LinkedList<>());
             reversed.get(grade).add(name);
         }
         System.out.println();
         // display the reversed map, using Java 8
-        reversed.forEach((grade, nameList) ->
+        reversed.forEach(/*pair of*/(grade, nameList) ->
                 System.out.println(grade + ": " + nameList)
         );
     }
