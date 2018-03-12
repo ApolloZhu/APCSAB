@@ -15,13 +15,13 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.*;
 
-public class Dictionary_shell {
+public class ZhiyuZhu_Period1_Dictionary_shell {
     public static void main(String[] args) throws Throwable {
         // Redirect output to that file.
         System.setOut(new PrintStream(new FileOutputStream("dictionaryOutput.txt")));
         Map<String, Set<String>> eng2spn = new TreeMap<>();
         // Java 7, try-with-resources.
-        InputStream stream = Dictionary_shell.class.getResourceAsStream("spanglish.txt");
+        InputStream stream = ZhiyuZhu_Period1_Dictionary_shell.class.getResourceAsStream("spanglish.txt");
         try (Scanner infile = new Scanner(stream)) {
             while (infile.hasNext()) {
                 add(eng2spn, infile.next(), infile.next());

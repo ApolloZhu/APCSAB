@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ActingSchool_shell {
+public class ZhiyuZhu_Period1_ActingSchool_shell {
     public static void main(String[] args) {
         // Not ordered map, made with Java 9
         Map<String, String> sGrades = Map.of(
