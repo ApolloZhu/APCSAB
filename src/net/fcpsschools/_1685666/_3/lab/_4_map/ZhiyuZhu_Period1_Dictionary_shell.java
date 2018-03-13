@@ -3,11 +3,13 @@ package net.fcpsschools._1685666._3.lab._4_map;
 /**
  * Name: Zhiyu Zhu
  * Period: 1
- * Date: 3/13
+ * Date: 2018/03/13 23:59
  * What I learned:
- * - Must explain how my method works
+ * - Must explain how my method works.
  * How I feel about this lab:
+ * - Very similar to acting school one.
  * What I wonder:
+ * - Is there another way to redirect input/output in Java?
  */
 
 import java.io.FileOutputStream;
@@ -21,7 +23,9 @@ public class ZhiyuZhu_Period1_Dictionary_shell {
         System.setOut(new PrintStream(new FileOutputStream("dictionaryOutput.txt")));
         Map<String, Set<String>> eng2spn = new TreeMap<>();
         // Java 7, try-with-resources.
-        InputStream stream = ZhiyuZhu_Period1_Dictionary_shell.class.getResourceAsStream("spanglish.txt");
+        InputStream stream = ZhiyuZhu_Period1_Dictionary_shell.class
+                .getResourceAsStream("spanglish.txt");
+        // This will automatically close
         try (Scanner infile = new Scanner(stream)) {
             while (infile.hasNext()) {
                 add(eng2spn, infile.next(), infile.next());
@@ -48,6 +52,7 @@ public class ZhiyuZhu_Period1_Dictionary_shell {
      * Insert a new pair to the English to Spanish Dictionary
      */
     private static void add(Map<String, Set<String>> engToSpnDictionary, String word, String translation) {
+        // This will ensure that get will always be non-null
         if (!engToSpnDictionary.containsKey(word))
             engToSpnDictionary.put(word, new TreeSet<>());
         engToSpnDictionary.get(word).add(translation);
@@ -57,9 +62,12 @@ public class ZhiyuZhu_Period1_Dictionary_shell {
      * @return a Spanish to English dictionary
      */
     private static Map<String, Set<String>> reverse(Map<String, Set<String>> engToSpnDictionary) {
+        // Again, we want it to be ordered
         Map<String, Set<String>> reversed = new TreeMap<>();
         for (String englishTerm : engToSpnDictionary.keySet()) {
+            // We know there are more than one translations
             for (String spanishTerm : engToSpnDictionary.get(englishTerm)) {
+                // Similar to add, supply non-null set
                 if (!reversed.containsKey(spanishTerm))
                     reversed.put(spanishTerm, new TreeSet<>());
                 reversed.get(spanishTerm).add(englishTerm);

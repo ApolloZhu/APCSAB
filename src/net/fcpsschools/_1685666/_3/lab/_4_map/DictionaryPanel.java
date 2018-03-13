@@ -4,15 +4,15 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.Utilities;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.*;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
 /**
  * @author ApolloZhu, Pd. 1
+ * TODO: Joseph Xu: other reaction when input is nonsense.
  */
 public class DictionaryPanel extends JPanel {
     Preferences pref = Preferences.userNodeForPackage(this.getClass());
@@ -21,13 +21,30 @@ public class DictionaryPanel extends JPanel {
     JButton loadButton = new JButton("Load Dictionary");
     JButton switchButton = new JButton();
     JButton autoSwitchButton = new JButton();
-    JButton addWordButton = new JButton("Add Translation");
+    JButton addTranslationButton = new JButton("Add Translation");
     JButton saveButton = new JButton("Save Dictionary");
 
     JTextArea editableTextArea = new JTextArea("Type a word to translate");
-    JTextArea nonEditableTextArea = new JTextArea("Nothing to translate");
+    JTextArea nonEditableTextArea = new JTextArea();
     private boolean isActive = false;
     private boolean isAutoDetecting = false;
+    private boolean isShowingPlaceHolder = true;
+    MouseListener removePlaceholderListener = new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            removePlaceholderIfNeeded();
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            removePlaceholderIfNeeded();
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            removePlaceholderIfNeeded();
+        }
+    };
 
     public DictionaryPanel() {
         new Thread(() -> {
@@ -50,9 +67,9 @@ public class DictionaryPanel extends JPanel {
             dictionary.load(this);
         });
 
-        controls.add(addWordButton);
-        addWordButton.addActionListener(ignored -> {
-            addWord();
+        controls.add(addTranslationButton);
+        addTranslationButton.addActionListener(ignored -> {
+            addTranslationForWord();
         });
         controls.add(saveButton);
         saveButton.addActionListener(ignored -> {
@@ -80,6 +97,8 @@ public class DictionaryPanel extends JPanel {
         textFields.setLayout(new GridLayout(1, 2, 8, 8));
         textFields.add(editableTextArea);
         setup(editableTextArea);
+        editableTextArea.addMouseListener(removePlaceholderListener);
+        editableTextArea.setForeground(Color.lightGray);
         editableTextArea.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -102,12 +121,12 @@ public class DictionaryPanel extends JPanel {
         nonEditableTextArea.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-
+                if (!isActive) return;
+                addTranslationForWord();
             }
         });
-
-
         setLanguage(Dictionary.Language.ENGLISH, SetLanguageMode.RESET);
+        translateNothing();
     }
 
     public void setAutoDetecting(boolean isAutoDetecting) {
@@ -120,7 +139,18 @@ public class DictionaryPanel extends JPanel {
         translate();
     }
 
-    private void setLanguage(Dictionary.Language newLanguage, SetLanguageMode mode) {
+    private void removePlaceholderIfNeeded() {
+        if (!isShowingPlaceHolder) return;
+        editableTextArea.setText("");
+        translateNothing();
+        editableTextArea.setForeground(Color.black);
+        editableTextArea.removeMouseListener(removePlaceholderListener);
+    }
+
+    private void setLanguage(
+            Dictionary.Language newLanguage,
+            SetLanguageMode mode
+    ) {
         from = newLanguage;
         switchButton.setText(from.labelText());
         switch (mode) {
@@ -137,7 +167,7 @@ public class DictionaryPanel extends JPanel {
 
     private void translateNothing() {
         String text = getText();
-        if (null == text || text.isEmpty())
+        if (isShowingPlaceHolder || null == text || text.isEmpty())
             nonEditableTextArea.setText("Nothing to translate");
     }
 
@@ -207,6 +237,9 @@ public class DictionaryPanel extends JPanel {
             String string = words.toString();
             string = string.substring(1, string.length() - 1);
             nonEditableTextArea.setText(string);
+            StringSelection toCopy = new StringSelection(string);
+            Clipboard board = Toolkit.getDefaultToolkit().getSystemClipboard();
+            board.setContents(toCopy, toCopy);
         } catch (Throwable ignored) {
             nonEditableTextArea.setText(ignored.getLocalizedMessage());
         }
@@ -218,7 +251,7 @@ public class DictionaryPanel extends JPanel {
         textArea.setWrapStyleWord(true);
     }
 
-    private void addWord() {
+    private void addTranslationForWord() {
         // TODO: Add word
     }
 
