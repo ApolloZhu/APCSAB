@@ -72,8 +72,7 @@ public class TextAreaDemo extends JFrame
                 String completion = match.substring(pos - w);
                 // We cannot modify Document from within notification,
                 // so we submit a task that does the change later
-                SwingUtilities.invokeLater(
-                        new CompletionTask(completion, pos + 1));
+                SwingUtilities.invokeLater(new CompletionTask(completion, pos + 1));
             }
         } else {
             // Nothing found
@@ -81,7 +80,7 @@ public class TextAreaDemo extends JFrame
         }
     }
 
-    private static enum Mode {INSERT, COMPLETION}
+    private enum Mode {INSERT, COMPLETION}
 
     private class CompletionTask implements Runnable {
         String completion;

@@ -60,4 +60,8 @@ public interface Polynomial {
      * @return the derivative of this polynomial.
      */
     Polynomial getDerivative();
+
+    default Polynomial multiplying(Polynomial another) {
+        throw new UnsupportedOperationException();
+    }
 }

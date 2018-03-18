@@ -2,6 +2,8 @@ package net.fcpsschools._1685666._3.lab._4_map;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.Utilities;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -45,6 +47,7 @@ public class DictionaryPanel extends JPanel {
             removePlaceholderIfNeeded();
         }
     };
+    private boolean shouldPredict = true;
 
     public DictionaryPanel() {
         new Thread(() -> {
@@ -113,6 +116,28 @@ public class DictionaryPanel extends JPanel {
             @Override
             public void keyReleased(KeyEvent e) {
                 translate();
+            }
+        });
+        editableTextArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                shouldPredict = true;
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    editableTextArea.replaceSelection("\n");
+                });
+                shouldPredict = false;
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                SwingUtilities.invokeLater(() -> {
+                    editableTextArea.replaceSelection("\n");
+                });
+                shouldPredict = false;
             }
         });
         textFields.add(nonEditableTextArea);
@@ -223,6 +248,41 @@ public class DictionaryPanel extends JPanel {
     }
 
     private void noTranslationFound() {
+        if (shouldPredict) {
+            String prefix = getText();
+            String currentPrediction = dictionary.getWithPrefix(from, prefix);
+            if (failedToInsertPrediction(currentPrediction)) {
+                if (isAutoDetecting) {
+                    String anotherPrediction = dictionary.getWithPrefix(from.translateTo(), prefix);
+                    if (failedToInsertPrediction(anotherPrediction)) {
+                        displayNoTranslation();
+                    }
+                } else {
+                    displayNoTranslation();
+                }
+            }
+        } else {
+            displayNoTranslation();
+        }
+    }
+
+    private boolean failedToInsertPrediction(String predicted) {
+        try {
+            String prefix = getText();
+            if (!predicted.startsWith(prefix)) return false;
+            int len = prefix.length();
+            String toInsert = predicted.substring(len);
+            editableTextArea.insert(toInsert, len);
+            editableTextArea.setCaretPosition(predicted.length());
+            editableTextArea.moveCaretPosition(len);
+            return false;
+        } catch (Throwable ignored) {
+            return true;
+        }
+
+    }
+
+    private void displayNoTranslation() {
         isActive = true;
         String text = "No translation found. " +
                 "Add a translation for " + getText() + "?";

@@ -36,6 +36,17 @@ public class Dictionary {
     }
 
     public Dictionary(
+            Language keyLanguage,
+            Map<String, Set<String>> map
+    ) {
+        for (String term : map.keySet()) {
+            for (String translation : map.get(term)) {
+                add(keyLanguage, term, translation);
+            }
+        }
+    }
+
+    public Dictionary(
             Map<String, Set<String>> englishKeyed,
             Map<String, Set<String>> spanishKeyed
     ) {
@@ -186,6 +197,23 @@ public class Dictionary {
             case SPANISH:
                 return spanishKeyed.get(term);
         }
+        return null;
+    }
+
+    public String getWithPrefix(Language language, String prefix) {
+        switch (language) {
+            case ENGLISH:
+                return getWithPrefix(englishKeyed, prefix);
+            case SPANISH:
+                return getWithPrefix(spanishKeyed, prefix);
+        }
+        return null;
+    }
+
+    private String getWithPrefix(Map<String, Set<String>> map, String prefix) {
+        for (String term : map.keySet())
+            if (term.startsWith(prefix))
+                return term;
         return null;
     }
 
