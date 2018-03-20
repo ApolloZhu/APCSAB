@@ -37,7 +37,7 @@ public interface Polynomial {
 
     /**
      * Forms a new polynomial by adding this and another together.
-     * This and the other are unchanged.
+     * This and the other polynomial are unchanged.
      *
      * @param another the other polynomial to add.
      * @return resulting polynomial by adding this and the given polynomial.
@@ -46,7 +46,7 @@ public interface Polynomial {
 
     /**
      * Forms a new polynomial by subtracting another polynomial from this.
-     * This and the other are unchanged.
+     * This and the other polynomial are unchanged.
      *
      * @param another the other polynomial to subtract.
      * @return resulting polynomial by subtracting the given polynomial from this.
@@ -61,6 +61,14 @@ public interface Polynomial {
      */
     Polynomial getDerivative();
 
+    /**
+     * Forms a new polynomial by multiplying this with another polynomial.
+     * This and the other polynomial are unchanged.
+     *
+     * @param another the other polynomial to multiply with.
+     * @return resulting polynomial by multiplying this with the given polynomial.
+     * @throws UnsupportedOperationException by default.
+     */
     default Polynomial multiplying(Polynomial another) {
         throw new UnsupportedOperationException();
     }

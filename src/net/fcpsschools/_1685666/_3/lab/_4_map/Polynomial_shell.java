@@ -10,21 +10,25 @@ import java.util.TreeMap;
 import java.util.function.DoubleBinaryOperator;
 
 /**
- * Name:
- * Period:
- * Name of the Lab:
- * Purpose of the Program:
- * Due Date:
- * Date Submitted:
+ * Name: Zhiyu Zhu
+ * Period: 1
+ * Name of the Lab: Polynomial
+ * Purpose of the Program: Implement with Map
+ * Due Date: 2018/03/19 23:59
+ * Date Submitted: 2018/03/19
  * What I learned:
- * <p>
+ * - I can use a different comparator to reorder TreeMap.
  * How I feel about this lab
- * <p>
+ * - I know you have installed Java 8,
+ * so I'm using some lambda expressions,
+ * and they look pretty nice.
  * What I wonder:
- * <p>
+ * - Why aren't we using the Polynomial
+ * interface from 1st quarter?
  * Most Difficult Method:
- * <p>
+ * - putTerm. Forgot about 0 coefficient twice.
  * Credits:
+ * - Me in first quarter for toString method.
  */
 public class Polynomial_shell {
     public static void main(String[] args) {
@@ -33,17 +37,23 @@ public class Polynomial_shell {
                 .addingTerm(3, 2)
                 .addingTerm(0, 2);
         System.out.println(poly);
-        double evaluateAt = 2.0;
-        System.out.println("Evaluated at " + evaluateAt + ": " + poly.evaluatedAt(evaluateAt));
+        final double evaluateAt = 2.0;
+        System.out.println("f(" + evaluateAt + ") = "
+                + poly.evaluatedAt(evaluateAt));
 
-        // Polynomial poly2 = new MapBasedPolynomial(2, 0, 1, -5, -3);
-        Polynomial poly2 = new MapBasedPolynomial(-3, -5, 1, 0, 2);
-        System.out.println(poly2);
+        Polynomial poly2 = new MapBasedPolynomial(2, 0, 1, -5, -3);
+        printAs("g(x)", poly2);
 
-        System.out.println(poly.adding(poly2));
-        System.out.println(poly.multiplying(poly2));
-        System.out.println(poly.subtracting(poly2));
-        System.out.println(poly.getDerivative());
+        printAs("f + g", poly.adding(poly2));
+        printAs("f * g", poly.multiplying(poly2));
+        printAs("f - g", poly.subtracting(poly2));
+        printAs("f'(x)", poly.getDerivative());
+    }
+
+    private static void printAs(String name, Polynomial polynomial) {
+        if (polynomial instanceof AbstractPolynomial)
+            ((AbstractPolynomial) polynomial).setName(name);
+        System.out.println(polynomial);
     }
 }
 
@@ -57,7 +67,7 @@ class MapBasedPolynomial extends AbstractPolynomial {
     });
 
     public MapBasedPolynomial() {
-
+        // Do Nothing
     }
 
     public MapBasedPolynomial(double... coefficients) {
@@ -92,7 +102,6 @@ class MapBasedPolynomial extends AbstractPolynomial {
         } catch (NoSuchElementException ignored) {
             return 0;
         }
-
     }
 
     @Override
@@ -178,15 +187,17 @@ class MapBasedPolynomial extends AbstractPolynomial {
 
     private void putTerm(int exponent, double coefficient) {
         if (exponent < 0) return;
-        if (0 == coefficient) terms.remove(exponent);
         if (isValid(coefficient)) {
             terms.put(exponent, coefficient);
+        } else if (0 == coefficient) {
+            terms.remove(exponent);
         } else {
             terms.clear();
             terms.put(0, coefficient);
         }
     }
 }
+
 /*
 expected output
    2x^3 + -4x + 2
@@ -194,4 +205,12 @@ expected output
    2x^4 + x^2 + -5x + -3
    2x^4 + 2x^3 + x^2 + -9x + -1
    4x^7 + -6x^5 + -6x^4 + -10x^3 + 22x^2 + 2x + -6
+actual output
+    f(x) = 2x³ - 4x + 2
+    f(2.0) = 10.0
+    g(x) = 2x⁴ + x² - 5x - 3
+    f + g = 2x⁴ + 2x³ + x² - 9x - 1
+    f * g = 4x⁷ - 6x⁵ - 6x⁴ - 10x³ + 22x² + 2x - 6
+    f - g = -2x⁴ + 2x³ - x² + x + 5
+    f'(x) = 6x² - 4
  */
