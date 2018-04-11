@@ -2,12 +2,13 @@ package net.fcpsschools._1685666._3.lab._5_graph;
 
 import java.util.Scanner;
 
-public class Graph0Driver {
+public class ZhiyuZhu_Period1_Graph0Driver {
     public static void main(String[] args) {
         Scanner kb = new Scanner(System.in);
         System.out.print("Enter size of adjacency matrix: ");
         int size = kb.nextInt();
-        GraphAdjMat_shell g = new GraphAdjMat_shell(size);
+        ZhiyuZhu_Period1_GraphAdjMat_shell g =
+                new ZhiyuZhu_Period1_GraphAdjMat_shell(size);
         System.out.println("Adjacency Matrix");
         g.displayGrid();
         System.out.println("Add edges, source<space>target<enter>."
