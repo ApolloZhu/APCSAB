@@ -1,5 +1,8 @@
 package net.fcpsschools._1685666._3.lab._5_graph;
 
+import java.io.File;
+import java.util.Scanner;
+
 /**
  * NAME: Zhiyu Zhu
  * PERIOD: 1
@@ -41,7 +44,7 @@ Graph 4: Breadth First Search
 */
 
 public class EdgeList_Driver {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Throwable {
         //////////////    for GRAPH 3 ///////////////////
         System.out.println("Graph 3:  Edge List Representation (UNWEIGHTED)! ");
         GraphAdjList_shell g = new GraphAdjList_shell();
@@ -67,7 +70,7 @@ public class EdgeList_Driver {
 
 
         //////////////    for GRAPH 5 ///////////////////
-        /*
+
         System.out.println("\nGraph 5:  Edge List with Cities! ");
         Scanner kb = new Scanner(System.in);
         System.out.print("Enter file of cities and edges: ");
@@ -76,9 +79,11 @@ public class EdgeList_Driver {
         Scanner sc = new Scanner(new File(fileOfCities));
         GraphAdjList_shell gVertexIsCityName = new GraphAdjList_shell();
         gVertexIsCityName.graphFromEdgeListData(fileOfCities);
+        AZGraphVisualizer.display(gVertexIsCityName);
+
 
         System.out.println("\nAdjacency List");
-        System.out.println(gVertexIsCityName.toString());
+        System.out.println(gVertexIsCityName);
 
         System.out.println("Number of edges: " + gVertexIsCityName.edgeCount());
 
@@ -97,7 +102,6 @@ public class EdgeList_Driver {
             String to = kb.next();
             System.out.println(gVertexIsCityName.isReachable(from, to));
         }
-        */
     }
 
     /*  // Why is this even here?

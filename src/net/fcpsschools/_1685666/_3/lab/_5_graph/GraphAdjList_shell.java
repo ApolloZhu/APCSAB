@@ -233,24 +233,29 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
     public void graphFromEdgeListData(String fileName) throws FileNotFoundException {
         try (Scanner file = new Scanner(new File(fileName))) {
             while (file.hasNextLine()) {
-                // TODO: your code goes here
+                String[] line = file.nextLine().trim().split("\\s+");
+                addEdge(line[0], line[1]);
             }
         }
     }
 
     // count how many edges are in the graph.
-    // What is the big-O?   ___________________
+    // What is the big-O?   ______O(|V|)_______
     public int edgeCount() {
-        return 0;
+        int count = 0;
+        for (Vertex vertex : vertices)
+            count += vertex.getAdjacencies().size();
+        return count;
     }
 
-    // What is the big-O?   ___________________
-    // What algorithm should we use to answer this question?
-    // Logic:  S1: get the path (a sequence of vertices) resulted from DFS (source is the start vertex)
-    //         S2: if the target vertex is in that path ==> true
-    //             else                                 ==> false
+    // What is the big-O?   _____O(|V|+|E|)____
+    // What algorithm should we use to answer this question? DFS
     public boolean isReachable(String source, String target) {
-        return false;
+        // get the path (a sequence of vertices) resulted from DFS (source is the start vertex)
+        return depthFirstSearch(source)
+                // if the target vertex is in that path ==> true
+                // else                                 ==> false
+                .contains(getVertex(target));
     }
 
     // Check if the graph is a connected graph or not.
@@ -261,6 +266,28 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
     // Approach: for each pair of vertices (u, v) in the graph (should we use nested loops?),
     // see if v is reachable from u to v or not.
     public boolean isConnected() {
+        int size = vertices.size();
+        for (Vertex vertex : vertices)
+            if (size > depthFirstSearch(vertex).size())
+                return false;
+        return true;
+    }
+
+    public boolean hasCycle() {
+        Stack<Vertex> toVisit = new Stack<>();
+        List<Vertex> visited = new LinkedList<>();
+        Vertex current;
+        for (Vertex vertex : vertices) {
+            toVisit.clear();
+            visited.clear();
+            toVisit.push(vertex);
+            while (!toVisit.isEmpty()) {
+                current = toVisit.pop();
+                if (visited.contains(current)) return true;
+                visited.add(current);
+                toVisit.addAll(current.getAdjacencies());
+            }
+        }
         return false;
     }
 }
