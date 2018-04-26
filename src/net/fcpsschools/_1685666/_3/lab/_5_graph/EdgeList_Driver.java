@@ -77,7 +77,7 @@ public class EdgeList_Driver {
         while (true) {
             System.out.print("\nIs it reachable?  Enter start city (-1 to exit): ");
             String from = kb.next();
-            if (from.equals("-1")) break;
+            if (from.equals("-1")) System.exit(0);
             System.out.print("                    Enter end city: ");
             String to = kb.next();
             System.out.println(gVertexIsCityName.isReachable(from, to));
