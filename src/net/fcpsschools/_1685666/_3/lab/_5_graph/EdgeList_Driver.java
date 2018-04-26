@@ -10,17 +10,13 @@ import java.util.Scanner;
  * DESCRIPTION: Driver class for Graph lab 3~4
  * DUE DATE: 2018/04/19 23:59:59
  * WHAT I LEARNED:
- * - The order of vertices derived by different
- * implementation of DFS might be different.
+ * - It's called strongly connected for directed graph
  * HOW I FELT:
- * - I'm very nervous when everyone else is saying
- * they get the same output for DFS and BFS,
- * but for my BFS on D, I got [D, A, C, B]...
- * Probably because I used a TreeSet instead of LinkedList
+ *
  * WHAT I WONDER:
- * - What I/other students did wrong...
+ *
  * CREDITS:
- * - Other CS students for their outputs
+ * - Sirena Yu: Definition of Connected Components in Directed Graph
  */
 
 /*
@@ -50,11 +46,17 @@ public class EdgeList_Driver {
         GraphAdjList_shell g = new GraphAdjList_shell();
         for (char name = 'A'; name <= 'D'; name++)
             g.addVertex("" + name);
+        System.out.println(g.connectedComponentsCount());
         g.addEdge("A", "B");
+        System.out.println(g.connectedComponentsCount());
         g.addEdge("B", "C");
+        System.out.println(g.connectedComponentsCount());
         g.addEdge("C", "C");
+        System.out.println(g.connectedComponentsCount());
         g.addEdge("C", "D");
+        System.out.println(g.connectedComponentsCount());
         g.addEdge("D", "C");
+        System.out.println(g.connectedComponentsCount());
         g.addEdge("D", "A");
         AZGraphVisualizer.display(g);
         System.out.println(g);
@@ -88,6 +90,9 @@ public class EdgeList_Driver {
         System.out.println("Number of edges: " + gVertexIsCityName.edgeCount());
 
         System.out.print("\nIs this graph connected? " + gVertexIsCityName.isConnected());
+        System.out.print("\nDoes this graph have cycles? " + gVertexIsCityName.hasCycle());
+        System.out.print("\nNumber of connected components? " +
+                gVertexIsCityName.connectedComponentsCount());
 
         System.out.println("\nDepth First Search");
         for (String name : gVertexIsCityName.getVertexMap().keySet())

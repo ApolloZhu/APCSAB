@@ -3,12 +3,11 @@ package net.fcpsschools._1685666._3.lab._5_graph;
  * Name: Zhiyu Zhu
  * Period: Period 1
  * Name of the Lab:
- * - Graph 3: Edge List Representation of Graph
- * - Graph 4: DFS and BFS
+ * - Graph 5: EdgeList with Cities
  * Purpose of the Program:
- * -[x] EdgeList
- * -[x] DFS-BFS
- * -[ ] EdgeListCities
+ * -[ ] EdgeList
+ * -[ ] DFS-BFS
+ * -[x] EdgeListCities
  * Due Date: 2018/04/19 23:59:59
  * Date Submitted: 2018/04/19
  * What I learned:
@@ -32,11 +31,14 @@ package net.fcpsschools._1685666._3.lab._5_graph;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
+
+// MARK: - Lab 3: Edge List Representation of Graph
 
 // Each vertex name links to its neighbors
 class Vertex implements AZGraphVisualizer.AZVertex<Vertex> {
     // Since Vertex is not Comparable, we'll pass in
-    private static Comparator<Vertex> comparator =
+    public static final Comparator<Vertex> comparator =
             // a comparator for tree set to sort the set.
             Comparator.comparing(Vertex::getName);
 
@@ -160,7 +162,7 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
         return sb.toString().trim();
     }
 
-    // MARK: - Lab 4
+    // MARK: - Lab 4: DFS and BFS
 
     // Non-recursive version of DFS
     // This method calls depthFirstSearch (Vertex v)
@@ -227,9 +229,8 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
         return allReachable;
     }
 
-    /********************************************************/
-    /****************Graphs 5:  EdgeList with Cities  *********/
-    /********************************************************/
+    // MARK: - Lab 5
+
     public void graphFromEdgeListData(String fileName) throws FileNotFoundException {
         try (Scanner file = new Scanner(new File(fileName))) {
             while (file.hasNextLine()) {
@@ -251,7 +252,10 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
     // What is the big-O?   _____O(|V|+|E|)____
     // What algorithm should we use to answer this question? DFS
     public boolean isReachable(String source, String target) {
-        // get the path (a sequence of vertices) resulted from DFS (source is the start vertex)
+        if (null == source || null == target) return false;
+        if (source.equals(target)) return true;
+        // get the path (a sequence of vertices)
+        // resulted from DFS (source is the start vertex)
         return depthFirstSearch(source)
                 // if the target vertex is in that path ==> true
                 // else                                 ==> false
@@ -259,20 +263,19 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
     }
 
     // Check if the graph is a connected graph or not.
-    // Definition of a connected directed   graph  _________________________
-    // Definition of a connected undirected graph   _________________________
-    // For an undirected/digraph graph, a graph is connected
+    // Definition of a connected (un)directed graph:
     // if FOR ALL PAIRS OF VERTICES u, v, there exists a path from u to v
-    // Approach: for each pair of vertices (u, v) in the graph (should we use nested loops?),
-    // see if v is reachable from u to v or not.
     public boolean isConnected() {
         int size = vertices.size();
+        // for each pair of vertices (u, v) in the graph
         for (Vertex vertex : vertices)
+            // see if v is reachable from u to v or not.
             if (size > depthFirstSearch(vertex).size())
                 return false;
         return true;
     }
 
+    // Just DFS, but when visited, it means there's a cycle
     public boolean hasCycle() {
         Stack<Vertex> toVisit = new Stack<>();
         List<Vertex> visited = new LinkedList<>();
@@ -289,5 +292,21 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
             }
         }
         return false;
+    }
+
+    // For directed graph, this counts the strongly connected components,
+    // that is, each vertex is reachable from another.
+    public int connectedComponentsCount() {
+        int count = 0;
+        List<Vertex> toVist = new LinkedList<>(vertices);
+        Vertex current;
+        while (!toVist.isEmpty()) {
+            current = toVist.remove(0);
+            for (Vertex weaklyConnected : depthFirstSearch(current))
+                if (isReachable(current.getName(), weaklyConnected.getName()))
+                    toVist.remove(weaklyConnected);
+            count++;
+        }
+        return count;
     }
 }

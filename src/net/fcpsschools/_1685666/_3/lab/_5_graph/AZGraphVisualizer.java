@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,7 +92,6 @@ public enum AZGraphVisualizer {
         // [ cos(theta) -sin(theta) ]
         // [ sin(theta)  cos(theta) ]
         private static Point rotatedBy(double radians, Point p) {
-            // FIXME: Negate now to simulate expected ccw
             double cos = Math.cos(-radians);
             double sin = Math.sin(-radians);
             return makePoint(
@@ -197,7 +197,13 @@ public enum AZGraphVisualizer {
                 } else g.setColor(Color.black);
                 Rectangle bounds = getBoundingBoxForVertex(vertex);
                 g.drawOval(bounds.x, bounds.y, bounds.width, bounds.height);
-                g.drawString(vertex.getName(), position.x, position.y);
+                FontMetrics metrics = g.getFontMetrics();
+                String name = vertex.getName();
+                Rectangle2D rect = metrics.getStringBounds(name, g);
+                g.drawString(name,
+                        position.x - (int) rect.getWidth() / 2,
+                        position.y + (int) rect.getHeight() / 2
+                );
             });
         }
 
@@ -207,11 +213,11 @@ public enum AZGraphVisualizer {
             calculatePositions();
             if (g instanceof Graphics2D)
                 ((Graphics2D) g).setStroke(new BasicStroke(
-                        vertexRadius / 10,
+                        vertexRadius / 12,
                         BasicStroke.CAP_ROUND,
                         BasicStroke.JOIN_ROUND
                 ));
-            g.setFont(g.getFont().deriveFont(vertexRadius / 2f));
+            g.setFont(g.getFont().deriveFont(vertexRadius / 3f));
             drawEdges(g);
             drawVertices(g);
         }
