@@ -8,30 +8,26 @@ package net.fcpsschools._1685666._3.lab._5_graph;
  * -[ ] EdgeList
  * -[ ] DFS-BFS
  * -[x] EdgeListCities
- * Due Date: 2018/04/19 23:59:59
- * Date Submitted: 2018/04/19
+ * Due Date: 2018/04/25 23:59:59
+ * Date Submitted: 2018/04/25
  * What I learned:
- * - How to write DFS/BFS on graphs.
+ * - How to use DFS to do other stuff with graphs.
  * How I feel about this lab:
- * - It's OK.
+ * - Doable. But Big-O is horrible.
  * What I wonder:
- * - How to do lab 5.
+ * - What's the best way to count connected components.
  * Most Difficult Method:
- * - The toString in Vertex class told me to print the
- * adjacency list, and I got stack overflow. Then I fixed it,
- * but I realized the output is of different format...
- * So finally I changed it back to just print the name of Vertex.
+ * - The connected components is harder to count with directed graph.
+ * I almost started to think about combining topological sort with DFS,
+ * until Sirena suggested to only consider connected as both directions.
  * Credits:
  * - Retrieved and adapted from:
  * - http://en.literateprograms.org/Dijkstra's_algorithm_(Java)
- * Students whom I helped (to what extent):
- * - Bayan: explained why we might want to update map when adding an edge.
  */
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 // MARK: - Lab 3: Edge List Representation of Graph
 
@@ -294,16 +290,21 @@ public class GraphAdjList_shell implements AZGraphVisualizer.AZGraph<Vertex> {
         return false;
     }
 
-    // For directed graph, this counts the strongly connected components,
-    // that is, each vertex is reachable from another.
+    // For directed graph, counts the strongly connected components.
+    // That is, each vertex within is reachable from another.
+    // This approach won't affect undirected graph.
     public int connectedComponentsCount() {
         int count = 0;
         List<Vertex> toVist = new LinkedList<>(vertices);
         Vertex current;
         while (!toVist.isEmpty()) {
             current = toVist.remove(0);
+            // O(V) of O(V+E) for DFS on each Vertex
+            // For each neighbor, run between O(V) and O(E) times in total,
             for (Vertex weaklyConnected : depthFirstSearch(current))
-                if (isReachable(current.getName(), weaklyConnected.getName()))
+                // O(V + E) for DFS each time to determine reachability.
+                // Can be improved to O(1) by using matrix instead.
+                if (isReachable(weaklyConnected.getName(), current.getName()))
                     toVist.remove(weaklyConnected);
             count++;
         }
