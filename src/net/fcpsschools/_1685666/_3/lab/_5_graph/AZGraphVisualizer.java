@@ -27,17 +27,16 @@ import java.util.Map;
 public enum AZGraphVisualizer {
     ;
 
+    private static JFrame frame;
+
     public static <VertexType extends AZGraphVisualizer.AZVertex<VertexType>>
     void display(AZGraph<VertexType> graph) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JFrame frame = new JFrame("Graph");
-                frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-                frame.setContentPane(new GraphPanel<>(graph));
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            if (null == frame) frame = new JFrame("Graph");
+            frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+            frame.setContentPane(new GraphPanel<>(graph));
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setVisible(true);
         });
     }
 
