@@ -8,9 +8,16 @@ import java.util.Queue;
  * using an array and a queue.
  */
 public class TopologicalSort {
-    public static final String INVALID = "Has cycle";
+    // Identify the maximum in-degree of a used vertex.
     private static final int USED = -1;
 
+    /**
+     * Gets and returns the index of a vertex in a graph.
+     *
+     * @param v vertex.
+     * @param g graph containing the vertex `v`.
+     * @return index of vertex `v` in graph `g`.
+     */
     private static int indexOf(Vertex v, GraphAdjList_shell g) {
         return g.getVertexMap().get(v.getName());
     }
@@ -18,6 +25,7 @@ public class TopologicalSort {
     public static String topoSortArray(GraphAdjList_shell graph) {
         StringBuilder result = new StringBuilder();
         int count = graph.getVertices().size();
+        // O(V + E) to initialize in-degree array
         int[] in = new int[count];
         for (int i = 0; i < count; i++) {
             Vertex current = graph.getVertex(i);
@@ -25,40 +33,52 @@ public class TopologicalSort {
                 in[indexOf(neighbor, graph)]++;
             }
         }
+        // O(V) to add all vertices to sorted result
+        MAINLOOP:
         for (int i = 0; i < count; i++) {
-            int toUse;
-            for (toUse = 0; toUse < count; toUse++) {
-                if (0 == in[toUse]) break;
+            // O(V) for each iteration to
+            for (int toUse = 0; toUse < count; toUse++) {
+                if (0 == in[toUse]) { // find 0 in-degree vertex
+                    Vertex current = graph.getVertex(toUse);
+                    // Mark as used and add to output
+                    in[toUse] = USED;
+                    result.append(current).append(' ');
+                    // Total of O(E) to reduce neighbor' in-degree
+                    for (Vertex neighbor : current.getAdjacencies())
+                        in[indexOf(neighbor, graph)]--;
+                    continue MAINLOOP;
+                }
             }
-            in[toUse] = USED;
-            Vertex current = graph.getVertex(toUse);
-            for (Vertex neighbor : current.getAdjacencies()) {
-                in[indexOf(neighbor, graph)]--;
-            }
-            result.append(current).append(' ');
         }
         return result.toString();
     }
 
     public static String topoSortQueue(GraphAdjList_shell graph) {
+        // We enqueue all vertices, assuming them having 0 in-degree
         Queue<Vertex> eligible = new LinkedList<>(graph.getVertices());
-        StringBuilder result = new StringBuilder();
         int count = graph.getVertices().size();
+        // O(V + E) to initialize in-degree array
         int[] in = new int[count];
         for (Vertex vertex : graph.getVertices()) {
             for (Vertex neighbor : vertex.getAdjacencies()) {
+                // When we increase the in-degree of a vertex
                 in[indexOf(neighbor, graph)]++;
                 // It no longer has an in degree of 0
                 eligible.remove(neighbor);
+                // And it's ok to remove more than once
             }
         }
+        StringBuilder result = new StringBuilder();
         Vertex current;
+        // O(V + E) to sort. For next vertex of 0 in-degree
         while (null != (current = eligible.poll())) {
+            // Mark it as visited/USED
             in[indexOf(current, graph)] = USED;
+            result.append(current).append(' ');
             for (Vertex neighbor : current.getAdjacencies())
+                // Enqueue neighbor of 0 in-degree after update
                 if (0 == --in[indexOf(neighbor, graph)])
                     eligible.add(neighbor);
-            result.append(current).append(' ');
         }
         return result.toString();
     }
@@ -79,9 +99,9 @@ public class TopologicalSort {
         graph.addEdge(v[5], v[4]);
         graph.addEdge(v[5], v[7]);
         graph.addEdge(v[7], v[6]);
-        // Put comments
-        // Make outputs easy to follow
-        System.out.println(topoSortArray(graph));
-        System.out.println(topoSortQueue(graph));
+        System.out.printf("Graph: \n%s\n\n", graph);
+        System.out.println("After topological sort: ");
+        System.out.println("Array based: " + topoSortArray(graph));
+        System.out.println("Queue based: " + topoSortQueue(graph));
     }
 }
