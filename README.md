@@ -6,8 +6,8 @@ For Oakton High School students, you are required to follow
 [Oakton's Honor Code](https://oaktonhs.fcps.edu/academics/honor-code) 
 in addition to the terms and conditions specified in the [LICENSE](./LICENSE). 
 These code were made public only to be shared with the instructor by the original author.
-Therefore I **did NOT, am NOT, and will NOT** inted to allow **ANY OTHER**
-student(s) to copy my work.
+Therefore, I **did NOT, am NOT, and will NOT** intend to allow **ANY OTHER** student(s) 
+to copy my work.
 
 Should you need to cite this as source used, you must do so
 adhering to the terms and conditions specified in the [LICENSE](./LICENSE)
